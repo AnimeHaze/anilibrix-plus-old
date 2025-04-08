@@ -24,7 +24,7 @@
 
         <v-card-text class="pt-2">
           <div class="caption">
-            Перемещает кнопки упралвления окном (свернуть, закрыть и развернуть) вправо
+            Перемещает кнопки управления окном (свернуть, закрыть и развернуть) вправо
           </div>
         </v-card-text>
       </v-card>
@@ -101,7 +101,7 @@
           :value="_api_endpoint"
           @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
           :items="['https://anilibria.tv/', 'https://wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Точка подключения к API"
+          label="Адрес сервера API"
           persistent-hint
         />
 
@@ -111,7 +111,7 @@
           :value="_static_endpoint"
           @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
           :items="['https://static-libria.weekstorm.one/', 'https://static.anilibria.tv/', 'https://static.wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Точка подключения к серверу статики"
+          label="Адрес сервера статики"
           persistent-hint
         />
 
@@ -119,7 +119,7 @@
           Вы можете использовать основной домен, если он не заблокирован вашим провайдером, или использовать
           дополнительные домены
 
-          Вы можете ввесли свю точку подключения к API и серверу статики в поле "Точка подключения к API" и "Точка подключения к серверу статики"
+          Вы можете ввести свою точку подключения к серверам API и статики в поле "Адрес сервера API" и "Адрес сервера статики"
 
           <b>После изменения точки доступа рекомендуется перезагрузить приложение</b>
         </div>
@@ -134,7 +134,7 @@
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Приложение будет выводть информацию о просматриваемом релизе в Discord Rich Presence
+        Приложение будет выводить информацию о просматриваемом релизе в Discord Rich Presence
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -226,7 +226,7 @@
 
     <div v-show="_isAuthorized" class="pa-4 caption grey--text">
       <div class="body-1">Снапшоты</div>
-      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту анилибрии</div>
+      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту</div>
     </div>
 
     <v-card v-show="_isAuthorized">
