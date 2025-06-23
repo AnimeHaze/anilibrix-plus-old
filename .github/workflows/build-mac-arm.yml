@@ -1,0 +1,91 @@
+name: Build macOS (ARM)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions: write-all
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-14]  # Updated to macOS 14 (Sonoma) which has better ARM support
+        node-version: [14.x]
+        architecture: [arm64]  # Specify ARM architecture
+
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      ADS_URLS: ${{ secrets.ADS_URLS }}
+      VK_APP_ID: ${{ secrets.VK_APP_ID }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
+      YANDEX_TRACKING_ID: ${{ secrets.YANDEX_TRACKING_ID }}
+      STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
+      DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
+      PYTHON: python3.10
+      NODE_GYP_FORCE_PYTHON: python3.10
+      OPERA_PROXY_RELEASE_URL: https://github.com/Snawoot/opera-proxy/releases/download/v1.3.1
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4  # Updated to latest checkout version
+
+      - name: Setup Node.js ${{ matrix.node-version }} (ARM)
+        uses: actions/setup-node@v3  # Updated to latest setup-node version
+        with:
+          node-version: ${{ matrix.node-version }}
+          architecture: ${{ matrix.architecture }}
+
+      - name: Get yarn cache
+        id: yarn-cache
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3  # Updated to latest cache version
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-arm64-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-arm64-yarn-
+
+      - name: Cache Electron
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.cache/electron
+          key: ${{ runner.os }}-arm64-electron-cache-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-arm64-electron-cache-
+
+      - name: Cache Electron-Builder
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.cache/electron-builder
+          key: ${{ runner.os }}-arm64-electron-builder-cache-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-arm64-electron-builder-cache-
+
+      - name: Remove other python
+        run: sudo rm -rf /System/Library/Frameworks/Python.framework/
+
+      - name: Install python@3.10 (ARM)
+        run: |
+          brew install python@3.10
+          echo "$(brew --prefix python@3.10)/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies (ARM)
+        run: yarn --ignore-platform
+
+      - name: Download opera proxy (ARM)
+        run: yarn run operaproxy-download
+
+      - name: Run build (ARM)
+        run: npm run release:mac
+
+      - name: Archive results
+        uses: actions/upload-artifact@v3
+        with:
+          name: macOS-ARM-Artifacts
+          path: release/*.dmg
