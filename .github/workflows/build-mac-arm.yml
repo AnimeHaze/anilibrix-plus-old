@@ -10,9 +10,9 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14]  # Updated to macOS 14 (Sonoma) which has better ARM support
+        os: [macos-14]
         node-version: [14.x]
-        architecture: [arm64]  # Specify ARM architecture
+        architecture: [arm64]
 
     env:
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
@@ -31,10 +31,10 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4  # Updated to latest checkout version
+        uses: actions/checkout@v4
 
       - name: Setup Node.js ${{ matrix.node-version }} (ARM)
-        uses: actions/setup-node@v3  # Updated to latest setup-node version
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           architecture: ${{ matrix.architecture }}
@@ -44,7 +44,7 @@ jobs:
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node.js modules
-        uses: actions/cache@v3  # Updated to latest cache version
+        uses: actions/cache@v3
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: ${{ runner.os }}-arm64-yarn-${{ hashFiles('yarn.lock') }}
@@ -85,7 +85,9 @@ jobs:
         run: npm run release:mac
 
       - name: Archive results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macOS-ARM-Artifacts
           path: release/*.dmg
+          if-no-files-found: error
+          retention-days: 5
