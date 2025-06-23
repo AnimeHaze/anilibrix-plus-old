@@ -6,13 +6,7 @@ on:
 jobs:
   release:
     permissions: write-all
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-14]
-        node-version: [14.x]
-        architecture: [arm64]
+    runs-on: macos-14
 
     env:
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
@@ -33,11 +27,23 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }} (ARM)
+      - name: Enable Rosetta 2 emulation
+        run: |
+          softwareupdate --install-rosetta --agree-to-license
+          echo "RUNNER_ARCH=$(uname -m)" >> $GITHUB_ENV
+
+      - name: Setup Node.js 14.x (x64 via Rosetta)
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          architecture: ${{ matrix.architecture }}
+          node-version: '14.x'
+          architecture: x64
+          check-latest: true
+
+      - name: Verify Node.js architecture
+        run: |
+          echo "Node.js version: $(node -v)"
+          echo "Node.js architecture: $(node -p "process.arch")"
+          echo "System architecture: $(uname -m)"
 
       - name: Get yarn cache
         id: yarn-cache
@@ -47,41 +53,38 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-arm64-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node14-x64-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-arm64-yarn-
+            ${{ runner.os }}-node14-x64-yarn-
 
       - name: Cache Electron
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.cache/electron
-          key: ${{ runner.os }}-arm64-electron-cache-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node14-x64-electron-cache-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-arm64-electron-cache-
+            ${{ runner.os }}-node14-x64-electron-cache-
 
       - name: Cache Electron-Builder
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.cache/electron-builder
-          key: ${{ runner.os }}-arm64-electron-builder-cache-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node14-x64-electron-builder-cache-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-arm64-electron-builder-cache-
+            ${{ runner.os }}-node14-x64-electron-builder-cache-
 
-      - name: Remove other python
-        run: sudo rm -rf /System/Library/Frameworks/Python.framework/
-
-      - name: Install python@3.10 (ARM)
+      - name: Install Python 3.10
         run: |
           brew install python@3.10
           echo "$(brew --prefix python@3.10)/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies (ARM)
+      - name: Install dependencies
         run: yarn --ignore-platform
 
-      - name: Download opera proxy (ARM)
+      - name: Download opera proxy
         run: yarn run operaproxy-download
 
-      - name: Run build (ARM)
+      - name: Run build
         run: npm run release:mac
 
       - name: Archive results
