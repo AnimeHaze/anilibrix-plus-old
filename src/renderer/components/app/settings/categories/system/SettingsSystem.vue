@@ -24,7 +24,7 @@
 
         <v-card-text class="pt-2">
           <div class="caption">
-            Перемещает кнопки упралвления окном (свернуть, закрыть и развернуть) вправо
+            Перемещает кнопки управления окном (свернуть, закрыть и развернуть) вправо
           </div>
         </v-card-text>
       </v-card>
@@ -44,7 +44,7 @@
 
       <v-card-text class="pt-2">
         <div class="caption">
-          Включает показ уведомлений только для релизов из избранного
+          Включает показ уведомлений только для избранных релизов
         </div>
       </v-card-text>
     </v-card>
@@ -84,10 +84,10 @@
 
         <div class="caption">
           <div>
-            Прокси для подключения к серверу статики и API. Поддерживается HTTP и HTTPS
+            Прокси для подключения к серверам статики и API. Поддерживаются HTTP и HTTPS
           </div>
           <div>
-            <b>После изменения точки доступа рекомендуется перезагрузить приложение</b>
+            <b>После изменения серверов рекомендуется перезагрузить приложение</b>
           </div>
         </div>
       </v-card-text>
@@ -101,7 +101,7 @@
           :value="_api_endpoint"
           @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
           :items="['https://anilibria.tv/', 'https://wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Точка подключения к API"
+          label="Адрес сервера API"
           persistent-hint
         />
 
@@ -111,17 +111,17 @@
           :value="_static_endpoint"
           @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
           :items="['https://static-libria.weekstorm.one/', 'https://static.anilibria.tv/', 'https://static.wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Точка подключения к серверу статики"
+          label="Адрес сервера статики"
           persistent-hint
         />
 
         <div class="caption">
-          Вы можете использовать основной домен, если он не заблокирован вашим провайдером, или использовать
-          дополнительные домены
+          Вы можете использовать основной сервер, если он не заблокирован вашим провайдером, или использовать
+          дополнительные сервера.
 
-          Вы можете ввесли свю точку подключения к API и серверу статики в поле "Точка подключения к API" и "Точка подключения к серверу статики"
+          Также, Вы можете ввести свои адреса серверов API и статики в соответствующие поля
 
-          <b>После изменения точки доступа рекомендуется перезагрузить приложение</b>
+          <b>После изменения серверов рекомендуется перезагрузить приложение</b>
         </div>
       </v-card-text>
     </v-card>
@@ -134,7 +134,7 @@
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Приложение будет выводть информацию о просматриваемом релизе в Discord Rich Presence
+        Приложение будет выводить информацию о просматриваемом релизе в Discord Rich Presence
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -226,7 +226,7 @@
 
     <div v-show="_isAuthorized" class="pa-4 caption grey--text">
       <div class="body-1">Снапшоты</div>
-      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту анилибрии</div>
+      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту</div>
     </div>
 
     <v-card v-show="_isAuthorized">
