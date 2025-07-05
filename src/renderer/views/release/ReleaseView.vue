@@ -2,7 +2,62 @@
   <v-layout v-if="loading || _release" column>
 
     <!-- Release Card -->
-    <card v-bind="{loading}" class="mb-2" :release="__release"/>
+    <v-card class="mb-2" color="transparent" flat>
+      <v-card-actions class="pa-0">
+        <card v-bind="{loading}" class="flex-grow-1" :release="__release"/>
+        <v-menu offset-y :close-on-content-click="false">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              color="primary"
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>mdi-share-variant</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <!-- Domain selector -->
+            <v-list-item @click.stop>
+              <v-list-item-content>
+                <v-select
+                  v-model="selectedDomain"
+                  :items="availableDomains"
+                  dense
+                  outlined
+                  hide-details
+                  label="Домен для ссылки"
+                  @change="updateShareLinks"
+                  @click.stop
+                ></v-select>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider></v-divider>
+
+            <v-list-item
+              v-for="(item, index) in shareLinks"
+              :key="index"
+              @click="handleShareClick(item)"
+            >
+              <v-list-item-icon>
+                <v-icon>{{ item.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+                <v-list-item-subtitle v-if="!item.isExternal" class="text-truncate" style="max-width: 200px;">{{ item.link }}</v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn icon small>
+                  <v-icon v-if="item.copied" color="success">mdi-check</v-icon>
+                  <v-icon v-if="!item.copied && item.isExternal">mdi-open-in-new</v-icon>
+                  <v-icon v-if="!item.copied && !item.isExternal">mdi-content-copy</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-card-actions>
     </v-card>
 
     <v-card v-if="franchises.length && !loadingAdditional" flat color="transparent" class="mb-6">
@@ -279,6 +334,7 @@ export default {
     updateShareLinks() {
       if (!this._release) return;
 
+      const shareUrl = this.generateShareUrl();
       const shareText = this.getShareText();
 
       this.shareLinks = [
