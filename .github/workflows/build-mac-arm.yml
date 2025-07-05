@@ -79,7 +79,7 @@ jobs:
           echo "$(brew --prefix python@3.10)/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: yarn --ignore-platform --frozen-lockfile
+        run: yarn --ignore-platform --pure-lockfile --frozen-lockfile
 
       - name: Download opera proxy
         run: yarn run operaproxy-download
