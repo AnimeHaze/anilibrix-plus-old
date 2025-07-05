@@ -1,42 +1,103 @@
 <template>
-  <v-layout column align-center justify-center>
+  <v-layout fill-height align-center justify-center>
+    <v-row justify="center" align="center">
 
-    <!-- Noise -->
-    <blank-noise/>
+      <v-col cols="12" sm="3" align-self="center">
+        <v-img class="image" contain :src="image"/>
+      </v-col>
 
-    <!-- Message -->
-    <div class="text-center caption" :style="{zIndex: 1}">
-      <div>{{ text }}</div>
-      <div>{{ error }}</div>
-      <v-btn text class="mt-5" @click="toReleases">Назад</v-btn>
-    </div>
+      <v-col cols="12" sm="6" align-self="center">
+        <v-card flat color="transparent">
+          <v-card-text class="error-message-container">
+            <!-- Success Message -->
+            <v-alert
+              v-if="message"
+              type="error"
+              dense
+              outlined
+              class="mb-4"
+              transition="scale-transition"
+            >
+              <div class="d-flex align-center">
+                <span>{{ message }}</span>
+              </div>
+            </v-alert>
 
+            <!-- Error Message -->
+            <v-alert
+              v-if="error"
+              type="error"
+              dense
+              outlined
+              class="mb-4"
+              transition="scale-transition"
+            >
+              <div class="d-flex align-center">
+                <v-icon left>mdi-alert</v-icon>
+                <span>{{ error }}</span>
+              </div>
+            </v-alert>
+
+            <!-- Help Information -->
+            <v-card
+              outlined
+              color="red"
+              class="pa-4"
+            >
+              <div class="text-body-1 mb-2">
+                <v-icon small class="mr-2">mdi-help-circle</v-icon>
+                <strong>Что произошло?</strong>
+              </div>
+              <div class="text-caption">
+                <p class="mb-2">
+                  Возможно, проблема связана с внутренней ошибкой API или ошибкой навигации в приложении.
+                </p>
+                <p>
+                  Если вы видите эту ошибку после нажатия кнопки "Назад" — это известная проблема, которую мы ещё не исправили.
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="mt-3 d-flex justify-space-between">
+                <v-btn
+                  small
+                  text
+                  color="primary"
+                  to="/"
+                >
+                  <v-icon left small>mdi-home</v-icon>
+                  На главную
+                </v-btn>
+              </div>
+            </v-card>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+    </v-row>
   </v-layout>
 </template>
 
 <script>
-
-import BlankNoise from './components/noise'
-import { toReleases } from '@utils/router/views'
-
-const props = {
-  message: {
-    type: String,
-    default: null,
-  },
-  error: {
-    type: String,
-    default: null
-  }
-}
+import LibriaTyan01 from '@assets/images/libria-tyan/LibriaTyan01.svg'
+import {toReleases} from "@utils/router/views";
 
 export default {
-  props,
-  meta: { title: `Видео не доступно` },
-  components: {
-    BlankNoise
+  props: {
+    message: {
+      type: String,
+      default: null,
+    },
+    error: {
+      type: String,
+      default: null
+    }
   },
-
+  data () {
+    return {
+      image: LibriaTyan01,
+    }
+  },
   computed: {
 
     /**
@@ -51,15 +112,20 @@ export default {
   },
 
   methods: {
-
     /**
      * Go back
      *
      * @return void
      */
-    toReleases,
+    toReleases
 
   }
-
 }
 </script>
+
+<style scoped>
+.error-message-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+</style>

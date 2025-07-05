@@ -3,6 +3,8 @@
 
     <!-- Release Card -->
     <card v-bind="{loading}" class="mb-2" :release="__release"/>
+    </v-card>
+
     <v-card v-if="franchises.length && !loadingAdditional" flat color="transparent" class="mb-6">
       <v-card-title>Связанное</v-card-title>
       <v-list three-line>
@@ -100,7 +102,43 @@ export default {
       loadingAdditional: true,
       franchises: [],
       dates: {},
-      team: null
+      team: null,
+      selectedDomain: 'anilibria.tv/release/',
+      availableDomains: [
+        { text: 'anilibria.tv', value: 'anilibria.tv/release/' },
+        { text: 'anilibria.top', value: 'anilibria.top/anime/releases/release/' },
+        { text: 'anilibria.wtf', value: 'anilibria.wtf/anime/releases/release/' }
+      ],
+      shareLinks: [
+        {
+          title: 'Ссылка на релиз',
+          icon: 'mdi-link',
+          link: '',
+          copied: false,
+          isExternal: false
+        },
+        {
+          title: 'Поделиться в VK',
+          icon: 'mdi-vk',
+          link: '',
+          copied: false,
+          isExternal: true
+        },
+        {
+          title: 'Поделиться в Telegram',
+          icon: 'mdi-telegram',
+          link: '',
+          copied: false,
+          isExternal: true
+        },
+        {
+          title: 'Поделиться в Twitter',
+          icon: 'mdi-twitter',
+          link: '',
+          copied: false,
+          isExternal: true
+        }
+      ]
     }
   },
 
@@ -176,6 +214,134 @@ export default {
     router () {
       return router
     },
+
+    /**
+     * Generate complete share URL based on selected domain and release code
+     * @returns {string}
+     */
+    generateShareUrl() {
+      if (!this._release?.code) return '';
+
+      const domainConfig = {
+        'anilibria.tv': {
+          base: 'https://anilibria.tv/release/',
+          suffix: '.html'
+        },
+        'anilibria.top': {
+          base: 'https://anilibria.top/anime/releases/release/',
+          suffix: '/'
+        },
+        'anilibria.wtf': {
+          base: 'https://anilibria.wtf/anime/releases/release/',
+          suffix: '/'
+        }
+      };
+
+      const domain = this.selectedDomain.split('/')[0];
+      const config = domainConfig[domain] || domainConfig['anilibria.tv'];
+
+      return `${config.base}${this._release.code}${config.suffix}`;
+    },
+
+    /**
+     * Generate social share URL
+     * @param {string} platform - Social platform (vk, telegram, twitter)
+     * @param {string} url - URL to share
+     * @param {string} text - Share text
+     * @returns {string}
+     */
+    generateSocialShareUrl(platform, url, text) {
+      const encodedUrl = encodeURIComponent(url);
+      const encodedText = encodeURIComponent(text);
+
+      const platforms = {
+        vk: `https://vk.com/share.php?url=${encodedUrl}&title=${encodedText}`,
+        telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
+        twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`
+      };
+
+      return platforms[platform] || '';
+    },
+
+    /**
+     * Get share text for social media
+     * @returns {string}
+     */
+    getShareText() {
+      const { ru, en } = this._release?.names || {};
+      const domain = this.selectedDomain.split('/')[0];
+      return `Смотри "${ru || en || 'этот релиз'}" на ${domain}`;
+    },
+
+    /**
+     * Update all share links
+     */
+    updateShareLinks() {
+      if (!this._release) return;
+
+      const shareText = this.getShareText();
+
+      this.shareLinks = [
+        this.createShareLink('Ссылка на релиз', 'mdi-link', shareUrl),
+        this.createShareLink('Поделиться в VK', 'mdi-vk',
+          this.generateSocialShareUrl('vk', shareUrl, shareText), true),
+        this.createShareLink('Поделиться в Telegram', 'mdi-telegram',
+          this.generateSocialShareUrl('telegram', shareUrl, shareText), true),
+        this.createShareLink('Поделиться в Twitter', 'mdi-twitter',
+          this.generateSocialShareUrl('twitter', shareUrl, shareText), true)
+      ];
+    },
+
+    /**
+     * Create share link object
+     * @param {string} title
+     * @param {string} icon
+     * @param {string} link
+     * @param {boolean} isExternal
+     * @returns {Object}
+     */
+    createShareLink(title, icon, link, isExternal = false) {
+      return {
+        title,
+        icon,
+        link,
+        copied: false,
+        isExternal
+      };
+    },
+
+    handleShareClick(item) {
+      item.isExternal
+        ? window.open(item.link, '_blank')
+        : this.copyToClipboard(item.link);
+    },
+
+    async copyToClipboard(link) {
+      try {
+        await navigator.clipboard.writeText(link);
+        this.shareLinks = this.shareLinks.map(item => {
+          return {
+            ...item,
+            copied: item.link === link
+          }
+        });
+
+        setTimeout(() => {
+          this.shareLinks = this.shareLinks.map(item => {
+            return {
+              ...item,
+              copied: false
+            }
+          });
+        }, 2000);
+
+        this.$toasted.success('Ссылка скопирована в буфер');
+      } catch (err) {
+        console.error(err);
+        this.$toasted.error('Не удалось скопировать ссылку');
+      }
+    },
+
     async fetchAdditional() {
       this.loadingAdditional = true
       try {
@@ -261,10 +427,32 @@ export default {
           this.loading = true
           await this.$store.dispatchPromise('release/getRelease', releaseId)
           this.fetchAdditional(releaseId)
+          this.updateShareLinks()
           this.loading = false
         }
+      }
+    },
+
+    _release: {
+      deep: true,
+      handler() {
+        this.updateShareLinks()
       }
     }
   }
 }
 </script>
+
+<style scoped>
+.v-list-item__action {
+  transition: all 0.3s ease;
+}
+
+.v-list-item__action .v-icon {
+  transition: all 0.3s ease;
+}
+
+.v-select {
+  margin: 8px 0;
+}
+</style>
