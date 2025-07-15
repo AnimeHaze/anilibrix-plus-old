@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install multilib / py3.10
-        run: sudo apt update && sudo apt -y install software-properties-common && sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt-get -y install gcc-multilib g++-multilib python3.9
+        run: sudo apt update && sudo apt -y install g++ build-essential software-properties-common && sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt-get -y install gcc-multilib g++-multilib python3.9
 
       - name: Cache Electron
         uses: actions/cache@v3
