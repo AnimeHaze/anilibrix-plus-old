@@ -69,7 +69,7 @@ jobs:
             ${{ runner.os }}-electron-builder-cache-
 
       - name: Install dependencies
-        run: yarn
+        run: yarn --ignore-platform --ignore-engines
 
       - name: Run build
         run: npm run release:windows
