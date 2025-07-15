@@ -45,7 +45,7 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - name: Cache Node.js modules
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Cache Electron
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.cache/electron
           key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
@@ -61,7 +61,7 @@ jobs:
             ${{ runner.os }}-electron-cache-
 
       - name: Cache Electron-Builder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.cache/electron-builder
           key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
@@ -75,7 +75,7 @@ jobs:
         run: npm run release:windows
 
       - name: Archive results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: Save artifacts
           path: |
