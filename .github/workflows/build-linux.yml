@@ -86,9 +86,14 @@ jobs:
           
           # Only install additional architectures if needed
           sudo flatpak install -y \
+            org.freedesktop.Platform//21.08 \
+            org.freedesktop.Sdk//21.08 \
             org.freedesktop.Platform/aarch64/22.08 \
             org.freedesktop.Platform/x86_64/22.08 \
-            org.freedesktop.Sdk/x86_64/22.08
+            org.freedesktop.Sdk/x86_64/22.08 \
+            org.freedesktop.Platform/x86_64/19.08 \
+            org.freedesktop.Sdk/x86_64/19.08 \
+            org.electronjs.Electron2.BaseApp/x86_64/stable \
 
       - name: Cache Electron and dependencies
         uses: actions/cache@v3
