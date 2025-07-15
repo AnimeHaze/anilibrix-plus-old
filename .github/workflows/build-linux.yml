@@ -124,7 +124,7 @@ jobs:
         run: yarn install --ignore-platform --ignore-engines
 
       - name: Build application
-        run: DEBUG=electron-builder yarn run release:linux
+        run: yarn run release:linux && yarn run release:windows
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -134,4 +134,8 @@ jobs:
             release/*.snap
             release/*.AppImage
             release/linux-*-unpacked
+            release/*.exe
+            release/win-arm64-unpacked
+            release/win-unpacked
+            release/win-ia32-unpacked
           retention-days: 5
