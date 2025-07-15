@@ -16,6 +16,7 @@ jobs:
     env:
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      PYTHON_CACHE: ${{ github.workspace }}/.cache/python-2.7
       ADS_URLS: ${{ secrets.ADS_URLS }}
       VK_APP_ID: ${{ secrets.VK_APP_ID }}
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -26,63 +27,92 @@ jobs:
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Cache Python 2.7
+        id: cache-python
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.PYTHON_CACHE }}
+          key: ${{ runner.os }}-python-2.7.18
+          restore-keys: |
+            ${{ runner.os }}-python-2.7
+
+      - name: Install Python 2.7 (if not cached)
+        if: steps.cache-python.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ env.PYTHON_CACHE }}
+          cd ${{ env.PYTHON_CACHE }}
+          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+          tar xzf Python-2.7.18.tgz
+          cd Python-2.7.18
+          ./configure --enable-optimizations --prefix=${{ env.PYTHON_CACHE }}
+          make
+          make altinstall
+          echo "${{ env.PYTHON_CACHE }}/bin" >> $GITHUB_PATH
+
+      - name: Set up Python 2.7 symlink
+        run: |
+          sudo rm -f /usr/bin/python
+          sudo ln -s ${{ env.PYTHON_CACHE }}/bin/python2.7 /usr/bin/python
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            gcc-multilib \
+            g++-multilib \
+            elfutils \
+            software-properties-common \
+            flatpak-builder \
+            flatpak
 
-      - name: Cache Node.js modules
+      - name: Setup Flatpak with current runtimes
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # Install current stable runtimes instead of EOL versions
+          sudo flatpak install -y \
+            org.freedesktop.Platform//22.08 \
+            org.freedesktop.Sdk//22.08 \
+            org.electronjs.Electron2.BaseApp/x86_64/stable
+          
+          # Only install additional architectures if needed
+          sudo flatpak install -y \
+            org.freedesktop.Platform/aarch64/22.08 \
+            org.freedesktop.Platform/x86_64/22.08 \
+            org.freedesktop.Sdk/x86_64/22.08
+
+      - name: Cache Electron and dependencies
         uses: actions/cache@v3
         with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-node14-x64-yarn-${{ hashFiles('yarn.lock') }}
+          path: |
+            ${{ env.ELECTRON_CACHE }}
+            ${{ env.ELECTRON_BUILDER_CACHE }}
+            ~/.cache/yarn
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-electron-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-electron-
 
-      - name: Install multilib / py2.7
-        run: sudo apt update && sudo apt -y install g++ build-essential flatpak-builder elfutils software-properties-common gcc-multilib g++-multilib flatpak && wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz && tar xzf Python-2.7.18.tgz && cd Python-2.7.18 && sudo ./configure --enable-optimizations && sudo make altinstall && sudo rm "/usr/bin/python" && sudo ln -s "/usr/local/bin/python2.7" "/usr/bin/python"
+      - name: Install project dependencies
+        run: yarn install --frozen-lockfile --ignore-platform --ignore-engines
 
-      - name: Install flatpak deps
-        run: sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && sudo flatpak install flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08 -y && sudo flatpak install flathub org.freedesktop.Platform/x86_64/19.08 org.freedesktop.Sdk/x86_64/19.08 org.electronjs.Electron2.BaseApp/x86_64/stable -y && sudo flatpak install flathub org.freedesktop.Platform/aarch64/20.08 -y && sudo flatpak install -y flathub org.freedesktop.Platform/x86_64/20.08 && sudo flatpak install -y flathub runtime/org.freedesktop.Platform/x86_64/20.08 && sudo flatpak install -y flathub runtime/org.freedesktop.Platform/i386/20.08 && sudo flatpak install -y flathub org.freedesktop.Sdk/x86_64/20.08
+      - name: Build application
+        run: DEBUG=electron-builder yarn run release:linux
 
-      - name: Cache Electron
-        uses: actions/cache@v3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
-          path: ${{ github.workspace }}/.cache/electron
-          key: ${{ runner.os }}-node14-x64-electron-cache-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-electron-cache-
-
-      - name: Cache Electron-Builder
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/.cache/electron-builder
-          key: ${{ runner.os }}-node14-x64-electron-builder-cache-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-electron-builder-cache-
-
-      - name: Install dependencies
-        run: yarn --ignore-platform --ignore-engines
-
-      - name: Run build
-        run: DEBUG=electron-builder npm run release:linux
-
-      - name: Archive results
-        uses: actions/upload-artifact@v4
-        with:
-          name: Save artifacts
-          if-no-files-found: error
+          name: linux-build-artifacts
           path: |
             release/*.snap
             release/*.AppImage
-            release/linux-arm64-unpacked
-            release/linux-unpacked
-            release/linux-ia32-unpacked
+            release/linux-*-unpacked
           retention-days: 5
