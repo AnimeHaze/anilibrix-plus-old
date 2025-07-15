@@ -63,16 +63,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - name: Setup wine
+      - name: Add i386 architecture
+        run: sudo dpkg --add-architecture i386
+
+      - name: Install WineHQ repository key
         run: |
-          sudo dpkg --add-architecture i386
-          curl -fsSL  https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -
-          sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/
-          sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/
-          sudo apt-get update
-          sudo apt-get install -y --install-recommends winehq-stable
-          sudo apt-get install -y winetricks
-          sudo apt-get install -y winbind
+          sudo mkdir -p /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          echo "deb [arch=amd64,i386 signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ noble main" | sudo tee /etc/apt/sources.list.d/winehq.list
 
       - name: Install system dependencies
         run: |
@@ -84,7 +82,8 @@ jobs:
             elfutils \
             software-properties-common \
             flatpak-builder \
-            flatpak
+            flatpak \
+            winehq-stable
 
       - name: Setup Flatpak with current runtimes
         run: |
