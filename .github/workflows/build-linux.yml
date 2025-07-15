@@ -46,8 +46,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install multilib
-        run: sudo apt-get -y install gcc-multilib g++-multilib
+      - name: Install multilib / py3.10
+        run: sudo apt-get -y install gcc-multilib g++-multilib python3.9
 
       - name: Cache Electron
         uses: actions/cache@v3
