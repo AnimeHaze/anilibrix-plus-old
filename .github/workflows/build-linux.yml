@@ -72,12 +72,14 @@ jobs:
         run: npm run release:linux
 
       - name: Archive results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Save artifacts
+          if-no-files-found: error
           path: |
             release/*.snap
             release/*.AppImage
             release/linux-arm64-unpacked
             release/linux-unpacked
             release/linux-ia32-unpacked
+          retention-days: 5
