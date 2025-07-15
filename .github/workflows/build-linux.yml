@@ -66,7 +66,7 @@ jobs:
             ${{ runner.os }}-electron-builder-cache-
 
       - name: Install dependencies
-        run: yarn
+        run: yarn --ignore-platform
 
       - name: Run build
         run: npm run release:linux
