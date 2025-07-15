@@ -19,8 +19,8 @@
 
         <!-- Not seen episodes -->
         <span v-else-if="isUnseen">
-          <span v-if="!dense">Не просмотрено ни одного эпизода</span>
-          <span v-else>Ни одного эпизода</span>
+          <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }}</span>
+          <span v-else>Ни одного эпизода из {{ episodes.length }}</span>
         </span>
 
         <!-- Episodes Progress -->
