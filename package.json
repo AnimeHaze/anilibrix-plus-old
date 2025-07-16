@@ -108,7 +108,7 @@
     },
     "linux": {
       "icon": "build/icons/app/anilibria.icns",
-      "category": "Video",
+      "category": "AudioVideo;Audio;Player;"
       "target": [
         {
           "target": "flatpak",
