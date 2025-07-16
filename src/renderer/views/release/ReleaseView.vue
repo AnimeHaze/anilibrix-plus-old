@@ -157,7 +157,6 @@ export default {
       loadingAdditional: true,
       franchises: [],
       dates: {},
-      team: null,
       selectedDomain: 'anilibria.tv/release/',
       availableDomains: [
         { text: 'anilibria.tv', value: 'anilibria.tv/release/' },
@@ -201,8 +200,7 @@ export default {
     ...mapState('release', { _release: s => s.data }),
     __release () {
       return {
-        ...this._release,
-        team: this.team
+        ...this._release
       }
     },
     /**
@@ -399,25 +397,40 @@ export default {
     },
 
     async fetchAdditional() {
-      this.loadingAdditional = true
+      this.loadingAdditional = true;
       try {
-        const { franchises, team } = await this.loadFranchisesAndTeam()
+        const response = await fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.releaseId}`);
+        if (!response.ok) throw new Error('Failed to load franchises');
 
-        this.team = team
-        const releaseIds = this.extractReleaseIds(franchises)
-        const additionalData = await this.loadAdditionalData(releaseIds)
+        const franchisesData = await response.json();
 
-        this.franchises = this.formatFranchises(franchises, additionalData)
-        this.loadingAdditional = false
+        if (franchisesData.length > 0) {
+          const franchise = franchisesData[0];
+          this.franchises = [{
+            releases: franchise.franchise_releases.map(releaseItem => {
+              const release = releaseItem.release;
+              return {
+                id: release.id,
+                names: {
+                  ru: release.name.main,
+                  en: release.name.english
+                },
+                poster: new ReleaseProxy().getStaticEndpoint() + (release.poster.optimized?.preview || release.poster.preview),
+                type: release.type.description,
+                status: release.is_ongoing ? 'Онгоинг' : 'Завершён'
+              };
+            })
+          }];
+        } else {
+          this.franchises = [];
+        }
+
+        this.loadingAdditional = false;
       } catch (error) {
-        console.error(error)
-        this.$toasted.error('Ошибка загрузки связанных данных')
-        this.loadingAdditional = false
+        console.error('Error loading franchises:', error);
+        this.$toasted.error('Ошибка загрузки связанных релизов');
+        this.loadingAdditional = false;
       }
-    },
-
-    async loadFranchisesAndTeam() {
-      return await invokeGetTitleV3(`filter=franchises,team&playlist_type=array&id=${this.releaseId}`)
     },
 
     extractReleaseIds(franchises) {
