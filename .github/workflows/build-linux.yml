@@ -124,9 +124,6 @@ jobs:
         run: yarn install --ignore-platform --ignore-engines
 
       - name: Build application (Linux)
-        run: yarn run release:linux
-
-      - name: Build application (Linux)
         run: |
           yarn run release:linux
           rm release/*.snap          
@@ -136,17 +133,13 @@ jobs:
           jq '.build.linux = {
             "icon": "build/icons/app/anilibria.icns",
             "category": "Video",
-            "target": [
-              {
-                "target": "snap",
-                "arch": [
-                  "x64"
-                ]
-              }
-            ]
-          }' package.json > package.json
+            "target": [{
+              "target": "snap",
+              "arch": ["x64"]
+            }]
+          }' package.json > package.json.tmp && mv package.json.tmp package.json
 
-          jq '.name = "anilibrix-plus"' package.json > package.json
+          jq '.name = "anilibrix-plus"' package.json > package.json.tmp && mv package.json.tmp package.json
 
           yarn
 
