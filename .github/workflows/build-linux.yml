@@ -84,6 +84,7 @@ jobs:
             flatpak-builder \
             flatpak \
             winehq-stable
+            jq
 
       - name: Setup Flatpak with current runtimes
         run: |
@@ -122,8 +123,38 @@ jobs:
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
 
-      - name: Build application
-        run: yarn run release:linux && yarn run release:windows
+      - name: Build application (Linux)
+        run: yarn run release:linux
+
+      - name: Build application (Linux)
+        run: |
+          yarn run release:linux
+          rm release/*.snap          
+
+      - name: Prepare build application (Snap)
+        run: |
+          jq '.build.linux = {
+            "icon": "build/icons/app/anilibria.icns",
+            "category": "Video",
+            "target": [
+              {
+                "target": "snap",
+                "arch": [
+                  "x64"
+                ]
+              }
+            ]
+          }' package.json > package.json
+
+          jq '.name = "anilibrix-plus"' package.json > package.json
+
+          yarn
+
+      - name: Build application (Linux Snap)
+        run: yarn run release:linux
+
+      - name: Build application (Windows)
+        run: yarn run release:windows
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
