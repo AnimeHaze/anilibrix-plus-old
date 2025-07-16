@@ -10,23 +10,22 @@
 
     <template v-if="!loading && showNumbers" v-slot>
       <div class="release__progress__description caption white--text font-weight-bold px-4">
-
         <!-- Complete All Episodes -->
         <span v-if="isComplete">
-          <span v-if="!dense">Просмотрены все эпизоды</span>
-          <span v-else>Все эпизоды</span>
+          <span v-if="!dense">Просмотрены все эпизоды {{ total }}</span>
+          <span v-else>Все эпизоды {{ total }}</span>
         </span>
 
         <!-- Not seen episodes -->
         <span v-else-if="isUnseen">
-          <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }}</span>
-          <span v-else>Ни одного эпизода из {{ episodes.length }}</span>
+          <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }} {{ total }}</span>
+          <span v-else>Ни одного эпизода из {{ episodes.length }} {{ total }}</span>
         </span>
 
         <!-- Episodes Progress -->
         <span v-else>
-          <span v-if="!dense">Просмотрено {{ watched }} из {{ episodes.length }}</span>
-          <span v-else>{{ watched }} из {{ episodes.length }}</span>
+          <span v-if="!dense">Просмотрено {{ watched }} из {{ episodes.length }} {{ total }}</span>
+          <span v-else>{{ watched }} из {{ episodes.length }} {{ total }}</span>
         </span>
 
       </div>
@@ -47,6 +46,10 @@ const props = {
   episodes: {
     type: Array,
     default: null
+  },
+  totalEpisodes: {
+    type: String,
+    default: ''
   },
   showNumbers: {
     type: Boolean,
@@ -81,6 +84,9 @@ const props = {
 export default {
   props,
   computed: {
+    total () {
+      return this.totalEpisodes !== 'null' ? ' (' + this.totalEpisodes + ')' : ''
+    },
 
     /**
      * Calculate total seen progress
