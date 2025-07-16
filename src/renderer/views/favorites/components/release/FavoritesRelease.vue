@@ -41,7 +41,7 @@
 
           <!-- Release Progress -->
           <release-progress
-            v-bind="{ release, episodes }"
+            v-bind="{ release, episodes, totalEpisodes }"
             dense
             center
             square
@@ -57,6 +57,7 @@
 
 import VClamp from 'vue-clamp'
 import ReleaseProgress from '@components/release/progress'
+import {catGirlFetch} from "../../../../utils/fetch";
 
 const props = {
   release: {
@@ -74,6 +75,31 @@ export default {
   components: {
     VClamp,
     ReleaseProgress
+  },
+  mounted() {
+    if (!window._epscache) {
+      window._epscache = new Map()
+    }
+
+    const cache = window._epscache.get(this.release.code)
+    if (cache) {
+      cache.__ok__ = true
+    }
+
+    Promise.resolve(cache || fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.code}`))
+      .then(async x => {
+        if (cache && cache.__ok__){
+          x = cache
+        } else {
+          x = await x.json()
+          window._epscache.set(this.release.code, x)
+        }
+
+        this.totalEpisodes = String(x.episodes_total)
+      }).catch(() => {})
+  },
+  data () {
+    return { totalEpisodes: '' }
   },
   computed: {
 
