@@ -3,11 +3,9 @@
     <loader v-if="loading"/>
     <v-layout v-else column>
 
-      <!-- Avatar + Release main data -->
       <v-layout align-center class="my-4">
 
         <div style="display: flex; flex-direction: column">
-          <!-- Poster -->
           <img
             class="mx-4 rounded-lg"
             :src="poster"
@@ -45,7 +43,7 @@
           <v-card-subtitle v-text="original" class="allow-select pb-0"/>
           <v-card-subtitle v-text="genres" class="allow-select pt-1"/>
 
-          <div style="margin-bottom: -10px;" v-for="(type, prop) in release.team" :key="prop" class="pl-4" v-if="type.length">
+          <div style="margin-bottom: -10px;" v-for="(type, prop) in team" :key="prop" class="pl-4" v-if="type.length">
             <span class="subtitle-2" style="color: rgb(184 184 184);">{{ teamProps[prop] }}:</span>
             <v-chip
               v-for="name in type"
@@ -93,7 +91,6 @@ const props = {
 }
 
 export default {
-  methods: {toVideo},
   props,
   components: {
     Loader,
@@ -107,6 +104,13 @@ export default {
         decor: 'Оформили',
         editing: 'Субтитры',
         timing: 'Таймили'
+      },
+      team: {
+        voice: [],
+        translator: [],
+        decor: [],
+        editing: [],
+        timing: []
       }
     }
   },
@@ -202,14 +206,72 @@ export default {
     },
 
     /**
-    * Get release status
-    *
-    * @return {*}
-    */
+     * Get release status
+     *
+     * @return {*}
+     */
     status () {
       return this.$__get(this.release, 'status')
     }
 
+  },
+  async mounted() {
+    if (this.release?.id) {
+      await this.loadTeamMembers();
+    }
+  },
+  methods: {
+    toVideo,
+    async loadTeamMembers() {
+      try {
+        const response = await fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.id}/members`);
+        if (!response.ok) throw new Error('Failed to load team members');
+
+        const members = await response.json();
+
+        this.team = {
+          voice: [],
+          translator: [],
+          decor: [],
+          editing: [],
+          timing: []
+        };
+
+
+        members.forEach(member => {
+          switch(member.role.value) {
+            case 'voicing':
+              this.team.voice.push(member.nickname);
+              break;
+            case 'translating':
+              this.team.translator.push(member.nickname);
+              break;
+            case 'decorating':
+              this.team.decor.push(member.nickname);
+              break;
+            case 'editing':
+              this.team.editing.push(member.nickname);
+              break;
+            case 'timing':
+              this.team.timing.push(member.nickname);
+              break;
+          }
+        });
+
+      } catch (error) {
+        console.error('Error loading team members:', error);
+      }
+    }
+  },
+  watch: {
+    'release.id': {
+      immediate: true,
+      handler(newId) {
+        if (newId) {
+          this.loadTeamMembers();
+        }
+      }
+    }
   }
 }
 </script>
