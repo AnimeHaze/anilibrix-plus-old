@@ -165,18 +165,6 @@ jobs:
             release/win-unpacked
             release/win-ia32-unpacked
           retention-days: 5
-      
-      - name: Get list of release files
-        id: get-files
-        run: |
-          echo "files=$(ls release/ | tr '\n' ' ')" >> $GITHUB_OUTPUT
-      
-      - name: Upload files to Telegram
-        uses: xz-dev/TelegramFileUploader@v1.1.1
-        with:
-          to-who: anicoder
-          message: Here are your files!
-          files: ${{ steps.get-files.outputs.files }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
