@@ -1,6 +1,6 @@
 {
   "name": "anilibrix",
-  "version": "v1.4.3-ext.16",
+  "version": "v1.4.3-ext.17",
   "author": {
     "name": "Anilibria",
     "email": "anilibria@protonmail.com",
@@ -318,6 +318,6 @@
     "yarn": "3.6.1"
   },
   "resolutions": {
-    "discord-rpc@^4.0.1": "patch:discord-rpc@npm%3A4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch"
+    "discord-rpc@^4.0.1": "patch:discord-rpc@npm:4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch"
   }
 }
