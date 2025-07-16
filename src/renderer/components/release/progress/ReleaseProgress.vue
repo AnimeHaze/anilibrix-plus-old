@@ -85,7 +85,7 @@ export default {
   props,
   computed: {
     total () {
-      return this.totalEpisodes !== 'null' ? ' (' + this.totalEpisodes + ')' : ''
+      return this.totalEpisodes && this.totalEpisodes !== 'null' ? ' (' + this.totalEpisodes + ')' : ''
     },
 
     /**
