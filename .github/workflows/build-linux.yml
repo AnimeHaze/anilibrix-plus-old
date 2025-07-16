@@ -25,6 +25,9 @@ jobs:
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
       DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
+      API_ID: ${{ secrets.API_ID }}
+      API_HASH: ${{ secrets.API_HASH }}
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -162,6 +165,14 @@ jobs:
             release/win-unpacked
             release/win-ia32-unpacked
           retention-days: 5
+
+      - name: Upload files to Telegram
+        uses: xz-dev/TelegramFileUploader@v1
+        with:
+          to-who: 'anicoder'
+          message: 'Here are your files!'
+          files: |
+            release/*
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
