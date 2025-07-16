@@ -167,7 +167,7 @@ jobs:
           retention-days: 5
 
       - name: Upload files to Telegram
-        uses: xz-dev/TelegramFileUploader@v1
+        uses: xz-dev/TelegramFileUploader@v1.1.1
         with:
           to-who: 'anicoder'
           message: 'Here are your files!'
