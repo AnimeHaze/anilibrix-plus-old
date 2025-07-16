@@ -157,13 +157,7 @@ jobs:
         with:
           name: linux-build-artifacts
           path: |
-            release/*.snap
-            release/*.AppImage
-            release/linux-*-unpacked
-            release/*.exe
-            release/win-arm64-unpacked
-            release/win-unpacked
-            release/win-ia32-unpacked
+            release/*
           retention-days: 5
 
       - name: Create Release
