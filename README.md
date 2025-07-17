@@ -1,4 +1,4 @@
-# AniLibrix Unoffical
+# AniLibrix Plus
 
 Чат Telegram: https://t.me/anilibrix_plus_chat
 Канал с обновлениями: https://t.me/anilibrix_plus
