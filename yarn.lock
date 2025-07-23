@@ -6569,7 +6569,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-rpc@patch:discord-rpc@npm%3A4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch::locator=anilibrix%40workspace%3A.":
+"discord-rpc@patch:discord-rpc@npm:4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch::locator=anilibrix%40workspace%3A.":
   version: 4.0.1
   resolution: "discord-rpc@patch:discord-rpc@npm%3A4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch::version=4.0.1&hash=1a087c&locator=anilibrix%40workspace%3A."
   dependencies:
