@@ -13,6 +13,7 @@ import os from 'os'
 import { existsSync, readFileSync, copyFileSync, writeFileSync } from 'fs'
 
 import app from './app'
+import { app as electronApp } from 'electron'
 import release from './release'
 import catalog from './catalog'
 import releases from './releases'
@@ -30,43 +31,58 @@ const modules = {
   notifications
 }
 
-if (os.platform() === 'win32') {
-  const anilibrixDataPath = path.join(app.getPath('appData'), 'anilibrix')
-  const anilibrixPlusDataPath = app.getPath('userData')
+function isRenderer () {
+  // running in a web browser
+  if (typeof process === 'undefined') return true
 
-  const anilibrixConfigPath = path.join(anilibrixDataPath, 'anilibrix.json')
-  const anilibrixPlusConfigPath = path.join(anilibrixPlusDataPath, 'anilibrix.json')
-  const anilibrixPlusMigrated = path.join(anilibrixPlusDataPath, 'migrated.txt')
+  // node-integration is disabled
+  if (!process) return true
 
-  const anilibrixConfigExists = existsSync(anilibrixConfigPath)
-  const configMigrated = existsSync(anilibrixPlusMigrated)
+  // We're in node.js somehow
+  if (!process.type) return false
 
-  if (!configMigrated) {
-    console.log('Trying to migrate config')
+  return process.type === 'renderer'
+}
 
-    if (anilibrixConfigExists) {
-      console.log('Anilibrix config found. Migrating...', anilibrixConfigPath, anilibrixPlusConfigPath)
+if (!isRenderer()) {
+  if (os.platform() === 'win32') {
+    const anilibrixDataPath = path.join(electronApp.getPath('appData'), 'anilibrix')
+    const anilibrixPlusDataPath = electronApp.getPath('userData')
 
-      copyFileSync(anilibrixConfigPath, anilibrixPlusConfigPath)
+    const anilibrixConfigPath = path.join(anilibrixDataPath, 'anilibrix.json')
+    const anilibrixPlusConfigPath = path.join(anilibrixPlusDataPath, 'anilibrix.json')
+    const anilibrixPlusMigrated = path.join(anilibrixPlusDataPath, 'migrated.txt')
 
-      try {
-        copyFileSync(path.join(anilibrixDataPath, 'window-state.json'), path.join(anilibrixPlusDataPath, 'window-state.json'))
-        copyFileSync(path.join(anilibrixDataPath, 'anilibrix_safe.json'), path.join(anilibrixPlusDataPath, 'anilibrix_safe.json'))
-      } catch (e) {
-        console.log('Extra files migration failed', e)
+    const anilibrixConfigExists = existsSync(anilibrixConfigPath)
+    const configMigrated = existsSync(anilibrixPlusMigrated)
+
+    if (!configMigrated) {
+      console.log('Trying to migrate config')
+
+      if (anilibrixConfigExists) {
+        console.log('Anilibrix config found. Migrating...', anilibrixConfigPath, anilibrixPlusConfigPath)
+
+        copyFileSync(anilibrixConfigPath, anilibrixPlusConfigPath)
+
+        try {
+          copyFileSync(path.join(anilibrixDataPath, 'window-state.json'), path.join(anilibrixPlusDataPath, 'window-state.json'))
+          copyFileSync(path.join(anilibrixDataPath, 'anilibrix_safe.json'), path.join(anilibrixPlusDataPath, 'anilibrix_safe.json'))
+        } catch (e) {
+          console.log('Extra files migration failed', e)
+        }
+
+        console.log('Config migrated')
+        writeFileSync(anilibrixPlusMigrated, 'true')
+        console.log('Migrated file created')
+      } else {
+        console.log('Anilibrix config not found')
+        writeFileSync(anilibrixPlusMigrated, 'true')
+        console.log('Migrated file created. Config migration skipped')
       }
-
-      console.log('Config migrated')
-      writeFileSync(anilibrixPlusMigrated, 'true')
-      console.log('Migrated file created')
-    } else {
-      console.log('Anilibrix config not found')
-      writeFileSync(anilibrixPlusMigrated, 'true')
-      console.log('Migrated file created. Config migration skipped')
     }
+  } else {
+    console.log('Skipping config migration for not windows. OS:', os.platform())
   }
-} else {
-  console.log('Skipping config migration for not windows. OS:', os.platform())
 }
 
 // Get debug state
