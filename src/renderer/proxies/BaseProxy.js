@@ -54,7 +54,6 @@ export default class BaseProxy {
    */
   getApiEndpoint () {
     const endpoint = store.getters['app/settings/system/apiEndpoint']
-    console.log('Endpoint for api', endpoint)
     return endpoint + '/public/api/index.php'
   }
 
