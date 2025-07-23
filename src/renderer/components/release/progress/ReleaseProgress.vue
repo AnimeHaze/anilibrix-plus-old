@@ -9,21 +9,21 @@
     :indeterminate="loading">
 
     <template v-if="!loading && showNumbers" v-slot>
-      <div class="release__progress__description caption white--text font-weight-bold px-4">
+      <div class="release__progress__description caption white--text font-weight-bold px-4 ellipsis-container">
         <!-- Complete All Episodes -->
-        <span v-if="isComplete">
+        <span v-if="isComplete" class="ellipsis-text">
           <span v-if="!dense">Просмотрены все эпизоды {{ total }}</span>
           <span v-else>Все эпизоды {{ total }}</span>
         </span>
 
         <!-- Not seen episodes -->
-        <span v-else-if="isUnseen">
+        <span v-else-if="isUnseen" class="ellipsis-text">
           <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }} {{ total }}</span>
           <span v-else>Ни одного эпизода из {{ episodes.length }} {{ total }}</span>
         </span>
 
         <!-- Episodes Progress -->
-        <span v-else>
+        <span v-else class="ellipsis-text">
           <span v-if="!dense">Просмотрено {{ watched }} из {{ episodes.length }} {{ total }}</span>
           <span v-else>{{ watched }} из {{ episodes.length }} {{ total }}</span>
         </span>
@@ -164,6 +164,16 @@ export default {
   &__description {
     left: 0;
     position: absolute;
+    width: 100%;
+    overflow: hidden;
+
+    .ellipsis-text {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 
