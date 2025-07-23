@@ -36,6 +36,10 @@ if (os.platform() === 'win32') {
       console.log('Config migrated')
       writeFileSync(anilibrixPlusMigrated, 'true')
       console.log('Migrated file created')
+    } else {
+      console.log('Anilibrix config not found')
+      writeFileSync(anilibrixPlusMigrated, 'true')
+      console.log('Migrated file created. Config migration skipped')
     }
   }
 } else {
