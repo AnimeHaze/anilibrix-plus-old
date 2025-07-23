@@ -168,7 +168,7 @@ export default {
     overflow: hidden;
 
     .ellipsis-text {
-      display: inline-block;
+      display: block;
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
