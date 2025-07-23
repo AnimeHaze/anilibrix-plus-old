@@ -3,7 +3,46 @@ import proxy from 'node-global-proxy';
 import { execFile } from 'child_process'
 // Main process
 import path from 'path'
+import os from 'os'
+import fs from 'fs/promises'
+import { existsSync, readFileSync, copyFileSync, writeFileSync } from 'fs'
 
+if (os.platform() === 'win32') {
+  const anilibrixDataPath = path.join(app.getPath('appData'), 'anilibrix')
+  const anilibrixPlusDataPath = app.getPath('userData')
+
+  const anilibrixConfigPath = path.join(anilibrixDataPath, 'anilibrix.json')
+  const anilibrixPlusConfigPath = path.join(anilibrixPlusDataPath, 'anilibrix.json')
+  const anilibrixPlusMigrated = path.join(anilibrixPlusDataPath, 'migrated.txt')
+
+  const anilibrixConfigExists = existsSync(anilibrixConfigPath)
+  const configMigrated = existsSync(anilibrixPlusMigrated)
+
+  if (!configMigrated) {
+    console.log('Trying to migrate config')
+
+    if (anilibrixConfigExists) {
+      console.log('Anilibrix config found. Migrating...', anilibrixConfigPath, anilibrixPlusConfigPath)
+
+      copyFileSync(anilibrixConfigPath, anilibrixPlusConfigPath)
+
+      try {
+        copyFileSync(path.join(anilibrixDataPath, 'window-state.json'), path.join(anilibrixPlusDataPath, 'window-state.json'))
+        copyFileSync(path.join(anilibrixDataPath, 'anilibrix_safe.json'), path.join(anilibrixPlusDataPath, 'anilibrix_safe.json'))
+      } catch (e) {
+        console.log('Extra files migration failed', e)
+      }
+
+      console.log('Config migrated')
+      writeFileSync(anilibrixPlusMigrated, 'true')
+      console.log('Migrated file created')
+    }
+  }
+} else {
+  console.log('Skipping config migration for not windows. OS:', os.platform())
+}
+
+// eslint-disable-next-line import/first
 import { meta, version } from '@package'
 import sentry from './utils/sentry'
 // Store
@@ -13,7 +52,7 @@ import express from 'express'
 import { Main, Torrent } from './utils/windows'
 
 import { promisify } from 'util'
-import fs from 'fs/promises'
+
 // Download handlers
 // import {startingDownload, cancelingDownload, openingDownload} from "@main/handlers/download/downloadHandlers";
 import { autoUpdater } from 'electron-updater'
