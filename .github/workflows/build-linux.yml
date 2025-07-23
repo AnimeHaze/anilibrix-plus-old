@@ -129,7 +129,10 @@ jobs:
       - name: Build application (Linux)
         run: |
           yarn run release:linux
-          rm release/*.snap          
+          rm release/*.snap     
+
+      - name: Build application (Windows)
+        run: yarn run release:windows
 
       - name: Prepare build application (Snap)
         run: |
@@ -148,9 +151,6 @@ jobs:
 
       - name: Build application (Linux Snap)
         run: yarn run release:linux
-
-      - name: Build application (Windows)
-        run: yarn run release:windows
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
