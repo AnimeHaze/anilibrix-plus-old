@@ -21,7 +21,7 @@ export function catGirlFetch(url, init = {}, timeout = 5000) {
   return Promise.race([
     fetchRetry(url, init)
       .then(x => {
-        if (!x.ok && x.status === 404) {
+        if (!x.ok && x.status === 404 && init.bypass404 !== true) {
           const err = new Error('Not found')
           err.status = 404
           throw err

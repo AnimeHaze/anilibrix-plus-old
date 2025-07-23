@@ -84,7 +84,6 @@ export default class BaseProxy {
   getStaticEndpoint () {
     // eslint-disable-next-line camelcase
     const endpoint = store.getters['app/settings/system/staticEndpoint']
-    console.log('Endpoint for static', endpoint)
     return endpoint
   }
 

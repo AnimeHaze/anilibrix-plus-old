@@ -94,6 +94,6 @@ export default class AccountProxy extends BaseProxy {
    * @return {string|null}
    */
   getAvatarPath (src) {
-    return src ? this.getStaticEndpoint() + src : null
+    return src ? 'http://localhost:9384/proxy-static?url=' + this.getStaticEndpoint() + src : null
   }
 }

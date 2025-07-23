@@ -98,6 +98,6 @@ export default class ReleaseProxy extends BaseProxy {
    * @return {string|null}
    */
   getReleasePosterPath (src) {
-    return src ? this.getStaticEndpoint() + src : null;
+    return src ? 'http://localhost:9384/proxy-static?url=' + this.getStaticEndpoint() + src : null;
   }
 }

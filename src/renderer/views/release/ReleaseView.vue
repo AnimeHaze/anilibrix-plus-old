@@ -415,7 +415,7 @@ export default {
                   ru: release.name.main,
                   en: release.name.english
                 },
-                poster: new ReleaseProxy().getStaticEndpoint() + (release.poster.optimized?.preview || release.poster.preview),
+                poster: 'http://localhost:9384/proxy-static?url=' + new ReleaseProxy().getStaticEndpoint() + (release.poster.optimized?.preview || release.poster.preview),
                 type: release.type.description,
                 status: release.is_ongoing ? 'Онгоинг' : 'Завершён'
               };
@@ -474,7 +474,7 @@ export default {
 
             return {
               ...release,
-              poster: new ReleaseProxy().getStaticEndpoint() + posters?.medium.url,
+              poster: 'http://localhost:9384/proxy-static?url=' + new ReleaseProxy().getStaticEndpoint() + posters?.medium.url,
               type: type?.full_string,
               status: status,
             }

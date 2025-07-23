@@ -12,6 +12,8 @@ import express from 'express'
 // Windows
 import { Main, Torrent } from './utils/windows'
 
+import { promisify } from 'util'
+import fs from 'fs/promises'
 // Download handlers
 // import {startingDownload, cancelingDownload, openingDownload} from "@main/handlers/download/downloadHandlers";
 import { autoUpdater } from 'electron-updater'
@@ -41,7 +43,8 @@ import { openWindowInterceptor } from '@main/utils/windows/openWindowInterceptor
 import { consoleLogToFile } from '@main/utils/log-to-file';
 import { debounce } from 'lodash';
 import { catGirlFetch } from '../renderer/utils/fetch';
-import {getActiveOperaProxyURL, startOperaProxy, stopOperaProxy} from '@main/utils/opera-proxy';
+import { getActiveOperaProxyURL, startOperaProxy, stopOperaProxy } from '@main/utils/opera-proxy';
+import { CacheManager } from '@main/utils/cache-manager';
 let proxyServer
 app.commandLine.appendSwitch('--no-sandbox')
 const proxyServerValue = store.state.app.settings.system.proxy
@@ -83,6 +86,9 @@ require('@electron/remote/main').initialize()
 // Create tray and menu controller
 const trayController = new Tray()
 const menuController = new Menu()
+
+const cachePath = path.join(app.getPath('userData'), 'cache')
+const cacheManager = new CacheManager(cachePath)
 
 /**
  * Set `__static` path to static files in production
@@ -240,6 +246,9 @@ app.on('ready', async () => {
   // downloadHandlers(); // Download handlers
 
   const serv = express()
+
+  serv.disable('x-powered-by')
+
   serv.get('/rutube/:id/*', (req, res) => {
     catGirlFetch(`https://rutube.ru/api/play/options/${req.params.id}/?no_404=true&referer&pver=v2`, {}, 3000)
       .then(x => {
@@ -247,6 +256,54 @@ app.on('ready', async () => {
       })
       .catch(x => res.status(500).send())
   })
+
+  fs.mkdir(cachePath).catch(e => console.log(e))
+
+  serv.get('/proxy-static', async (req, res) => {
+    try {
+      if (!req.query.url) {
+        return res.status(400)
+          .json({ error: 'URL parameter is required' });
+      }
+
+      let parsedUrl;
+
+      try {
+        parsedUrl = new URL(req.query.url);
+        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+          return res
+            .status(400)
+            .json({ error: 'Only HTTP/HTTPS URLs are allowed' });
+        }
+      } catch (e) {
+        return res
+          .status(400)
+          .json({ error: 'Invalid URL format' });
+      }
+
+      const cacheName = await cacheManager.getCacheKey(req.query.url);
+      const { meta, buf, fromCache } = await cacheManager.getCache(cacheName, req.query.url);
+
+      const headers = new Headers({
+        'content-type': meta.headers['content-type'],
+        'x-cache-hit': fromCache ? 'true' : 'false',
+        'x-cache-age': fromCache ? `${Date.now() - meta.timestamp}ms` : '0'
+      })
+
+      res
+        .set(Object.fromEntries(headers.entries()))
+        .status(meta.status)
+        .send(buf);
+    } catch (e) {
+      console.error('Proxy error:', e);
+      res
+        .status(500)
+        .json({
+          error: 'Internal Server Error',
+          details: e.message
+        });
+    }
+  });
 
   serv.listen(9384)
 })
