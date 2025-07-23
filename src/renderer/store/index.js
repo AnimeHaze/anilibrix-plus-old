@@ -8,6 +8,9 @@ import createPromiseAction from '@plugins/vuex-promise-action'
 import createPersistedState from 'vuex-persistedstate'
 import { createSharedMutations } from 'vuex-electron'
 import { getItem, removeItem, setItem } from '@utils/store/storage'
+import path from 'path'
+import os from 'os'
+import { existsSync, readFileSync, copyFileSync, writeFileSync } from 'fs'
 
 import app from './app'
 import release from './release'
@@ -25,6 +28,45 @@ const modules = {
   releases,
   favorites,
   notifications
+}
+
+if (os.platform() === 'win32') {
+  const anilibrixDataPath = path.join(app.getPath('appData'), 'anilibrix')
+  const anilibrixPlusDataPath = app.getPath('userData')
+
+  const anilibrixConfigPath = path.join(anilibrixDataPath, 'anilibrix.json')
+  const anilibrixPlusConfigPath = path.join(anilibrixPlusDataPath, 'anilibrix.json')
+  const anilibrixPlusMigrated = path.join(anilibrixPlusDataPath, 'migrated.txt')
+
+  const anilibrixConfigExists = existsSync(anilibrixConfigPath)
+  const configMigrated = existsSync(anilibrixPlusMigrated)
+
+  if (!configMigrated) {
+    console.log('Trying to migrate config')
+
+    if (anilibrixConfigExists) {
+      console.log('Anilibrix config found. Migrating...', anilibrixConfigPath, anilibrixPlusConfigPath)
+
+      copyFileSync(anilibrixConfigPath, anilibrixPlusConfigPath)
+
+      try {
+        copyFileSync(path.join(anilibrixDataPath, 'window-state.json'), path.join(anilibrixPlusDataPath, 'window-state.json'))
+        copyFileSync(path.join(anilibrixDataPath, 'anilibrix_safe.json'), path.join(anilibrixPlusDataPath, 'anilibrix_safe.json'))
+      } catch (e) {
+        console.log('Extra files migration failed', e)
+      }
+
+      console.log('Config migrated')
+      writeFileSync(anilibrixPlusMigrated, 'true')
+      console.log('Migrated file created')
+    } else {
+      console.log('Anilibrix config not found')
+      writeFileSync(anilibrixPlusMigrated, 'true')
+      console.log('Migrated file created. Config migration skipped')
+    }
+  }
+} else {
+  console.log('Skipping config migration for not windows. OS:', os.platform())
 }
 
 // Get debug state
