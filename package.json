@@ -185,7 +185,7 @@
       "perMachine": true,
       "artifactName": "${productName}-${os}-${version}-setup.${ext}",
       "installerSidebar": "build/installer/installerSidebar.bmp",
-      "deleteAppDataOnUninstall": true,
+      "deleteAppDataOnUninstall": false,
       "allowToChangeInstallationDirectory": true
     }
   },
