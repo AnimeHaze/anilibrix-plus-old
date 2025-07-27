@@ -1,13 +1,13 @@
 # AniLibrix Plus
 
-Чат Telegram: https://t.me/anilibrix_plus_chat
-Канал с обновлениями: https://t.me/anilibrix_plus
-
-### Десктопный аниме-кинотеатр Анилибрии для любого вашего компьютера.
+[![Канал обновлений](https://img.shields.io/badge/%D0%A2%D0%B5%D0%BB%D0%B5%D0%B3%D1%80%D0%B0%D0%BC_%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB-%D0%BE%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-blue?style=for-the-badge&logo=telegram)](https://snapcraft.io/anilibrix-plus) [![Чат приложения](https://img.shields.io/badge/%D0%A2%D0%B5%D0%BB%D0%B5%D0%B3%D1%80%D0%B0%D0%BC-%D1%87%D0%B0%D1%82_%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F-blue?style=for-the-badge&logo=telegram&link=https%3A%2F%2Ft.me%2Fanilibrix_plus_chat
+)]([https://snapcraft.io/anilibrix-plus](https://t.me/anilibrix_plus_chat))
 
 [![Загрузите из Snap Store](https://snapcraft.io/static/images/badges/ru/snap-store-black.svg)](https://snapcraft.io/anilibrix-plus)
 
-![Anilibrix](https://raw.githubusercontent.com/pavloniym/anilibrix/master/.github/assets/anilibrix.png)
+### Десктопный аниме-кинотеатр Анилибрии для любого вашего компьютера.
+
+![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/master/.github/assets/anilibrix.png)
 
 ### Особенности не официальной версии (этой):
 *_Пункты с стрелочкой кликабельны_
