@@ -308,7 +308,7 @@ export default class EpisodesTransformer extends BaseTransformer {
    */
   _parseEpisodeFromTorrentFilename (filename) {
     if (filename && typeof filename === 'string') {
-      const episode = this.get(filename.match(/_\[(\d+)\]_/), [1]) || null
+      const episode = this.get(filename.match(/_\[(\d+)\]_?/), [1]) || null
       return episode !== null ? parseFloat(episode) : null
     }
 
