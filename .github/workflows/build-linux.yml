@@ -150,23 +150,21 @@ jobs:
       - name: Build application (Windows)
         run: yarn run release:windows
   
-      - name: Zip unpacked folders
+      - name: Zip platform folders (preserve original dir names)
         run: |
-  
-          mkdir -p linux-unpacked win-unpacked
-  
-          mv release/linux-unpacked/* linux-unpacked/ || true
-          mv release/linux-ia32-unpacked/* linux-unpacked/ || true
-          mv release/linux-arm64-unpacked/* linux-unpacked/ || true
-  
-          mv release/win-unpacked/* win-unpacked/ || true
-          mv release/win-ia32-unpacked/* win-unpacked/ || true
-          mv release/win-arm64-unpacked/* win-unpacked/ || true
-  
-          zip -r linux-unpacked.zip linux-unpacked/
-          zip -r win-unpacked.zip win-unpacked/
-  
-          rm -rf linux-unpacked win-unpacked
+          mkdir -p bundle/linux
+          cp -r release/linux-unpacked bundle/linux/
+          cp -r release/linux-ia32-unpacked bundle/linux/
+          cp -r release/linux-arm64-unpacked bundle/linux/
+          (cd bundle && zip -r ../linux-unpacked.zip linux/)
+
+          mkdir -p bundle/win
+          cp -r release/win-unpacked bundle/win/
+          cp -r release/win-ia32-unpacked bundle/win/
+          cp -r release/win-arm64-unpacked bundle/win/
+          (cd bundle && zip -r ../win-unpacked.zip win/)
+
+          rm -rf bundle
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -182,12 +180,6 @@ jobs:
             linux-unpacked.zip
             win-unpacked.zip
           retention-days: 5
-
-      - name: Set version variables
-        id: vars
-        run: |
-          VERSION=$(jq -r .version package.json)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
