@@ -149,22 +149,24 @@ jobs:
 
       - name: Build application (Windows)
         run: yarn run release:windows
-
+  
       - name: Zip unpacked folders
         run: |
-          mkdir -p linux-unpacked
-          mv release/linux-unpacked release/
-          mv release/linux-ia32-unpacked release/
-          mv release/linux-arm64-unpacked release/
-          zip -r linux-unpacked.zip release/
-
-          mkdir -p win-unpacked
-          mv release/win-unpacked release/
-          mv release/win-ia32-unpacked release/
-          mv release/win-arm64-unpacked release/
-          zip -r win-unpacked.zip release/
-
-          rm -rf release/linux-unpacked release/win-unpacked
+  
+          mkdir -p linux-unpacked win-unpacked
+  
+          mv release/linux-unpacked/* linux-unpacked/ || true
+          mv release/linux-ia32-unpacked/* linux-unpacked/ || true
+          mv release/linux-arm64-unpacked/* linux-unpacked/ || true
+  
+          mv release/win-unpacked/* win-unpacked/ || true
+          mv release/win-ia32-unpacked/* win-unpacked/ || true
+          mv release/win-arm64-unpacked/* win-unpacked/ || true
+  
+          zip -r linux-unpacked.zip linux-unpacked/
+          zip -r win-unpacked.zip win-unpacked/
+  
+          rm -rf linux-unpacked win-unpacked
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
