@@ -150,6 +150,22 @@ jobs:
       - name: Build application (Windows)
         run: yarn run release:windows
 
+      - name: Zip unpacked folders
+        run: |
+          mkdir -p linux-unpacked
+          mv release/linux-unpacked release/linux-unpacked/
+          mv release/linux-ia32-unpacked release/linux-unpacked/
+          mv release/linux-arm64-unpacked release/linux-unpacked/
+          zip -r linux-unpacked.zip release/linux-unpacked/
+
+          mkdir -p win-unpacked
+          mv release/win-unpacked release/win-unpacked/
+          mv release/win-ia32-unpacked release/win-unpacked/
+          mv release/win-arm64-unpacked release/win-unpacked/
+          zip -r win-unpacked.zip release/win-unpacked/
+
+          rm -rf release/linux-unpacked release/win-unpacked
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -158,9 +174,32 @@ jobs:
             release/*
           retention-days: 5
 
+      - name: Set version variables
+        id: vars
+        run: |
+          VERSION=$(jq -r .version package.json)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |
-            release/*
+            AniLibrix.Plus-win-${{ steps.vars.outputs.version }}-setup.exe
+            AniLibrixPlus-linux-aarch64-${{ steps.vars.outputs.version }}.rpm
+            AniLibrixPlus-linux-amd64-${{ steps.vars.outputs.version }}.deb
+            AniLibrixPlus-linux-amd64-${{ steps.vars.outputs.version }}.snap 
+            AniLibrixPlus-linux-arm64-${{ steps.vars.outputs.version }}.AppImage 
+            AniLibrixPlus-linux-arm64-${{ steps.vars.outputs.version }}.deb 
+            AniLibrixPlus-linux-i386-${{ steps.vars.outputs.version }}.AppImage 
+            AniLibrixPlus-linux-i386-${{ steps.vars.outputs.version }}.deb 
+            AniLibrixPlus-linux-i686-${{ steps.vars.outputs.version }}.rpm 
+            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.AppImage 
+            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.flatpak 
+            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.rpm 
+            AniLibrixPlus-win-${{ steps.vars.outputs.version }}.exe 
+            AniLibrixPlus-win-arm64-${{ steps.vars.outputs.version }}.exe 
+            AniLibrixPlus-win-ia32-${{ steps.vars.outputs.version }}.exe 
+            AniLibrixPlus-win-x64-${{ steps.vars.outputs.version }}.exe
+            linux-unpacked.zip
+            win-unpacked.zip
