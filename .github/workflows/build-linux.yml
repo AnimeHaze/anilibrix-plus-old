@@ -1,4 +1,4 @@
-name: Build Linux
+name: Build Linux + Windows
 
 on:
   workflow_dispatch:
@@ -173,7 +173,14 @@ jobs:
         with:
           name: linux-build-artifacts
           path: |
-            release/*
+            release/*.exe
+            release/*.rpm
+            release/*.deb
+            release/*.snap
+            release/*.AppImage
+            release/*.flatpak 
+            linux-unpacked.zip
+            win-unpacked.zip
           retention-days: 5
 
       - name: Set version variables
@@ -187,21 +194,11 @@ jobs:
         with:
           draft: true
           files: |
-            AniLibrix.Plus-win-${{ steps.vars.outputs.version }}-setup.exe
-            AniLibrixPlus-linux-aarch64-${{ steps.vars.outputs.version }}.rpm
-            AniLibrixPlus-linux-amd64-${{ steps.vars.outputs.version }}.deb
-            AniLibrixPlus-linux-amd64-${{ steps.vars.outputs.version }}.snap 
-            AniLibrixPlus-linux-arm64-${{ steps.vars.outputs.version }}.AppImage 
-            AniLibrixPlus-linux-arm64-${{ steps.vars.outputs.version }}.deb 
-            AniLibrixPlus-linux-i386-${{ steps.vars.outputs.version }}.AppImage 
-            AniLibrixPlus-linux-i386-${{ steps.vars.outputs.version }}.deb 
-            AniLibrixPlus-linux-i686-${{ steps.vars.outputs.version }}.rpm 
-            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.AppImage 
-            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.flatpak 
-            AniLibrixPlus-linux-x86_64-${{ steps.vars.outputs.version }}.rpm 
-            AniLibrixPlus-win-${{ steps.vars.outputs.version }}.exe 
-            AniLibrixPlus-win-arm64-${{ steps.vars.outputs.version }}.exe 
-            AniLibrixPlus-win-ia32-${{ steps.vars.outputs.version }}.exe 
-            AniLibrixPlus-win-x64-${{ steps.vars.outputs.version }}.exe
+            release/*.exe
+            release/*.rpm
+            release/*.deb
+            release/*.snap
+            release/*.AppImage
+            release/*.flatpak 
             linux-unpacked.zip
             win-unpacked.zip
