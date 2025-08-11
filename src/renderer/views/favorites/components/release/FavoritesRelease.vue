@@ -116,6 +116,8 @@ export default {
           
           if (response.ok) {
             return response;
+          } else {
+            continue;
           }
         } catch (e) {
           continue;
