@@ -399,18 +399,17 @@ export default {
     async fetchAdditional() {
       this.loadingAdditional = true;
       try {
-
-        const tryToFetchThisShit = await Promise.allSettled([
-          fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.releaseId}`),
-          fetch(`https://anilibria.top/api/v1/anime/franchises/release/${this.releaseId}`),
-          fetch(`https://www.anilibria.top/api/v1/anime/franchises/release/${this.releaseId}`)
-        ])
+        const endpoints = [
+          'https://aniliberty.top/api/v1/anime/franchises/release',
+          'https://anilibria.top/api/v1/anime/franchises/release',
+          'https://www.anilibria.top/api/v1/anime/franchises/release'
+        ];
     
-        const findOK = tryToFetchThisShit.find((x) => x.ok)
+        const response = await this.fetchFromFirstAvailableEndpoint(endpoints, this.releaseId);
+        
+        if (!response) throw new Error('Failed to load franchises');
 
-        if (!findOK) throw new Error('Failed to load franchises');
-
-        const franchisesData = await findOK.json();
+        const franchisesData = await response.json();
 
         if (franchisesData.length > 0) {
           const franchise = franchisesData[0];
@@ -441,6 +440,23 @@ export default {
       }
     },
 
+
+    async fetchFromFirstAvailableEndpoint(endpoints, releaseId) {
+      for (const endpoint of endpoints) {
+        try {
+          const url = `${endpoint}/${releaseId}`;
+          const response = await fetch(url);
+          
+          if (response.ok) {
+            return response;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      return null;
+    },
+    
     extractReleaseIds(franchises) {
       const releaseIds = new Set()
       franchises.forEach(franchise => {
