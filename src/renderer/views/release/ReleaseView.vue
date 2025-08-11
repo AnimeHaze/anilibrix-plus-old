@@ -401,9 +401,9 @@ export default {
       try {
 
         const tryToFetchThisShit = await Promise.allSettled([
-          fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.release.id}`),
-          fetch(`https://anilibria.top/api/v1/anime/franchises/release/${this.release.id}`),
-          fetch(`https://www.anilibria.top/api/v1/anime/franchises/release/${this.release.id}`)
+          fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.releaseId}`),
+          fetch(`https://anilibria.top/api/v1/anime/franchises/release/${this.releaseId}`),
+          fetch(`https://www.anilibria.top/api/v1/anime/franchises/release/${this.releaseId}`)
         ])
     
         const findOK = tryToFetchThisShit.find((x) => x.ok)
