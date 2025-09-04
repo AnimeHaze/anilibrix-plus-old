@@ -76,53 +76,35 @@ export default {
     VClamp,
     ReleaseProgress
   },
-  async mounted() {
-    window._epscache = window._epscache || new Map();
-  
-    const cachedData = window._epscache.get(this.release.code);
-    if (cachedData?.isValid) {
-      this.totalEpisodes = String(cachedData.data.episodes_total);
-      return;
+  mounted() {
+    if (!window._epscache) {
+      window._epscache = new Map()
     }
-  
-    try {
-      const endpoints = [
-        'https://aniliberty.top/api/v1/anime/releases',
-        'https://anilibria.top/api/v1/anime/releases',
-        'https://www.anilibria.top/api/v1/anime/releases'
-      ];
-  
-      const response = await this.fetchFromFirstAvailableEndpoint(endpoints, this.release.code);
-      
-      if (response) {
-        const data = await response.json();
 
-        window._epscache.set(this.release.code, {
-          data,
-          isValid: true
-        });
-        this.totalEpisodes = String(data.episodes_total);
-      }
-    } catch (error) {
-      console.error('Failed to load episodes data:', error);
+    const cache = window._epscache.get(this.release.code)
+    if (cache) {
+      cache.__ok__ = true
     }
-    },
-  methods: {
-    async fetchFromFirstAvailableEndpoint(endpoints, releaseCode) {
-      for (const endpoint of endpoints) {
-        try {
-          const url = `${endpoint}/${releaseCode}`;
-          const response = await fetch(url);
-          
-          if (response.ok) {
-            return response;
-          }
-        } catch (e) {
-          continue;
+
+    const tryToFetchThisShit = await Promise.allSettled([
+      fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.code}`),
+      fetch(`https://anilibria.top/api/v1/anime/releases/${this.release.code}`),
+      fetch(`https://www.anilibria.top/api/v1/anime/releases/${this.release.code}`)
+    ])
+
+    const findOK = tryToFetchThisShit.find((x) => x.ok)
+    
+    Promise.resolve(cache || findOK)
+      .then(async x => {
+        if (cache && cache.__ok__){
+          x = cache
+        } else {
+          x = await x.json()
+          window._epscache.set(this.release.code, x)
         }
-      }
-      return null;
-    }
+
+        this.totalEpisodes = String(x.episodes_total)
+      }).catch(() => {})
   },
   data () {
     return { totalEpisodes: '' }
