@@ -86,15 +86,7 @@ export default {
       cache.__ok__ = true
     }
 
-    const tryToFetchThisShit = await Promise.allSettled([
-      fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.code}`),
-      fetch(`https://anilibria.top/api/v1/anime/releases/${this.release.code}`),
-      fetch(`https://www.anilibria.top/api/v1/anime/releases/${this.release.code}`)
-    ])
-
-    const findOK = tryToFetchThisShit.find((x) => x.ok)
-    
-    Promise.resolve(cache || findOK)
+    Promise.resolve(cache || fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.code}`))
       .then(async x => {
         if (cache && cache.__ok__){
           x = cache
