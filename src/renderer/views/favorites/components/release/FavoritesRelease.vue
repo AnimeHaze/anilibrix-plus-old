@@ -86,17 +86,19 @@ export default {
       cache.__ok__ = true
     }
 
-    Promise.resolve(cache || fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.code}`))
-      .then(async x => {
-        if (cache && cache.__ok__){
-          x = cache
-        } else {
-          x = await x.json()
-          window._epscache.set(this.release.code, x)
-        }
+    window.newAPIDomain().then(domain => {
+      Promise.resolve(cache || fetch(`https://${domain}/api/v1/anime/releases/${this.release.code}`))
+        .then(async x => {
+          if (cache && cache.__ok__){
+            x = cache
+          } else {
+            x = await x.json()
+            window._epscache.set(this.release.code, x)
+          }
 
-        this.totalEpisodes = String(x.episodes_total)
-      }).catch(() => {})
+          this.totalEpisodes = String(x.episodes_total)
+        }).catch(() => {})
+    })
   },
   data () {
     return { totalEpisodes: '' }

@@ -224,7 +224,8 @@ export default {
     toVideo,
     async loadTeamMembers() {
       try {
-        const response = await fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.id}/members`);
+        const domain = await window.newAPIDomain()
+        const response = await fetch(`https://${domain}/api/v1/anime/releases/${this.release.id}/members`);
         if (!response.ok) throw new Error('Failed to load team members');
 
         const members = await response.json();

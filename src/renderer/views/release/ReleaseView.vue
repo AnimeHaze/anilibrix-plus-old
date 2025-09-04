@@ -399,7 +399,9 @@ export default {
     async fetchAdditional() {
       this.loadingAdditional = true;
       try {
-        const response = await fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.releaseId}`);
+        const domain = await window.newAPIDomain()
+
+        const response = await fetch(`https://${domain}/api/v1/anime/franchises/release/${this.releaseId}`);
         if (!response.ok) throw new Error('Failed to load franchises');
 
         const franchisesData = await response.json();
