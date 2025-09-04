@@ -224,17 +224,10 @@ export default {
     toVideo,
     async loadTeamMembers() {
       try {
-        const tryToFetchThisShit = await Promise.allSettled([
-          fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.id}/members`),
-          fetch(`https://anilibria.top/api/v1/anime/releases/${this.release.id}/members`),
-          fetch(`https://www.anilibria.top/api/v1/anime/releases/${this.release.id}/members`)
-        ])
-    
-        const findOK = tryToFetchThisShit.find((x) => x.ok)
-        
-        if (!findOK) throw new Error('Failed to load team members');
+        const response = await fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.id}/members`);
+        if (!response.ok) throw new Error('Failed to load team members');
 
-        const members = await findOK.json();
+        const members = await response.json();
 
         this.team = {
           voice: [],
