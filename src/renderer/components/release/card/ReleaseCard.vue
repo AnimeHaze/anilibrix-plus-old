@@ -222,34 +222,19 @@ export default {
   },
   methods: {
     toVideo,
-    async fetchFromFirstAvailableEndpoint(endpoints, path) {
-      for (const endpoint of endpoints) {
-        try {
-          const url = `${endpoint}/${path}`;
-          const response = await fetch(url);
-          
-          if (response.ok) {
-            return response;
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      return null;
-    },
     async loadTeamMembers() {
       try {
-        const endpoints = [
-          'https://aniliberty.top/api/v1/anime/releases',
-          'https://anilibria.top/api/v1/anime/releases',
-          'https://www.anilibria.top/api/v1/anime/releases'
-        ];
+        const tryToFetchThisShit = await Promise.allSettled([
+          fetch(`https://aniliberty.top/api/v1/anime/releases/${this.release.id}/members`),
+          fetch(`https://anilibria.top/api/v1/anime/releases/${this.release.id}/members`),
+          fetch(`https://www.anilibria.top/api/v1/anime/releases/${this.release.id}/members`)
+        ])
     
-        const response = await this.fetchFromFirstAvailableEndpoint(endpoints, `${this.release.id}/members`);
+        const findOK = tryToFetchThisShit.find((x) => x.ok)
         
-        if (!response) throw new Error('Failed to load team members');
+        if (!findOK) throw new Error('Failed to load team members');
 
-        const members = await response.json();
+        const members = await findOK.json();
 
         this.team = {
           voice: [],
