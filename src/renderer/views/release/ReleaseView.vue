@@ -399,18 +399,10 @@ export default {
     async fetchAdditional() {
       this.loadingAdditional = true;
       try {
+        const response = await fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.releaseId}`);
+        if (!response.ok) throw new Error('Failed to load franchises');
 
-        const tryToFetchThisShit = await Promise.allSettled([
-          fetch(`https://aniliberty.top/api/v1/anime/franchises/release/${this.release.id}`),
-          fetch(`https://anilibria.top/api/v1/anime/franchises/release/${this.release.id}`),
-          fetch(`https://www.anilibria.top/api/v1/anime/franchises/release/${this.release.id}`)
-        ])
-    
-        const findOK = tryToFetchThisShit.find((x) => x.ok)
-
-        if (!findOK) throw new Error('Failed to load franchises');
-
-        const franchisesData = await findOK.json();
+        const franchisesData = await response.json();
 
         if (franchisesData.length > 0) {
           const franchise = franchisesData[0];
