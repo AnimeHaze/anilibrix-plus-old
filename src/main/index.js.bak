@@ -47,8 +47,6 @@ import { debounce } from 'lodash';
 import { catGirlFetch } from '../renderer/utils/fetch';
 import { getActiveOperaProxyURL, startOperaProxy, stopOperaProxy } from '@main/utils/opera-proxy';
 import { CacheManager } from '@main/utils/cache-manager';
-import { APICacheService } from './utils/api-cache/api-cache-service';
-import { APIController } from './utils/api-cache/api-cache-controller';
 let proxyServer
 app.commandLine.appendSwitch('--no-sandbox')
 const proxyServerValue = store.state.app.settings.system.proxy
@@ -252,32 +250,170 @@ app.on('ready', async () => {
   const multer = require('multer')
   const serv = express()
 
+  // API
+
+  const APICachePath = path.join(app.getPath('userData'), 'api-cache')
+
+  console.log('API Cache Path:', APICachePath)
+  const { countEpisodes, countReleases } = JSON.parse(await fs.readFile(path.join(APICachePath, 'metadata'), 'utf8'))
+
+  const episodesFiles = Array.from({ length: countEpisodes }, (v, k) => `episodes${k}.json`)
+  const releasesFiles = Array.from({ length: countReleases }, (v, k) => `releases${k}.json`)
+
+  const releases = Object.freeze((await Promise.all(
+    releasesFiles.map(async file => {
+      return JSON.parse(await fs.readFile(path.join(APICachePath, file), 'utf8'))
+    })
+  )).flat())
+
+  const episodes = Object.freeze((await Promise.all(
+    episodesFiles.map(async file => {
+      return JSON.parse(await fs.readFile(path.join(APICachePath, file), 'utf8'))
+    })
+  )).flat())
+
+  const sortedEpsByFresh = episodes.map(
+    (v, i, array) => ({
+      index: i,
+      updatedAt: Math.max(...v.items.map(x => new Date(x.updatedAt)))
+    })).sort((a, b) => {
+    return new Date(a.updatedAt) - new Date(b.updatedAt)
+  })
+
+  // console.log(releases.find(x => x.id === episodes[sortedEpsByFresh[0].index].releaseId),
+  //   releases.find(x => x.id === episodes[sortedEpsByFresh[sortedEpsByFresh.length - 1].index].releaseId))
+  // console.log(222, releases)
+  // console.log(11111, [...releases].sort((a, b) => a.timestamp - b.timestamp)[0])
+
+  // API end
 
   serv.disable('x-powered-by')
+  serv.use(multer().none())
 
-  const cacheService = new APICacheService(app.getPath('userData'));
-  await cacheService.initialize();
+  function transformRelease (release) {
+    return {
+      announce: release.announce,
+      blockedInfo: {
+        bakanim: false,
+        blocked: false,
+        kinopoisk: false,
+        reason: null,
+        wakanim: false
+      },
+      code: release.code,
+      day: '4',
+      description: release.description,
+      externalPlaylist: [],
+      favorite: {
+        added: true,
+        rating: 14648
+      },
+      franchises: [],
+      genres: release.genres.split(', '),
+      id: release.id,
+      last: '1756533921',
+      members: {
+        decorating: [
+          'Shadow'
+        ],
+        editing: [],
+        timing: [
+          'yuma'
+        ],
+        translating: [
+          'AKi99'
+        ],
+        voicing: [
+          'Abe',
+          'Akkakken',
+          'Hoopoe',
+          'Malevich'
+        ]
+      },
+      moon: null,
+      names: [
+        release.title,
+        release.originalName
+      ],
+      playlist: [{
+        fullhd: 'https://cache-rfn.libria.fun/videos/media/ts/9992/9/1080/33a7d13676bf25d78b4acf3c48b55ca2.m3u8',
+        hd: 'https://cache-rfn.libria.fun/videos/media/ts/9992/9/720/d91c30829ba20bb7ed5f1890295913a2.m3u8',
+        id: 9,
+        name: 'Поле битвы - Хайдерат',
+        ordinal: 9,
+        poster: release.poster,
+        poster_thumbnail: release.poster,
+        rutube_id: null,
+        sd: 'https://cache-rfn.libria.fun/videos/media/ts/9992/9/480/a10860cdd77fc7ed3e3e5cb3f7021c78.m3u8',
+        skips: {
+          ending: [],
+          opening: [
+            273,
+            363
+          ]
+        },
+        sources: {
+          is_anilibria: true,
+          is_rutube: false,
+          is_youtube: false
+        },
+        srcHd: 'https://vk.com/anilibria?w=wall-37468416_493445',
+        srcSd: 'https://vk.com/anilibria?w=wall-37468416_493445',
+        title: 'Серия 9',
+        updated_at: 1756832430,
+        uuid: '9fc16c77-5032-496c-a9eb-71dfddcb6661',
+        youtube_id: null
+      }],
+      poster: release.poster,
+      season: release.season,
+      series: '1-9',
+      status: 'В работе',
+      statusCode: '1',
+      torrents: [],
+      type: 'ТВ (12 эп.)',
+      voices: [
+        'Abe',
+        'Akkakken',
+        'Hoopoe',
+        'Malevich'
+      ],
+      year: release.year
+    }
+  }
 
-  const apiController = new APIController(cacheService);
+  serv.post('/public/api/index.php', (req, res) => {
+    let { query, perPage = 10, page = 1 } = req.body
 
-  serv.post('/public/api/index.php', multer().none(), (req, res) => {
-    const { query } = req.body;
+    perPage = +perPage
+
+    if (isNaN(perPage) || perPage < 0) {
+      res.status(400).send({
+        error: 'Invalid perPage',
+        status: false
+      })
+      return
+    }
 
     if (query === 'list') {
-      const response = apiController.handleListRequest(req.body);
-
-      if (response.error) {
-        res.status(400).send(response);
-      } else {
-        res.send(response);
-      }
-    } else {
-      res.status(404).send({
-        error: 'Endpoint not found',
-        status: false
-      });
+      res.send({
+        data: {
+          items: sortedEpsByFresh
+            .map(x => releases.find(y => y.id === episodes[x.index].releaseId))
+            .reverse()
+            .slice(page > 1 ? perPage * page : 0, perPage)
+            .map(transformRelease),
+          pagination: {
+            allItems: releases.length,
+            allPages: Math.ceil(releases.length / perPage),
+            page,
+            perPage
+          }
+        },
+        error: null,
+        status: true
+      })
     }
-  });
+  })
 
   serv.get('/rutube/:id/*', (req, res) => {
     catGirlFetch(`https://rutube.ru/api/play/options/${req.params.id}/?no_404=true&referer&pver=v2`, {}, 3000)
