@@ -30,7 +30,12 @@ export class APICacheService {
   async initialize() {
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
 
-    this.releases = await this.loadJsonFiles('releases', countReleases);
+    this.releases = await this.loadJsonFiles('releases', countReleases)
+      .then(x => {
+        return new Map(
+          x.map(release => [release.id, release])
+        )
+      })
     this.episodes = await this.loadJsonFiles('episodes', countEpisodes);
 
     this.sortedEpisodesByFreshness = this.sortEpisodesByFreshness();

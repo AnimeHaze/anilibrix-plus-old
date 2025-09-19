@@ -252,7 +252,6 @@ app.on('ready', async () => {
   const multer = require('multer')
   const serv = express()
 
-
   serv.disable('x-powered-by')
 
   const cacheService = new APICacheService(app.getPath('userData'));
@@ -262,20 +261,21 @@ app.on('ready', async () => {
 
   serv.post('/public/api/index.php', multer().none(), (req, res) => {
     const { query } = req.body;
-
-    if (query === 'list') {
-      const response = apiController.handleListRequest(req.body);
-
-      if (response.error) {
-        res.status(400).send(response);
-      } else {
-        res.send(response);
-      }
-    } else {
+    if (!['list', 'release', 'catalog'].includes(query)) {
       res.status(404).send({
         error: 'Endpoint not found',
         status: false
       });
+
+      return
+    }
+
+    const response = apiController.handleRequest(req.body, query);
+
+    if (response.error) {
+      res.status(400).send(response);
+    } else {
+      res.send(response);
     }
   });
 

@@ -1,5 +1,5 @@
 export class APIResponseTransformer {
-  static transformRelease(release) {
+  static transformRelease(release, episodes) {
     return {
       announce: release.announce,
       blockedInfo: {
@@ -27,7 +27,9 @@ export class APIResponseTransformer {
       },
       moon: null,
       names: [release.title, release.originalName].filter(Boolean),
-      playlist: [APIResponseTransformer.createPlaylistItem(release)],
+      playlist: episodes.map(x => {
+        return APIResponseTransformer.createPlaylistItem(release, x)
+      }),
       poster: release.poster,
       season: release.season,
       series: '1-9',
@@ -40,26 +42,22 @@ export class APIResponseTransformer {
     };
   }
 
-  static createPlaylistItem(release) {
-    const baseUrl = 'https://cache-rfn.libria.fun/videos/media/ts/9992/9';
-
+  static createPlaylistItem(release, episode) {
     return {
-      fullhd: `${baseUrl}/1080/33a7d13676bf25d78b4acf3c48b55ca2.m3u8`,
-      hd: `${baseUrl}/720/d91c30829ba20bb7ed5f1890295913a2.m3u8`,
-      id: 9,
-      name: 'Поле битвы - Хайдерат',
-      ordinal: 9,
+      fullhd: episode.hls_1080,
+      hd: episode.hls_720,
+      sd: episode.hls_480,
+      id: episode.ordinal, // episode.id hmmm... if i change it to uuid (text id), broke next / forward for player
+      name: episode.name,
+      ordinal: episode.ordinal,
       poster: release.poster,
-      poster_thumbnail: release.poster,
+      poster_thumbnail: episode.preview.src,
       rutube_id: null,
-      sd: `${baseUrl}/480/a10860cdd77fc7ed3e3e5cb3f7021c78.m3u8`,
-      skips: { ending: [], opening: [273, 363] },
+      skips: { ending: [episode.ending?.start, episode.ending?.stop].filter(Boolean), opening: [episode.opening?.start, episode.opening?.stop].filter(Boolean) },
       sources: { is_anilibria: true, is_rutube: false, is_youtube: false },
-      srcHd: 'https://vk.com/anilibria?w=wall-37468416_493445',
-      srcSd: 'https://vk.com/anilibria?w=wall-37468416_493445',
-      title: 'Серия 9',
-      updated_at: 1756832430,
-      uuid: '9fc16c77-5032-496c-a9eb-71dfddcb6661',
+      title: `Серия ${episode.ordinal}`,
+      updated_at: new Date(episode.updatedAt) / 1000,
+      uuid: episode.id,
       youtube_id: null
     };
   }
