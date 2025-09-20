@@ -259,9 +259,24 @@ app.on('ready', async () => {
 
   const apiController = new APIController(cacheService);
 
-  serv.post('/public/api/index.php', multer().none(), (req, res) => {
+  serv.post('/public/api/index.php', multer().none(), async (req, res) => {
     const { query } = req.body;
-    if (!['list', 'release', 'catalog'].includes(query)) {
+
+    if (['user', 'favorites'].includes(query)) {
+      const response = await apiController.handleProxyWithCache(query, {
+        ...req.body
+      })
+
+      if (response.error) {
+        res.status(400).send(response);
+      } else {
+        res.send(response);
+      }
+
+      return
+    }
+
+    if (!['list', 'release', 'catalog', 'random_release'].includes(query)) {
       res.status(404).send({
         error: 'Endpoint not found',
         status: false
@@ -270,7 +285,7 @@ app.on('ready', async () => {
       return
     }
 
-    const response = apiController.handleRequest(req.body, query);
+    const response = await apiController.handleRequest(req.body, query);
 
     if (response.error) {
       res.status(400).send(response);

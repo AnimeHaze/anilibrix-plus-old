@@ -1,105 +1,97 @@
-import { APIResponseTransformer } from './api-release-transformer';
+import { APIResponseTransformer } from './api-release-transformer'
 
 export class APIController {
   constructor(cacheService) {
     this.cacheService = cacheService;
+    this.findEpisodes = (id) => {
+      return this.cacheService.episodesByReleaseId.get(id) || [];
+    };
   }
 
-  handleRequest(body, type) {
-    let data = {}
-
-    const findEpisodes = (id) => {
-      return this.cacheService.episodes.find(x => x.releaseId == id)?.items || []
-    }
-
-    if (type === 'list') {
-      const {
-        perPage = 10,
-        page = 1
-      } = body;
-      const validatedPerPage = this.validatePerPage(perPage);
-
-      if (validatedPerPage.error) {
-        return {
-          error: validatedPerPage.error,
-          status: false
-        };
-      }
-
-      const items = this.getPaginatedList(validatedPerPage.value, page);
-
-      data.items = items.map(x => APIResponseTransformer.transformRelease(x, findEpisodes(x.id)))
-      data.pagination = this.createPagination(validatedPerPage.value, page)
-    } else if (type === 'release') {
-      const release = this.cacheService.releases.get(body.id) || this.cacheService.releases.get(+body.id)
-      data = APIResponseTransformer.transformRelease(release, findEpisodes(release.id))
-    } else if (type === 'catalog') {
-      const {
-        perPage = 10,
-        page = 1
-      } = body;
-      const validatedPerPage = this.validatePerPage(perPage);
-
-      if (validatedPerPage.error) {
-        return {
-          error: validatedPerPage.error,
-          status: false
-        };
-      }
-
-      const items = this.getPaginatedReleases(validatedPerPage.value, page);
-
-      data.items = items.map(x => APIResponseTransformer.transformRelease(x, findEpisodes(x.id)))
-      data.pagination = this.createPagination(validatedPerPage.value, page)
-    }
-
+  async handleProxyWithCache(query, extra) {
     return {
-      data,
+      data: query === 'user' ? {
+        avatar: '/storage/users/avatars/3579/357970/lfoafjkY5FGCN4LLpNcNcALhdzmXIoPV.jpg',
+        id: 1,
+        login: 'Roxy'
+      } : await this.handleListRequest({ perPage: 370, page: 1 }),
       error: null,
       status: true
+    }
+  }
+
+  async handleRequest(body, type) {
+    await this.cacheService.ensureInitialized();
+
+    try {
+      let data = {};
+
+      if (type === 'list') {
+        data = await this.handleListRequest(body);
+      } else if (type === 'release') {
+        data = await this.handleReleaseRequest(body);
+      } else if (type === 'catalog') {
+        data = await this.handleCatalogRequest(body);
+      } else if (type === 'random_release') {
+        data = await this.handleReleaseRequest({ id: 9972 });
+
+        console.log(data, 43444)
+      }
+
+      return { data, error: null, status: true };
+    } catch (error) {
+      return { data: null, error: error.message, status: false };
+    }
+  }
+
+  async handleListRequest({ perPage = 10, page = 1 }) {
+    const validatedPerPage = this.validatePerPage(perPage);
+    if (validatedPerPage.error) throw new Error(validatedPerPage.error);
+
+    const sortedReleases = this.cacheService.getSortedReleases();
+
+    const items = sortedReleases.slice(
+      (page - 1) * validatedPerPage.value,
+      page * validatedPerPage.value
+    );
+
+    return {
+      items: items.map(x => APIResponseTransformer.transformRelease(x, this.findEpisodes(x.id))),
+      pagination: this.createPagination(validatedPerPage.value, page, sortedReleases.length)
+    };
+  }
+
+  async handleReleaseRequest({ id }) {
+    const release = this.cacheService.releases.get(id) ||
+      this.cacheService.releases.get(Number(id));
+    if (!release) throw new Error('Release not found');
+
+    return APIResponseTransformer.transformRelease(release, this.findEpisodes(release.id));
+  }
+
+  async handleCatalogRequest({ perPage = 10, page = 1 }) {
+    const validatedPerPage = this.validatePerPage(perPage);
+    if (validatedPerPage.error) throw new Error(validatedPerPage.error);
+
+    const uniqueReleases = this.cacheService.getUniqueSortedReleases();
+
+    const items = uniqueReleases.slice(
+      (page - 1) * validatedPerPage.value,
+      page * validatedPerPage.value
+    );
+
+    return {
+      items: items.map(x => APIResponseTransformer.transformRelease(x, this.findEpisodes(x.id))),
+      pagination: this.createPagination(validatedPerPage.value, page, uniqueReleases.length)
     };
   }
 
   validatePerPage(perPage) {
-    const parsedPerPage = Number(perPage);
-
-    if (isNaN(parsedPerPage) || parsedPerPage < 0) {
-      return { error: 'Invalid perPage' };
-    }
-
-    return { value: parsedPerPage };
+    const parsed = Number(perPage);
+    return parsed > 0 ? { value: parsed } : { error: 'Invalid perPage' };
   }
 
-  getPaginatedList(perPage, page) {
-    return this.cacheService.sortedEpisodesByFreshness
-      .map(episode => this.cacheService.releases.get(this.cacheService.episodes[episode.index].releaseId))
-      .reverse()
-      .slice(page > 1 ? perPage * (page - 1) : 0, perPage * page);
-  }
-
-  getPaginatedReleases (perPage, page) {
-    const uniqueReleases = [];
-    const seenIds = new Set();
-
-    for (const episode of this.cacheService.sortedEpisodesByFreshness) {
-      const releaseId = this.cacheService.episodes[episode.index].releaseId;
-      if (!seenIds.has(releaseId)) {
-        const release = this.cacheService.releases.get(releaseId);
-        if (release) {
-          uniqueReleases.push(release);
-          seenIds.add(releaseId);
-        }
-      }
-    }
-
-    return uniqueReleases
-      .reverse()
-      .slice(page > 1 ? perPage * (page - 1) : 0, perPage * page);
-  }
-
-  createPagination(perPage, currentPage) {
-    const totalItems = this.cacheService.releases.size;
-
+  createPagination(perPage, currentPage, totalItems) {
     return {
       allItems: totalItems,
       allPages: Math.ceil(totalItems / perPage),
