@@ -8,6 +8,7 @@ import parseTorrent from 'parse-torrent';
 import qs from 'querystring';
 import { catGirlFetch } from '@utils/fetch';
 import { parse } from 'content-disposition-attachment';
+import FormData from 'form-data'
 
 axiosRetry(axios, {
   retryDelay: () => 1500,
@@ -204,6 +205,14 @@ export const handleShowConfig = () => {
   })
 }
 
+function normalizeEndpoint (endpoint) {
+  if (endpoint.endsWith('/')) {
+    return endpoint.slice(0, -1).trim()
+  }
+
+  return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
+}
+
 /**
  * Send activity for discord rich presence
  *
@@ -219,28 +228,59 @@ export const invokeRand = () => ipcRenderer.invoke(APP_RAND)
  */
 export const handleRand = () => {
   ipcMain.handle(APP_RAND, async (event) => {
-    const endpoint = require('@store/index').default?.state?.app?.settings?.system?.api._endpoint
-
-    const { hostname } = new URL(endpoint)
-    const parts = hostname.split('.')
-    if (parts.length > 2) {
-      parts.shift()
-    }
+    // delay 500 - 1.5 sec
+    await new Promise((r) => setTimeout(r, Math.random() * 1000 + 500))
 
     try {
-      const { data } = await axios.get(`https://api.${parts.join('.')}/v3/title/random`)
-      console.log('Rand:', data.id)
-      return { id: data.id, name: data.names.en }
-    } catch (e) {
-      const { data: { data: { code } } } = await axios.post(`https://${hostname}/public/api/index.php`, new URLSearchParams({ query: 'random_release' }))
-      const { data: { data: { id, names } } } = await axios.post(`https://${hostname}/public/api/index.php`, new URLSearchParams({
-        query: 'release',
-        code: code
-      }))
-      return { id: id, name: names.pop() }
+      const store = require('@store/index').default;
+      const endpoint = normalizeEndpoint(store?.state?.app?.settings?.system?.api._endpoint);
+      const apiUrl = `${endpoint}/public/api/index.php`;
+
+      const randomReleaseFormData = new FormData();
+      randomReleaseFormData.append('query', 'random_release');
+
+      const randomResponse = await catGirlFetch(apiUrl, {
+        method: 'POST',
+        body: randomReleaseFormData,
+        raw: true
+      });
+
+      if (!randomResponse.ok) {
+        throw new Error(`Failed to fetch random release: ${randomResponse.status}`);
+      }
+
+      const { data: randomData } = await randomResponse.json();
+
+      if (!randomData?.id) {
+        throw new Error('Invalid response: missing release ID');
+      }
+
+      const releaseFormData = new FormData();
+      releaseFormData.append('query', 'release');
+      releaseFormData.append('id', randomData.id);
+
+      const releaseResponse = await catGirlFetch(apiUrl, {
+        method: 'POST',
+        body: releaseFormData,
+        raw: true
+      });
+
+      if (!releaseResponse.ok) {
+        throw new Error(`Failed to fetch release details: ${releaseResponse.status}`);
+      }
+
+      const releaseData = await releaseResponse.json();
+
+      const { id, names } = releaseData.data;
+      const name = names.pop();
+
+      return { id, name };
+    } catch (error) {
+      console.error('Error in handleRand:', error);
+      throw new Error(`Random release fetch failed: ${error.message}`);
     }
-  })
-}
+  });
+};
 
 export const invokeGetTitleV3 = (url) => ipcRenderer.invoke(APP_GET_TITLE_V3, url)
 export const handleGetTitleV3 = () => {
