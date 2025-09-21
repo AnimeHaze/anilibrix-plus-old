@@ -58,7 +58,7 @@ export default {
         headers: {
           'x-session': this._session
         }
-      })
+      }, 10000)
         .then(({ success, error }) => {
           if (success) {
             return this.$emit('fetchSnapshots')

@@ -77,7 +77,7 @@ export default {
         headers: {
           'x-session': this._session
         }
-      })
+      }, 10000)
         .then(({ data, success, error }) => {
           if (success) {
             const {
