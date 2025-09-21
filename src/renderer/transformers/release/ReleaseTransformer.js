@@ -22,6 +22,7 @@ export default class ReleaseTransformer extends BaseTransformer {
         ru: this._stripHtml(this.get(release, 'names.0')),
         original: this._stripHtml(this.get(release, 'names.1'))
       },
+      series: this.get(release, 'series'),
       voices: this.get(release, 'voices') || [],
       genres: this.get(release, 'genres') || [],
       poster: this.get(release, 'poster'),

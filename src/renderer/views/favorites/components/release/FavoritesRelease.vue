@@ -76,32 +76,9 @@ export default {
     VClamp,
     ReleaseProgress
   },
-  mounted() {
-    if (!window._epscache) {
-      window._epscache = new Map()
-    }
-
-    const cache = window._epscache.get(this.release.code)
-    if (cache) {
-      cache.__ok__ = true
-    }
-
-    window.newAPIDomain().then(domain => {
-      Promise.resolve(cache || fetch(`https://${domain}/api/v1/anime/releases/${this.release.code}`))
-        .then(async x => {
-          if (cache && cache.__ok__){
-            x = cache
-          } else {
-            x = await x.json()
-            window._epscache.set(this.release.code, x)
-          }
-
-          this.totalEpisodes = String(x.episodes_total)
-        }).catch(() => {})
-    })
-  },
+  mounted() {},
   data () {
-    return { totalEpisodes: '' }
+    return { totalEpisodes: this.release.series }
   },
   computed: {
 

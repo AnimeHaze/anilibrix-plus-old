@@ -85,7 +85,8 @@ export default {
   props,
   computed: {
     total () {
-      return this.totalEpisodes && this.totalEpisodes !== 'null' ? ' (' + this.totalEpisodes + ')' : ''
+      const totalValue = this.totalEpisodes.replace('(0)', '(?)')
+      return totalValue && this.totalEpisodes !== 'null' ? ' ' + totalValue : ''
     },
 
     /**
