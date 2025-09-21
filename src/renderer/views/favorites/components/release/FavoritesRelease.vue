@@ -1,8 +1,7 @@
 <template>
   <v-hover v-slot:default="{ hover }">
-    <v-lazy :options="{threshold: .5}">
       <v-card class="grey darken-3 release-card" @click="$emit('click')">
-        <v-img aspect-ratio=".7" :src="poster">
+        <v-img :transition="false" aspect-ratio=".7" :src="poster">
 
           <v-fade-transition mode="out-in">
             <div v-if="hover" class="d-flex flex-column release-card--reveal grey darken-4 pa-4" style="padding-bottom: 25px !important">
@@ -42,6 +41,7 @@
           <!-- Release Progress -->
           <release-progress
             v-bind="{ release, episodes, totalEpisodes }"
+            :transition="false"
             dense
             center
             square
@@ -49,7 +49,6 @@
             height="25"/>
         </v-img>
       </v-card>
-    </v-lazy>
   </v-hover>
 </template>
 

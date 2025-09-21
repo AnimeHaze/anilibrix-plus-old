@@ -3,7 +3,7 @@
     <v-layout align-start>
 
       <v-card width="160" height="240" min-width="160" min-height="240" :style="{position: 'relative'}">
-        <v-img v-bind="{src}" width="160" height="240"/>
+        <v-img :transition="false" v-bind="{src}" width="160" height="240"/>
       </v-card>
 
       <div>

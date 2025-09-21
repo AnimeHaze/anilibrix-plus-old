@@ -16,7 +16,7 @@
                   :value="file.progress && file.progress.percent ? file.progress.percent * 100 : 0">
                   <v-layout justify-center align-center>
                     <v-list-item-avatar size="40" class="ma-0">
-                      <v-img :src="file.release.poster.image"/>
+                      <v-img :transition="false" :src="file.release.poster.image"/>
                     </v-list-item-avatar>
                   </v-layout>
                 </v-progress-circular>

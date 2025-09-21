@@ -70,7 +70,7 @@
                        :key="release.id"
           >
             <v-list-item-avatar>
-              <v-img :src="release.poster"></v-img>
+              <v-img :transition="false" :src="release.poster"></v-img>
             </v-list-item-avatar>
 
             <v-list-item-content>
