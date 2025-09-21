@@ -32,12 +32,12 @@ export class APIResponseTransformer {
       }),
       poster: release.poster,
       season: release.season,
-      status: release.status,
       series: release.series,
+      status: release.status.replace('Сейчас в озвучке', 'В работе').replace('Озвучка завершена', 'Завершен'),
       statusCode: '1',
       torrents: [],
-      type: 'ТВ (12 эп.)',
-      voices: release.voices.split(', '),
+      type: release.type + (release.series && release.series !== '(0)' ? ` (${release.series.replace(/[\(\)]/g, '')} эп.)` : ''),
+      voices: release.voices?.split(', '),
       team: release.team?.split(', '),
       year: release.year
     };
