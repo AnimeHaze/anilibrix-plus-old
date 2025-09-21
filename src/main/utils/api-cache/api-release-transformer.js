@@ -38,6 +38,7 @@ export class APIResponseTransformer {
       torrents: [],
       type: 'ТВ (12 эп.)',
       voices: release.voices.split(', '),
+      team: release.team?.split(', '),
       year: release.year
     };
   }
