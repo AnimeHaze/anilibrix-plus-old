@@ -1,4 +1,14 @@
-import { APIResponseTransformer } from './api-release-transformer'
+import {APIResponseTransformer} from './api-release-transformer'
+import store from '@store';
+import FormData from 'form-data'
+
+function normalizeEndpoint (endpoint) {
+  if (endpoint.endsWith('/')) {
+    return endpoint.slice(0, -1).trim()
+  }
+
+  return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
+}
 
 export class APIController {
   constructor(cacheService) {
@@ -9,15 +19,87 @@ export class APIController {
   }
 
   async handleProxyWithCache(query, extra) {
-    return {
-      data: query === 'user' ? {
-        avatar: '/storage/users/avatars/3579/357970/lfoafjkY5FGCN4LLpNcNcALhdzmXIoPV.jpg',
-        id: 1,
-        login: 'Roxy'
-      } : await this.handleListRequest({ perPage: 370, page: 1 }),
-      error: null,
-      status: true
+    const endpoint = 'https://wwnd.space';
+    const apiUrl = `${endpoint}/public/api/index.php`;
+    const session = store?.state?.app?.account?.session;
+
+    if (!query) {
+      throw new Error('Query parameter is required');
     }
+
+    try {
+      const response = await this.makeApiRequest(apiUrl, session, extra);
+
+      if (response.ok) {
+        const data = await response.json();
+        await this.cacheService.setCacheKey(query, data);
+        return data;
+      }
+
+      await this.handleErrorResponse(response);
+    } catch (error) {
+      return this.handleFallbackToCache(query, error);
+    }
+  }
+
+  async makeApiRequest(apiUrl, session, extra) {
+    const formData = this.createFormData(extra);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    try {
+      return await fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+        headers: {
+          Cookie: this.buildCookieHeader(session)
+        }
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  createFormData(extra) {
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(extra || {})) {
+      formData.append(key, value);
+    }
+
+    return formData;
+  }
+
+  buildCookieHeader(session) {
+    if (!session) return '';
+
+    return `PHPSESSID=${session}; Path=/; Secure; HttpOnly`;
+  }
+
+  async handleErrorResponse(response) {
+    if (response.status === 401) {
+      await this.clearUserData();
+      throw new Error('Unauthorized');
+    }
+
+    throw new Error(`API request failed with status: ${response.status}`);
+  }
+
+  async clearUserData() {
+    await this.cacheService.setCacheKey('user', null);
+    await this.cacheService.setCacheKey('favorites', null);
+  }
+
+  async handleFallbackToCache(query, error) {
+    const cachedValue = await this.cacheService.getCacheKey(query);
+
+    if (cachedValue) {
+      console.warn(`Using cached data for query "${query}" due to error:`, error.message);
+      return cachedValue;
+    }
+
+    throw error;
   }
 
   async handleRequest(body, type) {

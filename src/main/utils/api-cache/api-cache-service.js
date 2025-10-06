@@ -6,6 +6,25 @@ export class APICacheService {
     this.cachePath = path.join(userDataPath, 'api-cache');
     console.log('API Cache Path:', this.cachePath);
     this.isInitialized = false;
+    this.cache = new Map();
+  }
+
+  async setCacheKey (key, value) {
+    const metadataPath = path.join(this.cachePath, `${key}.json`);
+    this.cache.set(key, value);
+    await fs.writeFile(metadataPath, JSON.stringify(value));
+  }
+
+  async getCacheKey (key) {
+    if (this.cache.has(key)) return this.cache.get(key)
+
+    const metadataPath = path.join(this.cachePath, `${key}.json`);
+    const metadataContent = await fs.readFile(metadataPath, 'utf8');
+    const value = JSON.parse(metadataContent);
+
+    this.cache.set(key, value)
+
+    return value
   }
 
   async loadCacheMetadata() {

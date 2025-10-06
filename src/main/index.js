@@ -4,7 +4,7 @@ import { execFile } from 'child_process'
 // Main process
 import path from 'path'
 import fs from 'fs/promises'
-
+import expressProxy from 'express-http-proxy';
 // eslint-disable-next-line import/first
 import { meta, version } from '@package'
 import sentry from './utils/sentry'
@@ -303,6 +303,17 @@ app.on('ready', async () => {
   })
 
   fs.mkdir(cachePath).catch(e => console.log(e))
+
+  serv.all('/', (req, res) => {
+    res.send('Hello from Anilibrix Plus!')
+  })
+  serv.post('/public/login.php', expressProxy('https://wwnd.space'));
+  serv.post('/public/logout.php', expressProxy('https://wwnd.space', {
+    userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
+      apiController.clearUserData()
+      return proxyResData
+    }
+  }));
 
   serv.get('/proxy-static', async (req, res) => {
     try {
