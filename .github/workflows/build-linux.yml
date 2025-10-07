@@ -19,7 +19,6 @@ jobs:
       PYTHON_CACHE: ${{ github.workspace }}/.cache/python-2.7
       ADS_URLS: ${{ secrets.ADS_URLS }}
       VK_APP_ID: ${{ secrets.VK_APP_ID }}
-      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
       YANDEX_TRACKING_ID: ${{ secrets.YANDEX_TRACKING_ID }}
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
@@ -127,7 +126,7 @@ jobs:
       - name: Build application (Linux)
         run: |
           yarn run release:linux
-          rm release/*.snap          
+          rm release/*.snap
 
       - name: Prepare build application (Snap)
         run: |
@@ -149,7 +148,7 @@ jobs:
 
       - name: Build application (Windows)
         run: yarn run release:windows
-  
+
       - name: Zip platform folders (preserve original dir names)
         run: |
           mkdir -p bundle/linux
@@ -176,7 +175,7 @@ jobs:
             release/*.deb
             release/*.snap
             release/*.AppImage
-            release/*.flatpak 
+            release/*.flatpak
             linux-unpacked.zip
             win-unpacked.zip
           retention-days: 5
@@ -191,6 +190,6 @@ jobs:
             release/*.deb
             release/*.snap
             release/*.AppImage
-            release/*.flatpak 
+            release/*.flatpak
             linux-unpacked.zip
             win-unpacked.zip

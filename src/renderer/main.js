@@ -5,7 +5,6 @@ import router from '@router'
 import store from '@store'
 
 // Import vendor plugins
-import sentry from '@plugins/sentry'
 import yandex from '@plugins/vue-yandex-metrika'
 import vuetify from '@plugins/vuetify'
 
@@ -38,13 +37,7 @@ axiosRetry(axios, {
 })
 Vue.config.productionTip = false
 
-// Initialize sentry
 // Initialize yandex metrika
-Vue.use(sentry, {
-  dsn: process.env.SENTRY_DSN,
-  store,
-  source: 'app'
-})
 Vue.use(yandex, {
   id: process.env.YANDEX_TRACKING_ID,
   store,

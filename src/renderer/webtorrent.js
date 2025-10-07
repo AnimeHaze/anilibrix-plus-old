@@ -2,7 +2,6 @@
 // process from the main window.
 
 import app from '@/../package'
-import sentry from './../main/utils/sentry'
 import { getStore } from '@store'
 
 // Torrent handlers
@@ -22,12 +21,6 @@ const { SubtitleParser } = require('matroska-subtitles')
 // Connect to the WebTorrent and BitTorrent networks. WebTorrent Desktop is a hybrid
 // client, as explained here: https://webtorrent.io/faq
 const torrentClient = new WebTorrent()
-
-// Enable Sentry.io electron handler
-sentry({
-  store: getStore(),
-  source: 'torrent'
-})
 
 // Create local store for torrents
 const store = {

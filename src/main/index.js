@@ -7,7 +7,6 @@ import fs from 'fs/promises'
 import expressProxy from 'express-http-proxy';
 // eslint-disable-next-line import/first
 import { meta, version } from '@package'
-import sentry from './utils/sentry'
 // Store
 import store, { getStore, setUserId } from '@store'
 import express from 'express'
@@ -201,12 +200,6 @@ app.on('ready', async () => {
 
   // Set user id
   await setUserId()
-
-  // Initialize sentry.io
-  sentry({
-    store: getStore(),
-    source: 'main'
-  })
 
   // Create windows
   Main.createWindow({ title: meta.name }).loadUrl()

@@ -192,9 +192,6 @@
   "dependencies": {
     "@electron/remote": "^2.0.1",
     "@mdi/font": "^4.8.95",
-    "@sentry/browser": "^6.13.2",
-    "@sentry/electron": "^2.5.4",
-    "@sentry/integrations": "^6.13.2",
     "axios": "^1.7.2",
     "axios-retry": "^3.5.1",
     "chromecast-api": "^0.3.3",
