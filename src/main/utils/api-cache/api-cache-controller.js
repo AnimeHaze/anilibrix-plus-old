@@ -2,14 +2,6 @@ import {APIResponseTransformer} from './api-release-transformer'
 import store from '@store';
 import FormData from 'form-data'
 
-function normalizeEndpoint (endpoint) {
-  if (endpoint.endsWith('/')) {
-    return endpoint.slice(0, -1).trim()
-  }
-
-  return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
-}
-
 export class APIController {
   constructor(cacheService) {
     this.cacheService = cacheService;
@@ -138,7 +130,13 @@ export class APIController {
     );
 
     return {
-      items: items.map(x => APIResponseTransformer.transformRelease(x, this.findEpisodes(x.id))),
+      items: items.map(
+        x => APIResponseTransformer.transformRelease(
+          x,
+          this.findEpisodes(x.id),
+          this.cacheService.franchiseByReleaseId.get(x.id)
+        )
+      ),
       pagination: this.createPagination(validatedPerPage.value, page, sortedReleases.length)
     };
   }
@@ -148,7 +146,13 @@ export class APIController {
       this.cacheService.releases.get(Number(id));
     if (!release) throw new Error('Release not found');
 
-    return APIResponseTransformer.transformRelease(release, this.findEpisodes(release.id));
+    console.log(release.id, this.cacheService.franchiseByReleaseId.get(release.id))
+
+    return APIResponseTransformer.transformRelease(
+      release,
+      this.findEpisodes(release.id),
+      this.cacheService.franchiseByReleaseId.get(release.id)
+    );
   }
 
   async handleCatalogRequest({ perPage = 10, page = 1 }) {
@@ -163,7 +167,13 @@ export class APIController {
     );
 
     return {
-      items: items.map(x => APIResponseTransformer.transformRelease(x, this.findEpisodes(x.id))),
+      items: items.map(
+        x => APIResponseTransformer.transformRelease(
+          x,
+          this.findEpisodes(x.id),
+          this.cacheService.franchiseByReleaseId.get(x.id)
+        )
+      ),
       pagination: this.createPagination(validatedPerPage.value, page, uniqueReleases.length)
     };
   }

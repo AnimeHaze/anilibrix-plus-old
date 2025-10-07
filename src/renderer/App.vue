@@ -1,23 +1,15 @@
 <template>
   <v-app>
-    <!-- System Bar -->
     <app-system-bar/>
     <app-settings/>
-
-    <!-- Content -->
 
     <app-loader v-if="loading"/>
     <component :is="layout" v-else>
       <router-view :key="$route.fullPath"/>
     </component>
 
-    <!-- Errors -->
-    <!-- Downloads -->
-    <!-- Notifications -->
     <app-errors/>
-    <app-downloads/>
     <app-notifications/>
-
   </v-app>
 </template>
 
@@ -27,7 +19,6 @@ import AppErrors from '@components/app/errors'
 import AppToolBar from '@components/app/toolbar'
 import AppSettings from '@components/app/settings'
 import AppSystemBar from '@components/app/systembar'
-import AppDownloads from '@components/app/downloads'
 import AppBaseLayout from '@layouts/base'
 import AppNotifications from '@components/app/notifications'
 
@@ -41,7 +32,6 @@ export default {
     AppToolBar,
     AppSettings,
     AppSystemBar,
-    AppDownloads,
     AppBaseLayout,
     AppNotifications,
   },

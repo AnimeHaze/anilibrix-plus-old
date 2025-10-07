@@ -9,7 +9,7 @@ import CatalogTransformer from '@transformers/catalog'
 import __capitalize from 'lodash/capitalize'
 
 // Handlers
-import { showAppError } from '@main/handlers/notifications/notificationsHandler'
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
 // Mutations
 const SET_INITIALIZED = 'SET_INITIALIZED'

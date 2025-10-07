@@ -60,7 +60,7 @@
       </v-card-actions>
     </v-card>
 
-    <v-card v-if="franchises.length && !loadingAdditional" flat color="transparent" class="mb-6">
+    <v-card v-if="franchises.length" flat color="transparent" class="mb-6">
       <v-card-title>Связанное</v-card-title>
       <v-list three-line>
         <template v-for="(item, index) in franchises">
@@ -116,9 +116,8 @@ import Torrents from '@components/release/torrents'
 import { toVideo } from '@utils/router/views'
 import { mapState } from 'vuex'
 import router from '@router'
-import { catGirlFetch } from '@utils/fetch'
 import ReleaseProxy from '@proxies/release'
-import {invokeGetTitleV3} from "@main/handlers/app/appHandlers";
+import store from "@store";
 
 const props = {
   releaseId: {
@@ -142,20 +141,10 @@ export default {
     Episodes,
     Comments
   },
-
-  async mounted () {
-    const id = this._release?.id
-    if (this._release?.id) {
-      await this.fetchAdditional(id)
-    }
-  },
-
   data () {
     return {
       tab: 0,
       loading: false,
-      loadingAdditional: true,
-      franchises: [],
       dates: {},
       selectedDomain: 'anilibria.tv/release/',
       availableDomains: [
@@ -202,6 +191,11 @@ export default {
       return {
         ...this._release
       }
+    },
+    franchises () {
+      return this._release.franchises.length ? [{
+        releases: this._release.franchises
+      }] : []
     },
     /**
      * Get release episodes
@@ -395,97 +389,7 @@ export default {
         this.$toasted.error('Не удалось скопировать ссылку');
       }
     },
-
-    async fetchAdditional() {
-      this.loadingAdditional = true;
-      try {
-        const domain = await window.newAPIDomain()
-
-        const response = await fetch(`https://${domain}/api/v1/anime/franchises/release/${this.releaseId}`);
-        if (!response.ok) throw new Error('Failed to load franchises');
-
-        const franchisesData = await response.json();
-
-        if (franchisesData.length > 0) {
-          const franchise = franchisesData[0];
-          this.franchises = [{
-            releases: franchise.franchise_releases.map(releaseItem => {
-              const release = releaseItem.release;
-              return {
-                id: release.id,
-                names: {
-                  ru: release.name.main,
-                  en: release.name.english
-                },
-                poster: 'http://localhost:9384/proxy-static?url=' + new ReleaseProxy().getStaticEndpoint() + (release.poster.optimized?.preview || release.poster.preview),
-                type: release.type.description,
-                status: release.is_ongoing ? 'Онгоинг' : 'Завершён'
-              };
-            })
-          }];
-        } else {
-          this.franchises = [];
-        }
-
-        this.loadingAdditional = false;
-      } catch (error) {
-        console.error('Error loading franchises:', error);
-        this.$toasted.error('Ошибка загрузки связанных релизов');
-        this.loadingAdditional = false;
-      }
-    },
-
-    extractReleaseIds(franchises) {
-      const releaseIds = new Set()
-      franchises.forEach(franchise => {
-        franchise.releases.forEach(release => {
-          releaseIds.add(release.id)
-        })
-      })
-      return Array.from(releaseIds)
-    },
-
-    async loadAdditionalData(releaseIds) {
-      const result = await Promise.allSettled(
-          releaseIds.map((id) => invokeGetTitleV3(
-            `filter=status.string,id,type.full_string,string,names.ru,posters.medium&include=raw_poster&description_type=plain&playlist_type=object&id=${id}`
-          ))
-      )
-
-      return result
-        .filter(({ value, reason }) => {
-          return reason?.status !== 404
-        })
-        .map(({ value }) => value)
-    },
-
-    formatFranchises(franchises, additionalData) {
-      return franchises.map(franchise => {
-        return {
-          ...franchise,
-          releases: franchise.releases.map(release => {
-            const releaseData = additionalData.find(data => data.id === release.id)
-
-            if (!releaseData) return null
-
-            const {
-              posters,
-              type,
-              status: { string: status },
-            } = releaseData
-
-            return {
-              ...release,
-              poster: 'http://localhost:9384/proxy-static?url=' + new ReleaseProxy().getStaticEndpoint() + posters?.medium.url,
-              type: type?.full_string,
-              status: status,
-            }
-          }).filter(x => x !== null),
-        }
-      })
-    }
   },
-
   watch: {
     releaseId: {
       immediate: true,
@@ -497,7 +401,6 @@ export default {
           // Get release data
           this.loading = true
           await this.$store.dispatchPromise('release/getRelease', releaseId)
-          this.fetchAdditional(releaseId)
           this.updateShareLinks()
           this.loading = false
         }

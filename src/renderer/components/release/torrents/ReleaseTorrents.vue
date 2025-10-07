@@ -60,7 +60,7 @@
 import Loader from './components/loader'
 import humanFormat from 'human-format'
 import moment from 'moment'
-import { invokeTorrentParse } from '@main/handlers/app/appHandlers';
+import { invokeTorrentParse } from '@main/handlers/app/app-handlers';
 import { mapActions, mapGetters, mapState } from 'vuex';
 
 const domain = 'https://wwnd.space'

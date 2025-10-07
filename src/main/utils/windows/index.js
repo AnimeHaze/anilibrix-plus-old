@@ -1,5 +1,5 @@
-import Main from './appWindowMain'
-import Torrent from './appWindowTorrent'
+import Main from './app-window-main'
+import Torrent from './app-window-torrent'
 
 export {
   Main,

@@ -261,7 +261,7 @@ import Confirm from '@components/app/settings/categories/system/dialogs/confirm.
 import snapshotsList from '@components/app/settings/categories/system/dialogs/snapshotsList.vue'
 import { AppPlatformMixin } from '@mixins/app'
 import {debounce} from "lodash";
-import {invokeUpdateProxy} from "@main/handlers/app/appHandlers";
+import {invokeUpdateProxy} from "@main/handlers/app/app-handlers";
 
 export default {
   mixins: [AppPlatformMixin],

@@ -5,7 +5,7 @@ import app from '@/../package'
 import { getStore } from '@store'
 
 // Torrent handlers
-import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentParsedData, sendTorrentServer } from '@main/handlers/torrents/torrentsHandler'
+import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentParsedData, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
 
 // Utils
 import { parse, stringify } from 'flatted'

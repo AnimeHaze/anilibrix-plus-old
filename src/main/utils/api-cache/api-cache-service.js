@@ -1,9 +1,11 @@
 import fs from 'fs/promises'
 import path from 'path'
+import ReleaseProxy from '@proxies/release';
+import store from '@store';
 
 export class APICacheService {
-  constructor(userDataPath) {
-    this.cachePath = path.join(userDataPath, 'api-cache');
+  constructor(cachePath) {
+    this.cachePath = cachePath;
     console.log('API Cache Path:', this.cachePath);
     this.isInitialized = false;
     this.cache = new Map();
@@ -33,10 +35,10 @@ export class APICacheService {
     return JSON.parse(metadataContent);
   }
 
-  async loadJsonFiles(filePrefix, count) {
+  async loadJsonFiles(filePrefix, count, withoutIndex) {
     const filesData = await Promise.all(
       Array.from({ length: count }, async (_, index) => {
-        const filePath = path.join(this.cachePath, `${filePrefix}${index}.json`);
+        const filePath = path.join(this.cachePath, `${filePrefix}${withoutIndex ? '' : index}.json`);
         const content = await fs.readFile(filePath, 'utf8');
         return JSON.parse(content);
       })
@@ -50,9 +52,10 @@ export class APICacheService {
 
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
 
-    const [releasesData, episodesData] = await Promise.all([
+    const [releasesData, episodesData, franchisesData] = await Promise.all([
       this.loadJsonFiles('releases', countReleases),
-      this.loadJsonFiles('episodes', countEpisodes)
+      this.loadJsonFiles('episodes', countEpisodes),
+      this.loadJsonFiles('releaseseries', 1, true)
     ]);
 
     this.releases = new Map();
@@ -61,6 +64,7 @@ export class APICacheService {
     this.episodes = episodesData;
     this.buildEpisodesIndex();
     this.buildSortedCache();
+    this.buildFranchisesCache(franchisesData);
 
     this.isInitialized = true;
   }
@@ -80,6 +84,40 @@ export class APICacheService {
         updatedAt: Math.max(...episode.items.map(x => new Date(x.updatedAt).getTime()))
       }))
       .sort((a, b) => a.updatedAt - b.updatedAt); // ASC order
+  }
+
+  buildFranchisesCache(franchisesData) {
+    this.franchises = franchisesData;
+    this.franchiseByReleaseId = new Map();
+
+    franchisesData.forEach(franchise => {
+      if (franchise.releasesIds?.length) {
+        franchise.releasesIds.forEach(releaseId => {
+          this.franchiseByReleaseId.set(
+            releaseId,
+            franchise.releasesIds.map(releaseId => {
+              const release = this.releases.get(releaseId);
+
+              if (!release) {
+                console.log('Franchise release not found', releaseId);
+                return null
+              }
+
+              return {
+                id: release.id,
+                names: {
+                  ru: release.title,
+                  en: release.originalName
+                },
+                poster: release.poster,
+                type: release.type + (release.series && release.series !== '(0)' ? ` (${release.series.replace(/[\(\)]/g, '')} эп.)` : ''),
+                status: release.status.replace('Сейчас в озвучке', 'В работе').replace('Озвучка завершена', 'Завершен')
+              }
+            }).filter(x => x !== null)
+          )
+        })
+      }
+    })
   }
 
   getSortedReleases() {

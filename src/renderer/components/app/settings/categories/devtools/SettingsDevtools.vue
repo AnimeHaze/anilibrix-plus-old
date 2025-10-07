@@ -31,7 +31,7 @@
 import { mapActions, mapState } from 'vuex'
 
 // Handlers
-import { sendAppDevtoolsMainEvent, sendAppDevtoolsTorrentEvent, } from '@main/handlers/app/appHandlers'
+import { sendAppDevtoolsMainEvent, sendAppDevtoolsTorrentEvent, } from '@main/handlers/app/app-handlers'
 
 export default {
   computed: {

@@ -1,3 +1,3 @@
-import appMenu from './appMenu'
+import appMenu from './app-menu'
 
 export default appMenu

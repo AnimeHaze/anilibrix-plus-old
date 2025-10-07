@@ -56,7 +56,6 @@
 
 import VClamp from 'vue-clamp'
 import ReleaseProgress from '@components/release/progress'
-import {catGirlFetch} from "../../../../utils/fetch";
 
 const props = {
   release: {

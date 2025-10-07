@@ -1,5 +1,5 @@
 export class APIResponseTransformer {
-  static transformRelease(release, episodes) {
+  static transformRelease(release, episodes, franchises) {
     return {
       announce: release.announce,
       blockedInfo: {
@@ -10,14 +10,19 @@ export class APIResponseTransformer {
         wakanim: false
       },
       code: release.code,
-      day: '4',
+      day: '', // TODO
       description: release.description,
       externalPlaylist: [],
       favorite: { added: true, rating: release.rating },
-      franchises: [],
+      franchises: franchises?.map(x => {
+        return { // no mutation way
+          ...x,
+          poster: `http://localhost:${global.internalServerPort}/proxy-static?url=` + x.poster
+        }
+      }),
       genres: release.genres.split(', '),
       id: release.id,
-      last: '1756533921',
+      last: '', // TODO
       members: {
         decorating: [],
         editing: [],
@@ -25,7 +30,7 @@ export class APIResponseTransformer {
         translating: [],
         voicing: []
       },
-      moon: null,
+      moon: null, // TODO
       names: [release.title, release.originalName].filter(Boolean),
       playlist: episodes.map(x => {
         return APIResponseTransformer.createPlaylistItem(release, x)

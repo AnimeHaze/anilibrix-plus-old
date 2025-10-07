@@ -8,9 +8,8 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
-import axiosRetry from 'axios-retry';
-axiosRetry(axios);
-import { showAppError } from '@main/handlers/notifications/notificationsHandler'
+
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
 // Mutations
 const ADD_ITEM = 'ADD_ITEM'

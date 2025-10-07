@@ -110,7 +110,8 @@ export default {
             autoUpdateInterval: this._updates_timeout
           }
         })
-      }, 10000)
+      })
+        .then(x => x.json())
         .then(({
           data,
           success,

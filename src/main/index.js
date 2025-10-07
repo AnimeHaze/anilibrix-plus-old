@@ -1,81 +1,22 @@
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron'
-import proxy from 'node-global-proxy';
+import { applyAppSwitches } from './utils/app-switches';
+import { app, BrowserWindow, globalShortcut } from 'electron'
+
 import { execFile } from 'child_process'
-// Main process
 import path from 'path'
-import fs from 'fs/promises'
-import expressProxy from 'express-http-proxy';
-// eslint-disable-next-line import/first
 import { meta, version } from '@package'
-// Store
-import store, { getStore, setUserId } from '@store'
-import express from 'express'
-// Windows
 import { Main, Torrent } from './utils/windows'
-
-import { promisify } from 'util'
-
-// Download handlers
-// import {startingDownload, cancelingDownload, openingDownload} from "@main/handlers/download/downloadHandlers";
-import { autoUpdater } from 'electron-updater'
-
-// App Handlers
-import {
-  catchAppAboutEvent,
-  catchAppDevtoolsMainEvent,
-  catchAppDevtoolsTorrentEvent,
-  catchAppDockNumberEvent,
-  catchDisableSystemSleepBlockerEvent,
-  catchEnableSystemSleepBlockerEvent, handleGetTitleV1New, handleGetTitleV2, handleGetTitleV3,
-  handleRand,
-  handleRichPresense,
-  handleSafeStorageEncrypt,
-  handleShowConfig,
-  handleTorrentParse, handleUpdateProxy
-} from '@main/handlers/app/appHandlers'
-
-// Torrent Handlers
-import { broadcastTorrentEvents } from '@main/handlers/torrents/torrentsHandler'
-
-// Import tray and menu
+import * as handlers from './handlers/app/app-handlers'
+import { broadcastTorrentEvents } from './handlers/torrents/torrents-handler'
 import Tray from './utils/tray'
 import Menu from './utils/menu'
-import { openWindowInterceptor } from '@main/utils/windows/openWindowInterceptor'
-import { consoleLogToFile } from '@main/utils/log-to-file';
+import { openWindowInterceptor } from './utils/windows/open-window-interceptor'
+import { consoleLogToFile } from './utils/log-to-file';
 import { debounce } from 'lodash';
-import { catGirlFetch } from '../renderer/utils/fetch';
-import { getActiveOperaProxyURL, startOperaProxy, stopOperaProxy } from '@main/utils/opera-proxy';
-import { CacheManager } from '@main/utils/cache-manager';
-import { APICacheService } from './utils/api-cache/api-cache-service';
-import { APIController } from './utils/api-cache/api-cache-controller';
-let proxyServer
-app.commandLine.appendSwitch('--no-sandbox')
-const proxyServerValue = store.state.app.settings.system.proxy
-console.log('Load proxy ', proxyServerValue)
+import store, { setUserId } from '@store'
+import { initProxy, setProxy } from './utils/proxy';
+import { initInternalServer } from "./utils/internal-server";
 
-if (app.commandLine.hasSwitch('proxy-server') || proxyServerValue) {
-  proxyServer = app.commandLine.getSwitchValue('proxy-server') || proxyServerValue;
-
-  (async () => {
-    if (proxyServer === 'http://opera') {
-      await startOperaProxy()
-      proxyServer = getActiveOperaProxyURL()
-    } else {
-      await stopOperaProxy()
-    }
-
-    if (proxyServer) {
-      proxy.setConfig({
-        http: proxyServer === 'http://opera' ? getActiveOperaProxyURL() : proxyServer,
-        https: proxyServer === 'http://opera' ? getActiveOperaProxyURL() : proxyServer
-      })
-
-      proxy.start();
-    }
-  })();
-} else {
-  proxy.system()
-}
+applyAppSwitches()
 
 const { discordActivity } = require('./utils/discord')
 const {
@@ -86,12 +27,8 @@ const {
 // Remote
 require('@electron/remote/main').initialize()
 
-// Create tray and menu controller
 const trayController = new Tray()
 const menuController = new Menu()
-
-const cachePath = path.join(app.getPath('userData'), 'media-cache')
-const cacheManager = new CacheManager(cachePath)
 
 /**
  * Set `__static` path to static files in production
@@ -101,18 +38,8 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\') // eslint-disable-line
 }
 
-// Add command lines arguments
-app.commandLine.appendSwitch('disable-site-isolation-trials')
-app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors')
-app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
-
-process.on('uncaughtException', error => {
-  console.log('Unhandled Error', error)
-})
-
-process.on('unhandledRejection', error => {
-  console.log('Unhandled Promise Rejection', error);
-})
+process.on('uncaughtException', error => console.log('Unhandled Error', error))
+process.on('unhandledRejection', error => console.log('Unhandled Promise Rejection', error))
 
 // Close app on all windows closed (relevant for mac users)
 app.on('window-all-closed', () => {
@@ -163,304 +90,89 @@ app.on('web-contents-created', (event, webContents) => {
 })
 
 // App ready handler
-app.on('ready', async () => {
-  app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-    if (store.state.app.settings.system.ignore_certs) {
-      // Verification logic.
-      event.preventDefault()
-      console.log('Certificate error ignored', url, error)
-      callback(true)
-    } else {
-      callback(false)
-    }
-  })
+app.whenReady()
+  .then(async () => {
+    global.internalServerPort = await initInternalServer()
+    console.log('Internal server listens', global.internalServerPort)
 
-  globalShortcut.register('CmdOrCtrl+shift+R', () => {
-    console.log('Restart')
+    // Set user id
+    await setUserId()
 
-    const options = {
-      args: process.argv.slice(1).concat(['--relaunch']),
-      execPath: process.execPath
-    };
-    // Fix for .AppImage
-    if (app.isPackaged && process.env.APPIMAGE) {
-      execFile(process.env.APPIMAGE, options.args);
-      app.quit()
-
-      return
-    }
-
-    app.relaunch()
-    app.exit()
-  })
-
-  consoleLogToFile({
-    logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
-  })
-
-  // Set user id
-  await setUserId()
-
-  // Create windows
-  Main.createWindow({ title: meta.name }).loadUrl()
-  Torrent.createWindow({ title: `${meta.name} Torrent` }).loadUrl()
-
-  const mainWindow = Main.getWindow()
-  const torrentWindow = Torrent.getWindow()
-
-  if (proxyServer) {
-    mainWindow.webContents.session
-      .setProxy({ proxyRules: proxyServer === 'http://opera' ? getActiveOperaProxyURL() : proxyServer })
-
-    torrentWindow.webContents.session
-      .setProxy({ proxyRules: proxyServer === 'http://opera' ? getActiveOperaProxyURL() : proxyServer })
-  }
-
-  if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
-
-  require('@electron/remote/main').enable(mainWindow.webContents)
-  require('@electron/remote/main').enable(torrentWindow.webContents)
-
-  mainWindow
-    .once('ready-to-show', () => {
-      mainWindow.show()
-      // autoUpdater.checkForUpdatesAndNotify() // Auto update
-    })
-    .on('close', () => {
-      destroyRichPresence()
-      app.quit()
-    }) // Main window close event
-
-  // Create menu
-  // Create tray icon
-  menuController.setWindows(mainWindow, torrentWindow).init()
-  trayController.createTrayIcon({
-    iconPath: path.join(__dirname, '../../build/icons/tray/icon.png')
-  }).setTooltip(meta.name)
-
-  appHandlers() // App handlers
-  torrentHandlers() // Torrent handler
-  // downloadHandlers(); // Download handlers
-
-  const multer = require('multer')
-  const serv = express()
-
-  serv.disable('x-powered-by')
-
-  const cacheService = new APICacheService(app.getPath('userData'));
-  await cacheService.initialize();
-
-  const apiController = new APIController(cacheService);
-
-  serv.post('/public/api/index.php', multer().none(), async (req, res) => {
-    const { query } = req.body;
-
-    if (['user', 'favorites'].includes(query)) {
-      const response = await apiController.handleProxyWithCache(query, {
-        ...req.body
-      })
-
-      if (response.error) {
-        res.status(400).send(response);
-      } else {
-        res.send(response);
-      }
-
-      return
-    }
-
-    if (!['list', 'release', 'catalog', 'random_release'].includes(query)) {
-      res.status(404).send({
-        error: 'Endpoint not found',
-        status: false
-      });
-
-      return
-    }
-
-    const response = await apiController.handleRequest(req.body, query);
-
-    if (response.error) {
-      res.status(400).send(response);
-    } else {
-      res.send(response);
-    }
-  });
-
-  serv.get('/rutube/:id/*', (req, res) => {
-    catGirlFetch(`https://rutube.ru/api/play/options/${req.params.id}/?no_404=true&referer&pver=v2`, {}, 3000)
-      .then(x => {
-        res.redirect(x.video_balancer.m3u8)
-      })
-      .catch(x => res.status(500).send())
-  })
-
-  fs.mkdir(cachePath).catch(e => console.log(e))
-
-  serv.all('/', (req, res) => {
-    res.send('Hello from Anilibrix Plus!')
-  })
-  serv.post('/public/login.php', expressProxy('https://wwnd.space'));
-  serv.post('/public/logout.php', expressProxy('https://wwnd.space', {
-    userResDecorator: function(proxyRes, proxyResData, userReq, userRes) {
-      apiController.clearUserData()
-      return proxyResData
-    }
-  }));
-
-  serv.get('/proxy-static', async (req, res) => {
-    try {
-      if (!req.query.url) {
-        return res.status(400)
-          .json({ error: 'URL parameter is required' });
-      }
-
-      let parsedUrl;
-
-      try {
-        parsedUrl = new URL(req.query.url);
-        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-          return res
-            .status(400)
-            .json({ error: 'Only HTTP/HTTPS URLs are allowed' });
-        }
-      } catch (e) {
-        return res
-          .status(400)
-          .json({ error: 'Invalid URL format' });
-      }
-
-      const cacheName = await cacheManager.getCacheKey(req.query.url);
-      const { meta, buf, fromCache } = await cacheManager.getCache(cacheName, req.query.url);
-
-      const headers = new Headers({
-        'content-type': meta.headers['content-type'],
-        'x-cache-hit': fromCache ? 'true' : 'false',
-        'x-cache-age': fromCache ? `${Date.now() - meta.timestamp}ms` : '0'
-      })
-
-      res
-        .set(Object.fromEntries(headers.entries()))
-        .status(meta.status)
-        .send(buf);
-    } catch (e) {
-      console.error('Proxy error:', e);
-      res
-        .status(500)
-        .json({
-          error: 'Internal Server Error',
-          details: e.message
-        });
-    }
-  });
-
-  serv.listen(9384)
-})
-
-/**
- * App handlers
- * Show about handlers
- *
- * @return {void}
- */
-const appHandlers = () => {
-  catchAppAboutEvent() // About dialog
-  catchAppDockNumberEvent() // App dock number event
-  catchAppDevtoolsMainEvent() // Devtools main
-  catchAppDevtoolsTorrentEvent() // Devtools torrent
-  catchEnableSystemSleepBlockerEvent() // Disable system sleep
-  catchDisableSystemSleepBlockerEvent() // Enable system sleep
-  handleSafeStorageEncrypt()
-  handleRichPresense(setActivity)
-  handleRand()
-  handleShowConfig()
-  handleTorrentParse()
-  handleGetTitleV2()
-  handleGetTitleV3()
-  handleGetTitleV1New()
-  handleUpdateProxy(async (url) => {
-    if (url === '') {
-      proxy.system()
-      const mainWindow = Main.getWindow()
-      const torrentWindow = Torrent.getWindow()
-
-      await stopOperaProxy()
-
-      mainWindow.webContents.session
-        .setProxy({ proxyRules: '' })
-
-      torrentWindow.webContents.session
-        .setProxy({ proxyRules: '' })
-
-      console.log('system proxy set')
-      return
-    }
-
-    if (url) {
-      try {
-        new URL(url)
-      } catch (e) {
-        return
-      }
-
-      console.log('Proxy url', url)
-      setProxy(url)
-    } else {
-      proxy.system()
-    }
-  })
-}
-
-const setProxy = debounce(setProxyOrig, 2000)
-
-function setProxyOrig (url) {
-  (async () => {
-    if (url === 'http://opera') {
-      await startOperaProxy()
-      url = getActiveOperaProxyURL()
-    } else {
-      await stopOperaProxy()
-    }
-
-    proxy.setConfig({
-      http: url,
-      https: url
-    })
-    console.log('set proxy', url)
+    // Create windows
+    Main.createWindow({ title: meta.name }).loadUrl()
+    Torrent.createWindow({ title: `${meta.name} Torrent` }).loadUrl()
 
     const mainWindow = Main.getWindow()
     const torrentWindow = Torrent.getWindow()
 
-    mainWindow.webContents.session
-      .setProxy({ proxyRules: url })
+    await initProxy([mainWindow, torrentWindow])
 
-    torrentWindow.webContents.session
-      .setProxy({ proxyRules: url })
+    if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
 
-    proxy.start()
-  })();
-}
+    require('@electron/remote/main').enable(mainWindow.webContents)
+    require('@electron/remote/main').enable(torrentWindow.webContents)
 
-/**
- * Torrents handlers
- *
- * @return {void}
- */
-const torrentHandlers = () => {
-  broadcastTorrentEvents() // broadcast all torrent events
-}
+    mainWindow
+      .once('ready-to-show', () => mainWindow.show())
+      .on('close', () => {
+        destroyRichPresence()
+        app.quit()
+      })
 
-/**
- * Download handlers
- * Start download, cancel and open file
- *
- * @return {void}
- */
-const downloadHandlers = () => {
-  // // Create storage
-  // const storage = {};
-  // // Handlers
-  // startingDownload(storage, Main); // Start download
-  // cancelingDownload(storage); // Cancel download
-  // openingDownload(storage); // Open downloaded file
-}
+    // Create menu
+    // Create tray icon
+    menuController.setWindows(mainWindow, torrentWindow).init()
+    trayController.createTrayIcon({
+      iconPath: path.join(__dirname, '../../build/icons/tray/icon.png')
+    }).setTooltip(meta.name)
+
+    app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+      if (store.state.app.settings.system.ignore_certs) {
+        // Verification logic.
+        event.preventDefault()
+        console.log('Certificate error ignored', url, error)
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(true)
+      } else {
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(false)
+      }
+    })
+
+    globalShortcut.register('CmdOrCtrl+shift+R', () => {
+      console.log('Restart')
+
+      const options = {
+        args: process.argv.slice(1).concat(['--relaunch']),
+        execPath: process.execPath
+      };
+      // Fix for .AppImage
+      if (app.isPackaged && process.env.APPIMAGE) {
+        execFile(process.env.APPIMAGE, options.args);
+        app.quit()
+
+        return
+      }
+
+      app.relaunch()
+      app.exit()
+    })
+
+    consoleLogToFile({
+      logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
+    })
+
+    handlers.catchAppAboutEvent() // About dialog
+    handlers.catchAppDockNumberEvent() // App dock number event
+    handlers.catchAppDevtoolsMainEvent() // Devtools main
+    handlers.catchAppDevtoolsTorrentEvent() // Devtools torrent
+    handlers.catchEnableSystemSleepBlockerEvent() // Disable system sleep
+    handlers.catchDisableSystemSleepBlockerEvent() // Enable system sleep
+    handlers.handleSafeStorageEncrypt()
+    handlers.handleRichPresense(setActivity)
+    handlers.handleRand()
+    handlers.handleShowConfig()
+    handlers.handleTorrentParse()
+    handlers.handleUpdateProxy(debounce(setProxy, 2000))
+    broadcastTorrentEvents()
+  })

@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import { catGirlFetch } from '@utils/fetch'
 export default {
   data () {
@@ -58,7 +58,8 @@ export default {
         headers: {
           'x-session': this._session
         }
-      }, 10000)
+      })
+        .then(x => x.json())
         .then(({ success, error }) => {
           if (success) {
             return this.$emit('fetchSnapshots')

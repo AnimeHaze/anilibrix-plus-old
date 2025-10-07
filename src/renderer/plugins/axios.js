@@ -20,8 +20,6 @@ Axios.defaults.timeout = 5000
 
 // Create axios
 const axios = Axios.create()
-import axiosRetry from 'axios-retry';
-axiosRetry(axios);
 
 function filterUnderscoredKeys (data) {
   return Object.keys(data).reduce((result, key) => {

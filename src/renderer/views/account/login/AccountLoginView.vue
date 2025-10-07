@@ -62,7 +62,7 @@ import { ipcRenderer } from "electron";
 // Utils
 import { required } from 'vuelidate/lib/validators'
 import { BackViewMixin } from '@mixins/views'
-import { invokeSafeStorageEncrypt } from '@main/handlers/app/appHandlers'
+import { invokeSafeStorageEncrypt } from '@main/handlers/app/app-handlers'
 
 export default {
   name: 'Account.Login.View',

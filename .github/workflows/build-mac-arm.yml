@@ -14,7 +14,6 @@ jobs:
       ADS_URLS: ${{ secrets.ADS_URLS }}
       VK_APP_ID: ${{ secrets.VK_APP_ID }}
       API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
-      YANDEX_TRACKING_ID: ${{ secrets.YANDEX_TRACKING_ID }}
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
       DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
