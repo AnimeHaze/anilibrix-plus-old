@@ -33,7 +33,7 @@ export default class Window {
   /**
    * Get window
    *
-   * @return BrowserWindow|null
+   * @return {BrowserWindow|null}
    */
   getWindow () {
     return this._window
