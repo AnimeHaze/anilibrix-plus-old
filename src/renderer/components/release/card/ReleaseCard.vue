@@ -141,78 +141,115 @@ export default {
         next: ordered[+lastWatchedEpIndex + 1]
       }
     },
+computed: {
+  /**
+   * Get watch data
+   *
+   * @return {*}
+   */
+  lastWatchedEpisode () {
+    let lastWatchedEpIndex = null
+    const episodes = this.$__get(this.release, 'episodes')
+    const ordered = __orderBy(episodes || [], ['id'], [s => s.episodes.order])
+    for (const i in ordered) {
+      const { isSeen } = this.$store.getters['app/watch/getWatchedEpisode']({
+        release_id: this.release.id,
+        episode_id: ordered[i].id
+      }) || {}
 
-    /**
-     * Get title
-     *
-     * @return {string|null}
-     */
-    title () {
-      return this.$__get(this.release, 'names.ru')
-    },
-
-    /**
-     * Get original title
-     *
-     * @return {string|null}
-     */
-    original () {
-      return this.$__get(this.release, 'names.original')
-    },
-
-    /**
-     * Get release genres
-     *
-     * @return {string}
-     */
-    genres () {
-      return (this.$__get(this.release, 'genres') || []).join(' | ')
-    },
-
-    /**
-     * Get year
-     *
-     * @return {string|number|null}
-     */
-    year () {
-      return this.$__get(this.release, 'year')
-    },
-
-    /**
-     * Get release type
-     *
-     * @return {string|null}
-     */
-    type () {
-      return this.$__get(this.release, 'type')
-    },
-
-    /**
-     * Get release description
-     *
-     * @return {*}
-     */
-    description () {
-      return this.$__get(this.release, 'description')
-    },
-
-    /**
-     * Get release poster
-     *
-     * @return {*}
-     */
-    poster () {
-      return this.$__get(this.release, 'poster')
-    },
-
-    /**
-     * Get release status
-     *
-     * @return {*}
-     */
-    status () {
-      return this.$__get(this.release, 'status')
+      if (isSeen) {
+        lastWatchedEpIndex = i
+      }
     }
+
+    return {
+      ep: ordered[lastWatchedEpIndex],
+      first: ordered[0] || null,
+      next: ordered[+lastWatchedEpIndex + 1]
+    }
+  },
+
+  /**
+   * Get title
+   *
+   * @return {string|null}
+   */
+  title () {
+    return this.$__get(this.release, 'names.ru')
+  },
+
+  /**
+   * Get original title
+   *
+   * @return {string|null}
+   */
+  original () {
+    return this.$__get(this.release, 'names.original')
+  },
+
+  /**
+   * Get release genres
+   *
+   * @return {string}
+   */
+  genres () {
+    return (this.$__get(this.release, 'genres') || []).join(' | ')
+  },
+
+  /**
+   * Get year
+   *
+   * @return {string|number|null}
+   */
+  year () {
+    return this.$__get(this.release, 'year')
+  },
+
+  /**
+   * Get release type
+   *
+   * @return {string|null}
+   */
+  type () {
+    return this.$__get(this.release, 'type')
+  },
+
+  /**
+   * Get release description
+   *
+   * @return {*}
+   */
+  description () {
+    const fullDescription = this.$__get(this.release, 'description');
+    if (!fullDescription) return '';
+    
+    const triggerPhrase = 'Порядок просмотра франшизы';
+    if (fullDescription.includes(triggerPhrase)) {
+      // Удаляем всё, начиная с ключевой фразы
+      return fullDescription.split(triggerPhrase)[0].trim();
+    }
+    
+    return fullDescription;
+  },
+
+  /**
+   * Get release poster
+   *
+   * @return {*}
+   */
+  poster () {
+    return this.$__get(this.release, 'poster')
+  },
+
+  /**
+   * Get release status
+   *
+   * @return {*}
+   */
+  status () {
+    return this.$__get(this.release, 'status')
+  }
+},
 
   },
   async mounted() {
