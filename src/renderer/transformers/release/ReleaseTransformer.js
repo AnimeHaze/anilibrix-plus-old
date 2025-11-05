@@ -37,7 +37,7 @@ export default class ReleaseTransformer extends BaseTransformer {
         playlist: this.get(release, 'playlist'),
         torrents: this.get(release, 'torrents')
       },
-      description: this._stripHtml(this.get(release, 'description'))
+      description: this._stripHtml(this.get(release, 'description')).split(/Порядок\s+просмотра/)[0]
     }
   }
 
