@@ -29,6 +29,7 @@ server.get('/rutube/:id/*', lazyRutube)
 
 server.all('/', (req, res) => res.send('Hello from Anilibrix Plus!'))
 
+server.get('/public/torrent/download.php', expressProxy('https://wwnd.space'));
 server.post('/public/login.php', expressProxy('https://wwnd.space'));
 server.post('/public/logout.php', expressProxy('https://wwnd.space', {
   userResDecorator: function(proxyRes, proxyResData) {

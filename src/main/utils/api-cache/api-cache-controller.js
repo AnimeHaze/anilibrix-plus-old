@@ -1,4 +1,4 @@
-import {APIResponseTransformer} from './api-release-transformer'
+import { APIResponseTransformer } from './api-release-transformer'
 import store from '@store';
 import FormData from 'form-data'
 
@@ -107,9 +107,15 @@ export class APIController {
       } else if (type === 'catalog') {
         data = await this.handleCatalogRequest(body);
       } else if (type === 'random_release') {
-        data = await this.handleReleaseRequest({ id: 9972 });
-
-        console.log(data, 43444)
+        const releases = this.cacheService.releases
+        const index = Math.floor(Math.random() * releases.size)
+        data = await this.handleReleaseRequest({ id: [...releases.keys()][index] });
+      } else if (type === 'search') {
+        data = await this.handleSearchRequest(body);
+      } else if (type === 'years') {
+        data = this.cacheService.years;
+      } else if (type === 'genres') {
+        data = this.cacheService.genres;
       }
 
       return { data, error: null, status: true };
@@ -134,7 +140,8 @@ export class APIController {
         x => APIResponseTransformer.transformRelease(
           x,
           this.findEpisodes(x.id),
-          this.cacheService.franchiseByReleaseId.get(x.id)
+          this.cacheService.franchiseByReleaseId.get(x.id),
+          this.cacheService.torrents.get(x.id)
         )
       ),
       pagination: this.createPagination(validatedPerPage.value, page, sortedReleases.length)
@@ -146,22 +153,74 @@ export class APIController {
       this.cacheService.releases.get(Number(id));
     if (!release) throw new Error('Release not found');
 
-    console.log(release.id, this.cacheService.franchiseByReleaseId.get(release.id))
-
     return APIResponseTransformer.transformRelease(
       release,
       this.findEpisodes(release.id),
-      this.cacheService.franchiseByReleaseId.get(release.id)
+      this.cacheService.franchiseByReleaseId.get(release.id),
+      this.cacheService.torrents.get(release.id)
     );
   }
 
-  async handleCatalogRequest({ perPage = 10, page = 1 }) {
+  async handleTorrentRequest({ id }) {
+    const torrents = this.cacheService.torrents.get(id)
+    if (!torrents) throw new Error('Torrents not found');
+
+    return torrents;
+  }
+
+  async handleSearchRequest({ search }) {
+    const sortedReleases = this.cacheService.searchByQuery(search)
+
+    return sortedReleases.map(
+      x => APIResponseTransformer.transformRelease(
+        x,
+        this.findEpisodes(x.id),
+        this.cacheService.franchiseByReleaseId.get(x.id),
+        this.cacheService.torrents.get(x.id)
+      )
+    )
+  }
+
+  async handleCatalogRequest({ perPage = 10, page = 1, search, sort }) {
     const validatedPerPage = this.validatePerPage(perPage);
     if (validatedPerPage.error) throw new Error(validatedPerPage.error);
 
     const uniqueReleases = this.cacheService.getUniqueSortedReleases();
 
-    const items = uniqueReleases.slice(
+    // By default getUniqueSortedReleases returns releases by freshness
+    if (sort === '2') { // 2 - by fav, 1 - by freshness
+      uniqueReleases.sort((a, b) => b.rating - a.rating)
+    }
+
+    let uniqueReleasesFiltered = uniqueReleases
+
+    if (search) {
+      try {
+        let { year, genre } = JSON.parse(search)
+
+        if (year) {
+          year = year.split(',').map(x => {
+            if (!x) return null
+            x = x.trim()
+            const parsed = parseInt(x, 10)
+            return parsed > 1900 && parsed < 3000 ? parsed : null
+          }).filter(Boolean)
+          uniqueReleasesFiltered = uniqueReleases.filter(x => year.includes(+x.year))
+        }
+
+        if (genre) {
+          genre = genre.split(',').map(x => x.trim()).filter(Boolean)
+          uniqueReleasesFiltered = uniqueReleasesFiltered.filter(x => {
+            const genres = x.genres.split(',').map(x => x.trim())
+            return genre.some(g => genres.includes(g))
+          })
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    const items = uniqueReleasesFiltered.slice(
       (page - 1) * validatedPerPage.value,
       page * validatedPerPage.value
     );
@@ -171,10 +230,11 @@ export class APIController {
         x => APIResponseTransformer.transformRelease(
           x,
           this.findEpisodes(x.id),
-          this.cacheService.franchiseByReleaseId.get(x.id)
+          this.cacheService.franchiseByReleaseId.get(x.id),
+          this.cacheService.torrents.get(x.id)
         )
       ),
-      pagination: this.createPagination(validatedPerPage.value, page, uniqueReleases.length)
+      pagination: this.createPagination(validatedPerPage.value, page, uniqueReleasesFiltered.length)
     };
   }
 

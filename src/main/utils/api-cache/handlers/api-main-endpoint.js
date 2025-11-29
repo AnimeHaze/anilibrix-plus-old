@@ -16,7 +16,7 @@ export default function (apiController) {
       return
     }
 
-    if (!['list', 'release', 'catalog', 'random_release'].includes(query)) {
+    if (!['list', 'release', 'catalog', 'random_release', 'search', 'years', 'genres'].includes(query)) {
       res.status(404).send({
         error: 'Endpoint not found',
         status: false

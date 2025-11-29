@@ -98,28 +98,6 @@ export default {
   },
 
   created () {
-    window.newAPIDomain = async function () {
-      try {
-        if (this.error === false) return this.domain
-
-        const domain = await fetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-v1-api.animehaze.me', { cache: 'no-cache' })
-          .then(e => e.json())
-          .then(response => response.Answer.pop().data)
-
-        console.log('Resolced domain:', domain)
-
-        this.domain = domain
-        this.error = false
-
-        return domain
-      } catch (e) {
-        this.domain = 'anilibria.top'
-        this.error = true
-
-        return domain
-      }
-    }
-
     // Initial loading
     this.loading = true
     setTimeout(() => this.loading = false, 1000)

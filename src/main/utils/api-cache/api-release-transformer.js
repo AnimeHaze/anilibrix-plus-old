@@ -1,5 +1,5 @@
 export class APIResponseTransformer {
-  static transformRelease(release, episodes, franchises) {
+  static transformRelease(release, episodes, franchises, torrents) {
     return {
       announce: release.announce,
       blockedInfo: {
@@ -19,8 +19,8 @@ export class APIResponseTransformer {
           ...x,
           poster: `http://localhost:${global.internalServerPort}/proxy-static?url=` + x.poster
         }
-      }),
-      genres: release.genres.split(', '),
+      }) ?? [],
+      genres: release.genres.split(',').map(x => x.trim()),
       id: release.id,
       last: '', // TODO
       members: {
@@ -40,10 +40,10 @@ export class APIResponseTransformer {
       series: release.series,
       status: release.status.replace('Сейчас в озвучке', 'В работе').replace('Озвучка завершена', 'Завершен'),
       statusCode: '1',
-      torrents: [],
+      torrents,
       type: release.type + (release.series && release.series !== '(0)' ? ` (${release.series.replace(/[\(\)]/g, '')} эп.)` : ''),
-      voices: release.voices?.split(', '),
-      team: release.team?.split(', '),
+      voices: release.voices?.split(',').map(x => x.trim()),
+      team: release.team?.split(',').map(x => x.trim()),
       year: release.year
     };
   }

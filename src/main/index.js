@@ -14,7 +14,7 @@ import { consoleLogToFile } from './utils/log-to-file';
 import { debounce } from 'lodash';
 import store, { setUserId } from '@store'
 import { initProxy, setProxy } from './utils/proxy';
-import { initInternalServer } from "./utils/internal-server";
+import { initInternalServer } from './utils/internal-server';
 
 applyAppSwitches()
 

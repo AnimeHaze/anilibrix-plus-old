@@ -2,6 +2,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import ReleaseProxy from '@proxies/release';
 import store from '@store';
+import Fuse from "fuse.js";
 
 export class APICacheService {
   constructor(cachePath) {
@@ -9,6 +10,7 @@ export class APICacheService {
     console.log('API Cache Path:', this.cachePath);
     this.isInitialized = false;
     this.cache = new Map();
+    this.search = null
   }
 
   async setCacheKey (key, value) {
@@ -52,21 +54,60 @@ export class APICacheService {
 
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
 
-    const [releasesData, episodesData, franchisesData] = await Promise.all([
+    const [releasesData, episodesData, franchisesData, torrentsData] = await Promise.all([
       this.loadJsonFiles('releases', countReleases),
       this.loadJsonFiles('episodes', countEpisodes),
-      this.loadJsonFiles('releaseseries', 1, true)
+      this.loadJsonFiles('releaseseries', 1, true),
+      this.loadJsonFiles('torrents', 1, true)
     ]);
 
+    this.torrents = new Map();
+
+    for (const torrent of torrentsData) {
+      if (!this.torrents.has(torrent.releaseId)) {
+        this.torrents.set(torrent.releaseId, []);
+      }
+
+      const torrentNew = {
+        id: torrent.id,
+        hash: torrent.hash,
+        leechers: 0,
+        seeders: torrent.seeders,
+        completed: 9999,
+        quality: `${torrent.type.value} ${torrent.quality.value} ${torrent.codec.value}`,
+        series: torrent.description,
+        size: torrent.size,
+        url: '/public/torrent/download.php?id=' + torrent.id
+      }
+
+      this.torrents.get(torrent.releaseId).push(torrentNew);
+    }
+
+    this.years = new Set();
+    this.genres = new Set();
     this.releases = new Map();
-    releasesData.forEach(release => this.releases.set(release.id, release));
+    releasesData.forEach(release => {
+      release.year && this.years.add(release.year.toString());
+      release.genres.split(',').forEach(v => v && this.genres.add(v.trim()))
+      return this.releases.set(release.id, release)
+    });
+
+    this.years = [...this.years].sort((a, b) => b - a);
+    this.genres = [...this.genres].sort();
 
     this.episodes = episodesData;
     this.buildEpisodesIndex();
     this.buildSortedCache();
     this.buildFranchisesCache(franchisesData);
+    this.buildSearchCache();
 
     this.isInitialized = true;
+  }
+
+  buildSearchCache() {
+    const releases = Array.from(this.releases.values())
+    const fusejs = new Fuse(releases, { keys: ['title', 'description', 'originalName'], includeScore: true })
+    this.search = fusejs
   }
 
   buildEpisodesIndex() {
@@ -125,6 +166,10 @@ export class APICacheService {
       .map(episode => this.releases.get(episode.releaseId))
       .filter(Boolean)
       .reverse();
+  }
+
+  searchByQuery (query) {
+    return this.search?.search(query).sort((a, b) => a.score - b.score).map(x => x.item) || []
   }
 
   getUniqueSortedReleases() {
