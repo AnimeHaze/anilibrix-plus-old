@@ -1,6 +1,4 @@
 // Proxy
-import AnilibriaReleaseProxy from '@proxies/release'
-
 // Transformer
 import BaseTransformer from '@transformers/BaseTransformer'
 
@@ -8,8 +6,16 @@ import BaseTransformer from '@transformers/BaseTransformer'
 import store from '@store'
 import __camelCase from 'lodash/camelCase'
 
+function countNumbersInRanges(ranges) {
+  let total = 0;
+
+  for (const [start, end] of ranges) {
+    total += (end - start + 1);
+  }
+
+  return total;
+}
 // Handlers
-import { catchTorrentParsedData, sendTorrentParse } from '@main/handlers/torrents/torrents-handler'
 
 export default class EpisodesTransformer extends BaseTransformer {
   constructor ({
@@ -64,7 +70,7 @@ export default class EpisodesTransformer extends BaseTransformer {
       // Parse torrents
       // this._parseUpscale(playlist, episodes);
       this._parsePlaylist(playlist || [], episodes)
-      this._parseTorrents(await this._getTorrents(torrents || []), episodes)
+      this._parseTorrents(this._getTorrents(torrents || []), episodes)
 
       // Filter all sources without payload
       // Reverse to descending order
@@ -203,40 +209,12 @@ export default class EpisodesTransformer extends BaseTransformer {
    * @private
    * @param torrents
    */
-  async _getTorrents (torrents = []) {
+  _getTorrents (torrents = []) {
     if (this.skipTorrents === false && this.get(store, 'state.app.settings.player.torrents.process') === true) {
       // Filter torrents
       // Exclude HEVC torrents (no codec available)
-      const filteredTorrents = torrents
+      return torrents
         .filter(torrent => new RegExp('HEVC').test(torrent.quality) === false)
-
-      // Try to parse all torrents data
-      return (await Promise
-        .allSettled(
-          // eslint-disable-next-line no-async-promise-executor
-          filteredTorrents.map(torrent => new Promise(async resolve => {
-              // Get blob torrent file from server
-              const file = await new AnilibriaReleaseProxy().getReleaseTorrent(torrent.url, { cancelToken: this.cancelToken })
-
-              // Check file data is available
-              // Resolve empty if null
-              if (file && file.data) {
-                // Send torrent for parsing data
-                // Catch torrent for parsing
-                sendTorrentParse(torrent.id, file.data)
-                catchTorrentParsedData(torrent.id, data => resolve({
-                  torrent,
-                  data
-                }))
-              } else {
-                resolve(null)
-              }
-            })
-          )
-        ))
-        .filter(response => response.status === 'fulfilled')
-        .map(response => response.value)
-        .filter(torrent => torrent)
     }
 
     return []
@@ -249,52 +227,42 @@ export default class EpisodesTransformer extends BaseTransformer {
    * @param episodes
    * @private
    */
-  _parseTorrents (torrents, episodes) {
+  _parseTorrents(torrents, episodes) {
     torrents.forEach(torrent => {
       const type = 'torrent'
-      const label = this.get(torrent, 'torrent.quality') || null
+      const label = this.get(torrent, 'quality') || null
       const alias = label ? __camelCase(label) : null
-      const files = this.get(torrent, 'data.files') || []
+      const rangeStr = this.get(torrent, 'series')
+      const range = rangeStr.split('-').map(Number)
 
-      files.forEach((file, k) => {
-        // Parse episode from torrent filename
-        let episode = this._parseEpisodeFromTorrentFilename(this.get(file, 'name'))
+      const start = range[0]
+      const end = range[1] || range[0]
 
-        if (episode !== null || files.length === 1) {
-          // If there is only one file in torrent
-          // And if can't parse episode number -> make it as first (1) episode
-          // This is a little bit hack
-          if (files.length === 1) episode = 1
+      console.log('Processing torrent:', torrent)
 
-          // Create episode if it not exists
-          this._createEpisode(episode, episodes)
+      for (let seriesNum = start; seriesNum <= end; seriesNum++) {
+        this._createEpisode(seriesNum, episodes)
 
-          // Set episode data
-          episodes[episode].id = episode
-          episodes[episode].title = episodes[episode].title || `Серия ${episode}`
-          episodes[episode].sources.push(
-            this._createSource(
-              type, label, alias,
-              {
-                torrent: {
-                  id: this.get(torrent, 'torrent.id'),
-                  name: this.get(torrent, 'data.name'),
-                  peers: torrent.numPeers,
-                  seeders: this.get(torrent, 'torrent.seeders'),
-                  datetime: this.get(torrent, 'data.created'),
-                  leechers: this.get(torrent, 'torrent.leechers')
-                },
-                file: {
-                  name: this.get(file, 'name'),
-                  path: this.get(file, 'path'),
-                  index: k,
-                  length: this.get(file, 'length')
-                }
-              }
-            )
-          )
-        }
-      })
+        episodes[seriesNum].id = episodes[seriesNum].id ?? seriesNum
+        episodes[seriesNum].title = episodes[seriesNum].title || `Серия ${seriesNum}`
+        episodes[seriesNum].sources.push(this._createSource(type, label, alias, {
+          torrent: {
+            id: this.get(torrent, 'id'),
+            name: this.get(torrent, 'name'),
+            peers: 0,
+            seeders: 0,
+            datetime: 0,
+            leechers: 0
+          },
+          file: {
+            magnet: this.get(torrent, 'magnet'),
+            name: seriesNum,
+            path: seriesNum,
+            index: seriesNum - start,
+            length: 0
+          }
+        }))
+      }
     })
   }
 

@@ -3,6 +3,7 @@ import path from 'path'
 import ReleaseProxy from '@proxies/release';
 import store from '@store';
 import Fuse from "fuse.js";
+import {ipcMain} from "electron";
 
 export class APICacheService {
   constructor(cachePath) {
@@ -61,6 +62,7 @@ export class APICacheService {
       this.loadJsonFiles('torrents', 1, true)
     ]);
 
+    this.torrentsRaw = new Map();
     this.torrents = new Map();
 
     for (const torrent of torrentsData) {
@@ -77,9 +79,11 @@ export class APICacheService {
         quality: `${torrent.type.value} ${torrent.quality.value} ${torrent.codec.value}`,
         series: torrent.description,
         size: torrent.size,
-        url: '/public/torrent/download.php?id=' + torrent.id
+        url: '/public/torrent/download.php?id=' + torrent.id,
+        magnet: torrent.magnet
       }
 
+      this.torrentsRaw.set(torrent.id, torrentNew);
       this.torrents.get(torrent.releaseId).push(torrentNew);
     }
 
@@ -102,6 +106,10 @@ export class APICacheService {
     this.buildSearchCache();
 
     this.isInitialized = true;
+
+    ipcMain.handle('getTorrent', (event, torrentId) => {
+      return this.torrentsRaw.get(torrentId)
+    })
   }
 
   buildSearchCache() {

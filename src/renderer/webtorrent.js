@@ -2,13 +2,13 @@
 // process from the main window.
 
 import app from '@/../package'
-import { getStore } from '@store'
 
 // Torrent handlers
 import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentParsedData, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
 
 // Utils
 import { parse, stringify } from 'flatted'
+import {ipcRenderer} from "electron";
 
 const http = require('http')
 const path = require('path')
@@ -27,8 +27,7 @@ const store = {
   servers: {}, // servers instances for torrents
   vttServers: {},
   torrents: {}, // torrents instances
-  handlers: {}, // update handlers
-  collection: {} // parsed torrents collection
+  handlers: {} // update handlers
 }
 
 /**
@@ -39,45 +38,11 @@ const store = {
 const torrentPath = path.join(require('@electron/remote').app.getPath('temp'), app.build.appId)
 
 /**
- * Get torrent data from torrent stream
- *
- * @param torrentId
- * @param blob
- */
-const parseTorrent = ({
-  torrent_id: torrentId,
-  blob
-} = {}) => {
-  try {
-    let data = null
-    if (blob !== null) {
-      // If blob is provided -> try to create buffer with torrent file
-      // Try to parse torrent
-      data = parseTorrentData(new Buffer(blob))
-
-      // Save torrent data to store
-      // Show console
-      store.collection[torrentId] = data
-      console.log('Parse Torrent', { torrent: parse(stringify(data)) })
-    }
-
-    // Send result to main process
-    sendTorrentParsedData(torrentId, data)
-  } catch (error) {
-    _sendError({
-      torrentId: torrentId,
-      message: 'Произошла ошибка при парсинге торрент-файла',
-      error
-    })
-  }
-}
-
-/**
  * Start torrent from provided source
  *
  * @param torrentSource
  */
-const startTorrent = ({
+const startTorrent = async ({
   torrentId,
   fileIndex = 0
 } = {}) => {
@@ -87,12 +52,16 @@ const startTorrent = ({
     fileIndex
   })
 
-  if (torrentClient && store.collection[torrentId]) {
+  if (torrentClient) {
     // Destroy torrent if it already added
     if (store.torrents[torrentId]) store.torrents[torrentId].destroy()
 
+    const t = await ipcRenderer.invoke('getTorrent', torrentId)
+
+    console.log('Torrent', t)
+
     // Add torrent
-    torrentClient.add(store.collection[torrentId], { path: torrentPath }, async torrent => {
+    torrentClient.add(t.magnet, { path: torrentPath }, async torrent => {
       try {
         // Get file with provided file index
         const file = torrent.files[fileIndex]
