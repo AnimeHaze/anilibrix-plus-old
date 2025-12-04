@@ -24,7 +24,8 @@ export default class CatalogTransformer extends BaseTransformer {
 
       status: this.get(release, 'status'),
       statusCode: this.get(release, 'statusCode'),
-      favoriteRating: this._getFavoriteRating(release)
+      favoriteRating: this._getFavoriteRating(release),
+      episodes: this.get(release, 'playlist') || []
     }
   }
 
