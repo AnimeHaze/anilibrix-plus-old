@@ -10,6 +10,42 @@ export class APIController {
     };
   }
 
+  async handleFavoritesProxy(action, id) {
+    const endpoint = 'https://wwnd.space';
+    const apiUrl = `${endpoint}/public/api/index.php`;
+    const session = store?.state?.app?.account?.session;
+
+    const formData = this.createFormData({
+      action,
+      id,
+      query: 'favorites'
+    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+        headers: {
+          Cookie: this.buildCookieHeader(session)
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return data
+      } else {
+        console.error(response);
+        throw new Error(data.error)
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   async handleProxyWithCache(query, extra) {
     const endpoint = 'https://wwnd.space';
     const apiUrl = `${endpoint}/public/api/index.php`;

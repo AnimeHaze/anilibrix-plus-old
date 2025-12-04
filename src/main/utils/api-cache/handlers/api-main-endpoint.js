@@ -1,11 +1,17 @@
 export default function (apiController) {
-  return async (req, res) => {
+  return async (req, res, next) => {
     const { query } = req.body;
 
     if (['user', 'favorites'].includes(query)) {
-      const response = await apiController.handleProxyWithCache(query, {
-        ...req.body
-      })
+      let response = null
+      if (query === 'favorites' && req.body.action) {
+        console.log('Favorites action received', req.body)
+        response = await apiController.handleFavoritesProxy(req.body.action, req.body.id)
+      } else {
+        response = await apiController.handleProxyWithCache(query, {
+          ...req.body
+        })
+      }
 
       if (response.error) {
         res.status(400).send(response);
