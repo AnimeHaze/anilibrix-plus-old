@@ -1,5 +1,5 @@
 import fs from 'fs/promises'
-import { createWriteStream, existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs'
+import { createWriteStream, existsSync } from 'fs'
 
 import path from 'path'
 import Fuse from 'fuse.js';
