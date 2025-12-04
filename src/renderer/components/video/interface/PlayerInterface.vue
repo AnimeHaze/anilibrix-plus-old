@@ -315,7 +315,7 @@ export default {
     document.addEventListener('keyup', this.handleKeyUp)
     document.addEventListener('keydown', this.handleKeyDown)
 
-    const { ending, opening } = this.episodeending
+    const { ending, opening } = this.episode.skips
 
     if (ending) this.skips.push({ start: ending[0], end: ending[1] })
     if (opening) this.skips.push({ start: opening[0], end: opening[1] })
