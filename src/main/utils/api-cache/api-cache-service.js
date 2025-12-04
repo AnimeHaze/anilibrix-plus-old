@@ -271,17 +271,21 @@ export class APICacheService {
   }
 
   async getSortedReleases() {
-    return await this.mutex.runExclusive(async () => {
-      return this.sortedEpisodesByFreshness
-        .map(episode => this.releases.get(episode.releaseId))
-        .filter(Boolean)
-        .reverse();
-    });
+    return this.sortedEpisodesByFreshness
+      .map(episode => this.releases.get(episode.releaseId))
+      .filter(Boolean)
+      .reverse();
   }
 
   async searchByQuery (query) {
     return await this.mutex.runExclusive(async () => {
       return this.search?.search(query).sort((a, b) => a.score - b.score).map(x => x.item) || []
+    })
+  }
+
+  async getList () {
+    return await this.mutex.runExclusive(async () => {
+      return this.getSortedReleases();
     })
   }
 

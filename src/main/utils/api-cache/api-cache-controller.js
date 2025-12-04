@@ -164,7 +164,7 @@ export class APIController {
     const validatedPerPage = this.validatePerPage(perPage);
     if (validatedPerPage.error) throw new Error(validatedPerPage.error);
 
-    const sortedReleases = await this.cacheService.getSortedReleases();
+    const sortedReleases = await this.cacheService.getList();
 
     const items = sortedReleases.slice(
       (page - 1) * validatedPerPage.value,
