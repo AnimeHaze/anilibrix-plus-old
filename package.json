@@ -192,6 +192,7 @@
     "@electron/remote": "^2.0.1",
     "@mdi/font": "^4.8.95",
     "adm-zip": "^0.5.16",
+    "async-mutex": "^0.5.0",
     "axios": "^1.7.2",
     "content-disposition-attachment": "^0.3.1",
     "cross-spawn": "^7.0.3",

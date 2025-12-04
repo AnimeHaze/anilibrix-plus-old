@@ -128,7 +128,7 @@ export class APIController {
     const validatedPerPage = this.validatePerPage(perPage);
     if (validatedPerPage.error) throw new Error(validatedPerPage.error);
 
-    const sortedReleases = this.cacheService.getSortedReleases();
+    const sortedReleases = await this.cacheService.getSortedReleases();
 
     const items = sortedReleases.slice(
       (page - 1) * validatedPerPage.value,
@@ -169,7 +169,7 @@ export class APIController {
   }
 
   async handleSearchRequest({ search }) {
-    const sortedReleases = this.cacheService.searchByQuery(search)
+    const sortedReleases = await this.cacheService.searchByQuery(search)
 
     return sortedReleases.map(
       x => APIResponseTransformer.transformRelease(
@@ -185,7 +185,7 @@ export class APIController {
     const validatedPerPage = this.validatePerPage(perPage);
     if (validatedPerPage.error) throw new Error(validatedPerPage.error);
 
-    const uniqueReleases = this.cacheService.getUniqueSortedReleases();
+    const uniqueReleases = await this.cacheService.getUniqueSortedReleases();
 
     // By default getUniqueSortedReleases returns releases by freshness
     if (sort === '2') { // 2 - by fav, 1 - by freshness

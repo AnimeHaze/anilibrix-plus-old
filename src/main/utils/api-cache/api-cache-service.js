@@ -5,6 +5,7 @@ import path from 'path'
 import Fuse from 'fuse.js';
 import { ipcMain } from 'electron';
 import AdmZip from 'adm-zip';
+import { Mutex } from 'async-mutex';
 import crypto from 'crypto';
 
 const githubCacheUrl = 'https://github.com/trueromanus/LocalCacheChecker/archive/refs/heads/main.zip'
@@ -16,6 +17,7 @@ export class APICacheService {
     this.isInitialized = false;
     this.cache = new Map();
     this.search = null
+    this.mutex = new Mutex()
   }
 
   async setCacheKey (key, value) {
@@ -199,8 +201,10 @@ export class APICacheService {
 
     console.log('Initializing API cache...');
 
-    await this.downloadCache();
-    await this.processCache()
+    await this.mutex.runExclusive(async () => {
+      await this.downloadCache();
+      await this.processCache()
+    });
 
     this.isInitialized = true;
 
@@ -266,31 +270,37 @@ export class APICacheService {
     })
   }
 
-  getSortedReleases() {
-    return this.sortedEpisodesByFreshness
-      .map(episode => this.releases.get(episode.releaseId))
-      .filter(Boolean)
-      .reverse();
+  async getSortedReleases() {
+    return await this.mutex.runExclusive(async () => {
+      return this.sortedEpisodesByFreshness
+        .map(episode => this.releases.get(episode.releaseId))
+        .filter(Boolean)
+        .reverse();
+    });
   }
 
-  searchByQuery (query) {
-    return this.search?.search(query).sort((a, b) => a.score - b.score).map(x => x.item) || []
+  async searchByQuery (query) {
+    return await this.mutex.runExclusive(async () => {
+      return this.search?.search(query).sort((a, b) => a.score - b.score).map(x => x.item) || []
+    })
   }
 
-  getUniqueSortedReleases() {
-    const seenIds = new Set();
-    const result = [];
+  async getUniqueSortedReleases() {
+    return await this.mutex.runExclusive(async () => {
+      const seenIds = new Set();
+      const result = [];
 
-    const sortedReleases = this.getSortedReleases();
+      const sortedReleases = await this.getSortedReleases();
 
-    for (const release of sortedReleases) {
-      if (!seenIds.has(release.id)) {
-        result.push(release);
-        seenIds.add(release.id);
+      for (const release of sortedReleases) {
+        if (!seenIds.has(release.id)) {
+          result.push(release);
+          seenIds.add(release.id);
+        }
       }
-    }
 
-    return result;
+      return result;
+    })
   }
 
   async ensureInitialized() {
