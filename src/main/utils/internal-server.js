@@ -22,6 +22,8 @@ const apiCachePath = path.join(app.getPath('userData'), 'api-cache')
 const cacheManager = new CacheManager(mediaCachePath)
 const cacheService = new APICacheService(apiCachePath);
 
+global.apiCacheService = cacheService
+
 const apiController = new APIController(cacheService);
 server.get('/proxy-static', proxyStatic(cacheManager));
 server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController));

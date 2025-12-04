@@ -1,9 +1,13 @@
 import fs from 'fs/promises'
+import { createWriteStream, existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs'
+
 import path from 'path'
-import ReleaseProxy from '@proxies/release';
-import store from '@store';
-import Fuse from "fuse.js";
-import {ipcMain} from "electron";
+import Fuse from 'fuse.js';
+import { ipcMain } from 'electron';
+import AdmZip from 'adm-zip';
+import crypto from 'crypto';
+
+const githubCacheUrl = 'https://github.com/trueromanus/LocalCacheChecker/archive/refs/heads/main.zip'
 
 export class APICacheService {
   constructor(cachePath) {
@@ -33,7 +37,8 @@ export class APICacheService {
   }
 
   async loadCacheMetadata() {
-    const metadataPath = path.join(this.cachePath, 'metadata');
+    const activeCachePrefix = await fs.readFile('active.cache', 'utf8')
+    const metadataPath = path.join(this.cachePath, activeCachePrefix + '_' + 'metadata');
     const metadataContent = await fs.readFile(metadataPath, 'utf8');
     return JSON.parse(metadataContent);
   }
@@ -50,16 +55,99 @@ export class APICacheService {
     return Object.freeze(filesData.flat());
   }
 
-  async initialize() {
-    if (this.isInitialized) return;
+  async downloadFile(url, filePath) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(url);
 
+        if (!response.ok) {
+          const res = await response.text()
+          throw new Error(`Error downloading file: ${response.status} ${res}`);
+        }
+
+        const writeStream = createWriteStream(filePath);
+
+        if (response.body) {
+          for await (const chunk of response.body) {
+            writeStream.write(chunk);
+          }
+          writeStream.end();
+        }
+
+        writeStream.on('finish', () => {
+          console.log(`File downloaded successfully: ${path.basename(filePath)}`);
+          resolve();
+        });
+
+        writeStream.on('error', (error) => {
+          reject(error);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async downloadCache() {
+    const activeCachePrefix = await fs.readFile('active.cache', 'utf8').catch((e) => {
+      if (e.code === 'ENOENT') {
+        console.log('Active cache not found');
+        return null;
+      }
+
+      throw e;
+    })
+    const uuid = crypto.randomUUID();
+    const pathToZip = path.join(this.cachePath, 'main.zip')
+    await this.downloadFile(githubCacheUrl, pathToZip)
+
+    const zip = new AdmZip(pathToZip);
+    const entries = zip.getEntries();
+
+    const cacheFiles = entries.filter(entry =>
+      entry.entryName.includes('cache/') && !entry.isDirectory
+    );
+
+    const [prefix] = cacheFiles[0].entryName.split('/');
+
+    for (const entry of cacheFiles) {
+      const relativePath = entry.entryName.replaceAll(prefix + '/cache/', '');
+      const outputPath = path.join(this.cachePath, relativePath);
+
+      const dir = path.dirname(outputPath);
+      if (!existsSync(dir)) {
+        await fs.mkdir(dir, { recursive: true });
+      }
+
+      const newOutputPath = path.join(dir, `${uuid}_${path.basename(outputPath)}`);
+
+      await fs.writeFile(newOutputPath, entry.getData());
+    }
+
+    await fs.unlink(pathToZip).catch(console.error);
+    await fs.writeFile('active.cache', uuid);
+
+    if (activeCachePrefix !== null) {
+      const files = await fs.readdir(this.cachePath)
+      await Promise.all(
+        files
+          .filter(file => file.startsWith(activeCachePrefix))
+          .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
+      )
+    }
+
+    console.log('Cache downloaded successfully and old cache deleted');
+  }
+
+  async processCache() {
+    const activeCachePrefix = await fs.readFile('active.cache', 'utf8')
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
 
     const [releasesData, episodesData, franchisesData, torrentsData] = await Promise.all([
-      this.loadJsonFiles('releases', countReleases),
-      this.loadJsonFiles('episodes', countEpisodes),
-      this.loadJsonFiles('releaseseries', 1, true),
-      this.loadJsonFiles('torrents', 1, true)
+      this.loadJsonFiles(activeCachePrefix + '_' + 'releases', countReleases),
+      this.loadJsonFiles(activeCachePrefix + '_' + 'episodes', countEpisodes),
+      this.loadJsonFiles(activeCachePrefix + '_' + 'releaseseries', 1, true),
+      this.loadJsonFiles(activeCachePrefix + '_' + 'torrents', 1, true)
     ]);
 
     this.torrentsRaw = new Map();
@@ -104,6 +192,15 @@ export class APICacheService {
     this.buildSortedCache();
     this.buildFranchisesCache(franchisesData);
     this.buildSearchCache();
+  }
+
+  async initialize() {
+    if (this.isInitialized) return;
+
+    console.log('Initializing API cache...');
+
+    await this.downloadCache();
+    await this.processCache()
 
     this.isInitialized = true;
 

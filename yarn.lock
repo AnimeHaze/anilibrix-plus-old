@@ -1999,6 +1999,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"adm-zip@npm:^0.5.16":
+  version: 0.5.16
+  resolution: "adm-zip@npm:0.5.16"
+  checksum: 1f4104f3462b99e1b34d78ccfbdcf47e533a9cc7f894cedec6cd67b06cc6ad0b3a45241d66df5471050c7abbdd67e5707e3959fc76d75176ed6101a5b2a580d5
+  languageName: node
+  linkType: hard
+
 "agent-base@npm:6, agent-base@npm:^6.0.2":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
@@ -2112,6 +2119,7 @@ __metadata:
     "@electron/remote": ^2.0.1
     "@mdi/font": ^4.8.95
     "@types/discord-rpc": ^4.0.8
+    adm-zip: ^0.5.16
     ajv: ^6.5.0
     axios: ^1.7.2
     babel-eslint: ^10.0.3

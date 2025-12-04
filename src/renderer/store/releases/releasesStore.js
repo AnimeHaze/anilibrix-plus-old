@@ -141,6 +141,9 @@ export default {
 
     getReleases: async ({ commit, dispatch, state }) => {
       try {
+        await global.apiCacheService.downloadCache()
+        await global.apiCacheService.processCache()
+
         commit(SET_RELEASES_LOADING, true)
         commit(SET_RELEASES_HAS_ERROR, false)
 
