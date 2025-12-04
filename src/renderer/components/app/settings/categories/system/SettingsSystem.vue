@@ -100,8 +100,8 @@
           outlined
           :value="_api_endpoint"
           @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
-          :items="['https://anilibria.tv/', 'https://wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Адрес сервера API"
+          :items="['https://anilibria.tv/', 'https://wwnd.space/']"
+          label="Адрес сервера API (выберите или впишите свой)"
           persistent-hint
         />
 
@@ -110,8 +110,8 @@
           class="mb-2"
           :value="_static_endpoint"
           @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
-          :items="['https://static-libria.weekstorm.one/', 'https://static.anilibria.tv/', 'https://static.wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Адрес сервера статики"
+          :items="['https://static-libria.weekstorm.one/', 'https://anilibria.tv/', 'https://static.wwnd.space/']"
+          label="Адрес сервера статики (выберите или впишите свой)"
           persistent-hint
         />
 
