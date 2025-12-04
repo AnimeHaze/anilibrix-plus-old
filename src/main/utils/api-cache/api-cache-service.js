@@ -37,7 +37,7 @@ export class APICacheService {
   }
 
   async loadCacheMetadata() {
-    const activeCachePrefix = await fs.readFile('active.cache', 'utf8')
+    const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8')
     const metadataPath = path.join(this.cachePath, activeCachePrefix + '_' + 'metadata');
     const metadataContent = await fs.readFile(metadataPath, 'utf8');
     return JSON.parse(metadataContent);
@@ -89,7 +89,7 @@ export class APICacheService {
   }
 
   async downloadCache() {
-    const activeCachePrefix = await fs.readFile('active.cache', 'utf8').catch((e) => {
+    const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8').catch((e) => {
       if (e.code === 'ENOENT') {
         console.log('Active cache not found');
         return null;
@@ -125,7 +125,7 @@ export class APICacheService {
     }
 
     await fs.unlink(pathToZip).catch(console.error);
-    await fs.writeFile('active.cache', uuid);
+    await fs.writeFile(path.join(this.cachePath, 'active.cache'), uuid);
 
     if (activeCachePrefix !== null) {
       const files = await fs.readdir(this.cachePath)
@@ -140,7 +140,7 @@ export class APICacheService {
   }
 
   async processCache() {
-    const activeCachePrefix = await fs.readFile('active.cache', 'utf8')
+    const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8')
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
 
     const [releasesData, episodesData, franchisesData, torrentsData] = await Promise.all([
