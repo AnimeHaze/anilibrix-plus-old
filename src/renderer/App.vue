@@ -97,7 +97,8 @@ export default {
 
   },
 
-  created () {
+  async created() {
+    const last_page_release = localStorage.getItem('last_page_release')
     // Initial loading
     this.loading = true
     setTimeout(() => this.loading = false, 1000)
@@ -107,9 +108,12 @@ export default {
     this._getReleases()
     this._getFavorites()
 
-    // Push to saved welcome view
-    if (this._welcome_view !== null && this.view !== this._welcome_view) {
-      this.$router.push({ name: this._welcome_view })
+    console.log('Last page release', last_page_release)
+    if (last_page_release) {
+      console.log('Redirecting to release', last_page_release)
+      await this.$router.push({name: 'release', params: JSON.parse(last_page_release)})
+    } else if (this._welcome_view !== null && this.view !== this._welcome_view) {
+      this.$router.push({name: this._welcome_view})
     }
 
   },
