@@ -63,8 +63,6 @@ import moment from 'moment'
 import { invokeTorrentParse } from '@main/handlers/app/app-handlers';
 import { mapActions, mapGetters, mapState } from 'vuex';
 
-const domain = 'https://wwnd.space'
-
 const props = {
   loading: {
     type: Boolean,
@@ -136,11 +134,11 @@ export default {
       const torrents = this.torrents
 
       for (let torrent of torrents) {
-        const { file, name, magnet } = await invokeTorrentParse(domain + torrent.url)
+        const { file, name, magnet, url } = await invokeTorrentParse(torrent.url)
 
         this.torrentsList.push({
           ...torrent,
-          url: domain + torrent.url,
+          url,
           magnet,
           file,
           filename: name

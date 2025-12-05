@@ -15,6 +15,8 @@ import { debounce } from 'lodash';
 import store, { setUserId } from '@store'
 import { initProxy, setProxy } from './utils/proxy';
 import { initInternalServer } from './utils/internal-server';
+import { catGirlFetch } from '@utils/fetch';
+import fsp from 'fs/promises'
 
 applyAppSwitches()
 
@@ -113,6 +115,56 @@ if (!gotTheLock) {
 
   app.whenReady()
     .then(async () => {
+      const defaultsValues = {
+        upstreamDomainV1Tv: process.env.DEFAULT_V1_TV,
+        cacheURL: process.env.CACHE_URL,
+        overrideNet: false
+      }
+
+      try {
+        const defaults = await fsp.readFile(path.join(app.getPath('userData'), 'defaults.json'), 'utf-8')
+        const parsedDefaults = JSON.parse(defaults)
+        defaultsValues.cacheURL = parsedDefaults.cacheURL
+        defaultsValues.upstreamDomainV1Tv = parsedDefaults.upstreamDomainV1Tv
+        defaultsValues.overrideNet = parsedDefaults.overrideNet
+
+        console.log('Defaults file read', parsedDefaults)
+      } catch (e) {
+        if (e.code === 'ENOENT') {
+          console.log('Defaults file not found, using default values')
+        } else {
+          console.error('Can\'t read defaults file', e)
+        }
+      }
+
+      if (!defaultsValues.overrideNet) {
+        try {
+          const domain = await catGirlFetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-v1-tv.animehaze.me', { cache: 'no-cache' })
+            .then(e => e.json())
+            .then(response => response.Answer.pop().data)
+
+          console.log('Resolved upstream v1-tv domain:', domain)
+          defaultsValues.upstreamDomainV1Tv = domain
+        } catch (e) {
+          console.error('Can\'t resolve domain for upstream v1-tv, using default', defaultsValues.upstreamDomainV1Tv)
+        }
+
+        try {
+          const cacheURL = await catGirlFetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-cache.animehaze.me', { cache: 'no-cache' })
+            .then(e => e.json())
+            .then(response => response.Answer.pop().data)
+
+          console.log('Resolved cache URL:', cacheURL)
+          defaultsValues.cacheURL = cacheURL
+        } catch (e) {
+          console.error('Can\'t resolve cache URL, using default', defaultsValues.cacheURL)
+        }
+      }
+
+      console.log('App is ready')
+
+      global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
+      global.cacheURL = defaultsValues.cacheURL
       global.internalServerPort = await initInternalServer()
       console.log('Internal server listens', global.internalServerPort)
 

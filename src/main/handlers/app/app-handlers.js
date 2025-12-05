@@ -258,11 +258,12 @@ export const invokeTorrentParse = (url) => ipcRenderer.invoke(APP_TORRENT_PARSE,
 
 export const handleTorrentParse = () => {
   ipcMain.handle(APP_TORRENT_PARSE, async (event, url) => {
-    const { file, name } = await catGirlFetch(url)
+    const { file, name } = await catGirlFetch('https://' + global.upstreamDomainV1Tv + url)
       .then(async x => {
         return {
           name: parse(x.headers.get('content-disposition')).filename || 'unknown.torrent',
-          file: Buffer.from(await x.arrayBuffer())
+          file: Buffer.from(await x.arrayBuffer()),
+          url: 'https://' + global.upstreamDomainV1Tv + url
         }
       })
 

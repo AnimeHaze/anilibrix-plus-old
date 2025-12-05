@@ -8,11 +8,12 @@ export class APIController {
     this.findEpisodes = (id) => {
       return this.cacheService.episodesByReleaseId.get(id) || [];
     };
+
+    this.endpoint = 'https://' + global.upstreamDomainV1Tv;
   }
 
   async handleFavoritesProxy(action, id) {
-    const endpoint = 'https://wwnd.space';
-    const apiUrl = `${endpoint}/public/api/index.php`;
+    const apiUrl = `${this.endpoint}/public/api/index.php`;
     const session = store?.state?.app?.account?.session;
 
     const formData = this.createFormData({
@@ -47,8 +48,7 @@ export class APIController {
   }
 
   async handleProxyWithCache(query, extra) {
-    const endpoint = 'https://wwnd.space';
-    const apiUrl = `${endpoint}/public/api/index.php`;
+    const apiUrl = `${this.endpoint}/public/api/index.php`;
     const session = store?.state?.app?.account?.session;
 
     if (!query) {

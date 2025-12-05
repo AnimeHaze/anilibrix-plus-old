@@ -24,23 +24,23 @@ const cacheService = new APICacheService(apiCachePath);
 
 global.apiCacheService = cacheService
 
-const apiController = new APIController(cacheService);
-server.get('/proxy-static', proxyStatic(cacheManager));
-server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController));
-server.get('/rutube/:id/*', lazyRutube)
-
-server.all('/', (req, res) => res.send('Hello from Anilibrix Plus!'))
-
-server.get('/public/torrent/download.php', expressProxy('https://wwnd.space'));
-server.post('/public/login.php', expressProxy('https://wwnd.space'));
-server.post('/public/logout.php', expressProxy('https://wwnd.space', {
-  userResDecorator: function(proxyRes, proxyResData) {
-    apiController.clearUserData()
-    return proxyResData
-  }
-}));
-
 export async function initInternalServer () {
+  const apiController = new APIController(cacheService);
+  server.get('/proxy-static', proxyStatic(cacheManager));
+  server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController));
+  server.get('/rutube/:id/*', lazyRutube)
+
+  server.all('/', (req, res) => res.send('Hello from Anilibrix Plus!'))
+
+  server.get('/public/torrent/download.php', expressProxy(apiController.endpoint));
+  server.post('/public/login.php', expressProxy(apiController.endpoint));
+  server.post('/public/logout.php', expressProxy(apiController.endpoint, {
+    userResDecorator: function(proxyRes, proxyResData) {
+      apiController.clearUserData()
+      return proxyResData
+    }
+  }));
+
   await cacheService.initialize()
   await cacheManager.initialize()
   const port = await getPort()
