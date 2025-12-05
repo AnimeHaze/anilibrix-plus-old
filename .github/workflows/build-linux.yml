@@ -4,14 +4,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build-linux:
     permissions: write-all
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
+    runs-on: ubuntu-latest
 
     env:
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
@@ -35,19 +30,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14.x
           cache: 'yarn'
 
-      - name: Add i386 architecture
-        run: sudo dpkg --add-architecture i386
-
-      - name: Install WineHQ repository key
-        run: |
-          sudo mkdir -p /etc/apt/keyrings
-          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          echo "deb [arch=amd64,i386 signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ noble main" | sudo tee /etc/apt/sources.list.d/winehq.list
-
-      - name: Install system dependencies
+      - name: Install system dependencies for Linux
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -58,29 +44,16 @@ jobs:
             software-properties-common \
             flatpak-builder \
             flatpak \
-            winehq-stable
             jq
 
-      - name: Setup Flatpak with current runtimes
+      - name: Setup Flatpak
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          # Install current stable runtimes instead of EOL versions
           sudo flatpak install -y \
             org.freedesktop.Platform//24.08 \
             org.freedesktop.Sdk//24.08 \
             org.electronjs.Electron2.BaseApp/x86_64/stable
-
-          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
           git config --global --add protocol.file.allow always
-
-          # Only install additional architectures if needed
-          sudo flatpak install -y \
-            org.freedesktop.Platform//24.08 \
-            org.freedesktop.Sdk//24.08 \
-            org.freedesktop.Platform/aarch64/24.08 \
-            org.freedesktop.Platform/x86_64/24.08 \
-            org.freedesktop.Sdk/x86_64/24.08 \
-            org.electronjs.Electron2.BaseApp/x86_64/stable
 
       - name: Cache Electron and dependencies
         uses: actions/cache@v3
@@ -89,19 +62,19 @@ jobs:
             ${{ env.ELECTRON_CACHE }}
             ${{ env.ELECTRON_BUILDER_CACHE }}
             ~/.cache/yarn
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-electron-${{ hashFiles('yarn.lock') }}
+          key: linux-node-14-electron-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-electron-
+            linux-node-14-electron-
 
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
 
-      - name: Build application (Linux)
+      - name: Build Linux application
         run: |
           yarn run release:linux
           rm release/*.snap
 
-      - name: Prepare build application (Snap)
+      - name: Prepare and build Snap
         run: |
           jq '.build.linux = {
             "icon": "build/icons/app/anilibria.icns",
@@ -111,58 +84,122 @@ jobs:
               "arch": ["x64"]
             }]
           }' package.json > package.json.tmp && mv package.json.tmp package.json
-
           jq '.name = "anilibrix-plus"' package.json > package.json.tmp && mv package.json.tmp package.json
-
           yarn
+          yarn run release:linux
 
-      - name: Build application (Linux Snap)
-        run: yarn run release:linux
-
-      - name: Build application (Windows)
-        run: yarn run release:windows
-
-      - name: Zip platform folders (preserve original dir names)
+      - name: Zip Linux unpacked folders
         run: |
           mkdir -p bundle/linux
-          cp -r release/linux-unpacked bundle/linux/
-          cp -r release/linux-ia32-unpacked bundle/linux/
-          cp -r release/linux-arm64-unpacked bundle/linux/
+          cp -r release/linux-unpacked bundle/linux/ 2>/dev/null || true
+          cp -r release/linux-ia32-unpacked bundle/linux/ 2>/dev/null || true
+          cp -r release/linux-arm64-unpacked bundle/linux/ 2>/dev/null || true
           (cd bundle && zip -r ../linux-unpacked.zip linux/)
-
-          mkdir -p bundle/win
-          cp -r release/win-unpacked bundle/win/
-          cp -r release/win-ia32-unpacked bundle/win/
-          cp -r release/win-arm64-unpacked bundle/win/
-          (cd bundle && zip -r ../win-unpacked.zip win/)
-
           rm -rf bundle
 
-      - name: Upload artifacts
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-build-artifacts
+          name: linux-artifacts
           path: |
-            release/*.exe
             release/*.rpm
             release/*.deb
             release/*.snap
             release/*.AppImage
             release/*.flatpak
             linux-unpacked.zip
+          retention-days: 5
+
+  build-windows:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: build-linux
+
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      ADS_URLS: ${{ secrets.ADS_URLS }}
+      VK_APP_ID: ${{ secrets.VK_APP_ID }}
+      API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
+      STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
+      DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
+      API_ID: ${{ secrets.API_ID }}
+      API_HASH: ${{ secrets.API_HASH }}
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CACHE_URL: ${{ secrets.CACHE_URL }}
+      DEFAULT_V1_TV: ${{ secrets.DEFAULT_V1_TV }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+          cache: 'yarn'
+
+      - name: Install Wine and Windows dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo mkdir -p /etc/apt/keyrings
+          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+          echo "deb [arch=amd64,i386 signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ noble main" | sudo tee /etc/apt/sources.list.d/winehq.list
+          sudo apt-get update
+          sudo apt-get install -y winehq-stable
+
+      - name: Cache Electron and dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.ELECTRON_CACHE }}
+            ${{ env.ELECTRON_BUILDER_CACHE }}
+            ~/.cache/yarn
+          key: windows-node-14-electron-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            windows-node-14-electron-
+
+      - name: Install project dependencies
+        run: yarn install --ignore-platform --ignore-engines
+
+      - name: Build Windows application
+        run: yarn run release:windows
+
+      - name: Zip Windows unpacked folders
+        run: |
+          mkdir -p bundle/win
+          cp -r release/win-unpacked bundle/win/ 2>/dev/null || true
+          cp -r release/win-ia32-unpacked bundle/win/ 2>/dev/null || true
+          cp -r release/win-arm64-unpacked bundle/win/ 2>/dev/null || true
+          (cd bundle && zip -r ../win-unpacked.zip win/)
+          rm -rf bundle
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
+            release/*.exe
             win-unpacked.zip
           retention-days: 5
+
+  create-release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-windows]
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |
-            release/*.exe
-            release/*.rpm
-            release/*.deb
-            release/*.snap
-            release/*.AppImage
-            release/*.flatpak
-            linux-unpacked.zip
-            win-unpacked.zip
+            artifacts/linux-artifacts/**
+            artifacts/windows-artifacts/**
