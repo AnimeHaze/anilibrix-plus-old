@@ -55,8 +55,6 @@ export default class Window {
       fullScreen: false
     })
 
-    console.log('Window-state: is Main?', this.isMain ?? false)
-
     if (this.isMain === true) {
       // Create the window using the state information
       opts = Object.assign(opts, {
