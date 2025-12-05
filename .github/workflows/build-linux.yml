@@ -16,7 +16,6 @@ jobs:
     env:
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
-      PYTHON_CACHE: ${{ github.workspace }}/.cache/python-2.7
       ADS_URLS: ${{ secrets.ADS_URLS }}
       VK_APP_ID: ${{ secrets.VK_APP_ID }}
       API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
@@ -26,37 +25,17 @@ jobs:
       API_ID: ${{ secrets.API_ID }}
       API_HASH: ${{ secrets.API_HASH }}
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CACHE_URL: ${{ secrets.CACHE_URL }}
+      DEFAULT_V1_TV: ${{ secrets.DEFAULT_V1_TV }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache Python 2.7
-        id: cache-python
-        uses: actions/cache@v3
+      - name: Setup Python 2.7
+        uses: actions/setup-python@v4
         with:
-          path: ${{ env.PYTHON_CACHE }}
-          key: ${{ runner.os }}-python-2.7.18
-          restore-keys: |
-            ${{ runner.os }}-python-2.7
-
-      - name: Install Python 2.7 (if not cached)
-        if: steps.cache-python.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ${{ env.PYTHON_CACHE }}
-          cd ${{ env.PYTHON_CACHE }}
-          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
-          tar xzf Python-2.7.18.tgz
-          cd Python-2.7.18
-          ./configure --enable-optimizations --prefix=${{ env.PYTHON_CACHE }}
-          make
-          make altinstall
-          echo "${{ env.PYTHON_CACHE }}/bin" >> $GITHUB_PATH
-
-      - name: Set up Python 2.7 symlink
-        run: |
-          sudo rm -f /usr/bin/python
-          sudo ln -s ${{ env.PYTHON_CACHE }}/bin/python2.7 /usr/bin/python
+          python-version: '2.7.18'
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
