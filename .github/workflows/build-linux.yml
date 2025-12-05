@@ -33,7 +33,7 @@ jobs:
           node-version: 14.x
           cache: 'yarn'
 
-      - name: Install system dependencies for Linux
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -46,14 +46,27 @@ jobs:
             flatpak \
             jq
 
-      - name: Setup Flatpak
+      - name: Setup Flatpak with current runtimes
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # Install current stable runtimes instead of EOL versions
           sudo flatpak install -y \
             org.freedesktop.Platform//24.08 \
             org.freedesktop.Sdk//24.08 \
             org.electronjs.Electron2.BaseApp/x86_64/stable
+
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
           git config --global --add protocol.file.allow always
+
+          # Only install additional architectures if needed
+          sudo flatpak install -y \
+            org.freedesktop.Platform//24.08 \
+            org.freedesktop.Sdk//24.08 \
+            org.freedesktop.Platform/aarch64/24.08 \
+            org.freedesktop.Platform/x86_64/24.08 \
+            org.freedesktop.Sdk/x86_64/24.08 \
+            org.electronjs.Electron2.BaseApp/x86_64/stable
+
 
       - name: Cache Electron and dependencies
         uses: actions/cache@v3
@@ -62,9 +75,9 @@ jobs:
             ${{ env.ELECTRON_CACHE }}
             ${{ env.ELECTRON_BUILDER_CACHE }}
             ~/.cache/yarn
-          key: linux-node-14-electron-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-electron-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            linux-node-14-electron-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-electron-
 
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
@@ -74,7 +87,7 @@ jobs:
           yarn run release:linux
           rm release/*.snap
 
-      - name: Prepare and build Snap
+      - name: Prepare build application (Snap)
         run: |
           jq '.build.linux = {
             "icon": "build/icons/app/anilibria.icns",
@@ -84,9 +97,13 @@ jobs:
               "arch": ["x64"]
             }]
           }' package.json > package.json.tmp && mv package.json.tmp package.json
+
           jq '.name = "anilibrix-plus"' package.json > package.json.tmp && mv package.json.tmp package.json
+
           yarn
-          yarn run release:linux
+
+      - name: Build application (Linux Snap)
+        run: yarn run release:linux
 
       - name: Zip Linux unpacked folders
         run: |
@@ -156,9 +173,9 @@ jobs:
             ${{ env.ELECTRON_CACHE }}
             ${{ env.ELECTRON_BUILDER_CACHE }}
             ~/.cache/yarn
-          key: windows-node-14-electron-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-electron-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            windows-node-14-electron-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-electron-
 
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
