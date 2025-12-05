@@ -1,4 +1,4 @@
-name: Build Linux + Windows
+name: Build Linux + Windows + macOS + Mac ARM
 
 on:
   workflow_dispatch:
