@@ -91,54 +91,59 @@ export class APICacheService {
   }
 
   async downloadCache() {
-    const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8').catch((e) => {
-      if (e.code === 'ENOENT') {
-        console.log('Active cache not found');
-        return null;
+    try {
+      const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8').catch((e) => {
+        if (e.code === 'ENOENT') {
+          console.log('Active cache not found');
+          return null;
+        }
+
+        throw e;
+      })
+      const uuid = crypto.randomUUID();
+      const pathToZip = path.join(this.cachePath, 'main.zip')
+      await this.downloadFile(githubCacheUrl, pathToZip)
+
+      const zip = new AdmZip(pathToZip);
+      const entries = zip.getEntries();
+
+      const cacheFiles = entries.filter(entry =>
+        entry.entryName.includes('cache/') && !entry.isDirectory
+      );
+
+      const [prefix] = cacheFiles[0].entryName.split('/');
+
+      for (const entry of cacheFiles) {
+        const relativePath = entry.entryName.replaceAll(prefix + '/cache/', '');
+        const outputPath = path.join(this.cachePath, relativePath);
+
+        const dir = path.dirname(outputPath);
+        if (!existsSync(dir)) {
+          await fs.mkdir(dir, { recursive: true });
+        }
+
+        const newOutputPath = path.join(dir, `${uuid}_${path.basename(outputPath)}`);
+
+        await fs.writeFile(newOutputPath, entry.getData());
       }
 
-      throw e;
-    })
-    const uuid = crypto.randomUUID();
-    const pathToZip = path.join(this.cachePath, 'main.zip')
-    await this.downloadFile(githubCacheUrl, pathToZip)
+      await fs.unlink(pathToZip).catch(console.error);
+      await fs.writeFile(path.join(this.cachePath, 'active.cache'), uuid);
 
-    const zip = new AdmZip(pathToZip);
-    const entries = zip.getEntries();
-
-    const cacheFiles = entries.filter(entry =>
-      entry.entryName.includes('cache/') && !entry.isDirectory
-    );
-
-    const [prefix] = cacheFiles[0].entryName.split('/');
-
-    for (const entry of cacheFiles) {
-      const relativePath = entry.entryName.replaceAll(prefix + '/cache/', '');
-      const outputPath = path.join(this.cachePath, relativePath);
-
-      const dir = path.dirname(outputPath);
-      if (!existsSync(dir)) {
-        await fs.mkdir(dir, { recursive: true });
+      if (activeCachePrefix !== null) {
+        const files = await fs.readdir(this.cachePath)
+        await Promise.all(
+          files
+            .filter(file => file.startsWith(activeCachePrefix))
+            .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
+        )
       }
 
-      const newOutputPath = path.join(dir, `${uuid}_${path.basename(outputPath)}`);
-
-      await fs.writeFile(newOutputPath, entry.getData());
+      console.log('Cache downloaded successfully and old cache deleted');
+    } catch (e) {
+      console.error('Cache download failed', e)
+      console.log('Fallback to last cache...')
     }
-
-    await fs.unlink(pathToZip).catch(console.error);
-    await fs.writeFile(path.join(this.cachePath, 'active.cache'), uuid);
-
-    if (activeCachePrefix !== null) {
-      const files = await fs.readdir(this.cachePath)
-      await Promise.all(
-        files
-          .filter(file => file.startsWith(activeCachePrefix))
-          .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
-      )
-    }
-
-    console.log('Cache downloaded successfully and old cache deleted');
   }
 
   async processCache() {
