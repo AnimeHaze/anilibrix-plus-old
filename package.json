@@ -262,7 +262,7 @@
     "deepmerge": "^4.2.2",
     "del": "^5.1.0",
     "dotenv-webpack": "^1.7.0",
-    "electron": "^20.3.12",
+    "electron": "^15.1.0",
     "electron-builder": "^23.0.2",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
