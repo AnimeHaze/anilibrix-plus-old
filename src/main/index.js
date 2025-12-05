@@ -89,90 +89,112 @@ app.on('web-contents-created', (event, webContents) => {
   })
 })
 
-// App ready handler
-app.whenReady()
-  .then(async () => {
-    global.internalServerPort = await initInternalServer()
-    console.log('Internal server listens', global.internalServerPort)
+const gotTheLock = process.env.NODE_ENV !== 'development' ? app.requestSingleInstanceLock() : true
 
-    // Set user id
-    await setUserId()
+console.log('GotTheLock', gotTheLock)
 
-    // Create windows
-    Main.createWindow({ title: meta.name }).loadUrl()
-    Torrent.createWindow({ title: `${meta.name} Torrent` }).loadUrl()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  if (process.env.NODE_ENV !== 'development') {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      const mainWindow = Main.getWindow()
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
 
-    const mainWindow = Main.getWindow()
-    const torrentWindow = Torrent.getWindow()
+        mainWindow.webContents.send('second-instance-opened', {
+          commandLine,
+          workingDirectory
+        })
+      }
+    })
+  }
 
-    await initProxy([mainWindow, torrentWindow])
+  app.whenReady()
+    .then(async () => {
+      global.internalServerPort = await initInternalServer()
+      console.log('Internal server listens', global.internalServerPort)
 
-    if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
+      // Set user id
+      await setUserId()
 
-    require('@electron/remote/main').enable(mainWindow.webContents)
-    require('@electron/remote/main').enable(torrentWindow.webContents)
+      // Create windows
+      Main.createWindow({ title: meta.name }).loadUrl()
+      Torrent.createWindow({ title: `${meta.name} Torrent` }).loadUrl()
 
-    mainWindow
-      .once('ready-to-show', () => mainWindow.show())
-      .on('close', () => {
-        destroyRichPresence()
-        app.quit()
+      const mainWindow = Main.getWindow()
+      const torrentWindow = Torrent.getWindow()
+
+      await initProxy([mainWindow, torrentWindow])
+
+      if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
+
+      require('@electron/remote/main').enable(mainWindow.webContents)
+      require('@electron/remote/main').enable(torrentWindow.webContents)
+
+      mainWindow
+        .once('ready-to-show', () => mainWindow.show())
+        .on('close', () => {
+          destroyRichPresence()
+          app.quit()
+        })
+
+      // Create menu
+      // Create tray icon
+      menuController.setWindows(mainWindow, torrentWindow).init()
+      trayController.createTrayIcon({
+        iconPath: path.join(__dirname, '../../build/icons/tray/icon.png')
+      }).setTooltip(meta.name)
+
+      app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+        if (store.state.app.settings.system.ignore_certs) {
+          // Verification logic.
+          event.preventDefault()
+          console.log('Certificate error ignored', url, error)
+          // eslint-disable-next-line standard/no-callback-literal
+          callback(true)
+        } else {
+          // eslint-disable-next-line standard/no-callback-literal
+          callback(false)
+        }
       })
 
-    // Create menu
-    // Create tray icon
-    menuController.setWindows(mainWindow, torrentWindow).init()
-    trayController.createTrayIcon({
-      iconPath: path.join(__dirname, '../../build/icons/tray/icon.png')
-    }).setTooltip(meta.name)
+      globalShortcut.register('CmdOrCtrl+shift+R', () => {
+        console.log('Restart')
 
-    app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-      if (store.state.app.settings.system.ignore_certs) {
-        // Verification logic.
-        event.preventDefault()
-        console.log('Certificate error ignored', url, error)
-        // eslint-disable-next-line standard/no-callback-literal
-        callback(true)
-      } else {
-        // eslint-disable-next-line standard/no-callback-literal
-        callback(false)
-      }
+        const options = {
+          args: process.argv.slice(1).concat(['--relaunch']),
+          execPath: process.execPath
+        };
+        // Fix for .AppImage
+        if (app.isPackaged && process.env.APPIMAGE) {
+          execFile(process.env.APPIMAGE, options.args);
+          app.quit()
+
+          return
+        }
+
+        app.relaunch()
+        app.exit()
+      })
+
+      consoleLogToFile({
+        logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
+      })
+
+      handlers.catchAppAboutEvent() // About dialog
+      handlers.catchAppDockNumberEvent() // App dock number event
+      handlers.catchAppDevtoolsMainEvent() // Devtools main
+      handlers.catchAppDevtoolsTorrentEvent() // Devtools torrent
+      handlers.catchEnableSystemSleepBlockerEvent() // Disable system sleep
+      handlers.catchDisableSystemSleepBlockerEvent() // Enable system sleep
+      handlers.handleSafeStorageEncrypt()
+      handlers.handleRichPresense(setActivity)
+      handlers.handleRand()
+      handlers.handleShowConfig()
+      handlers.handleTorrentParse()
+      handlers.handleUpdateProxy(debounce(setProxy, 2000))
+      broadcastTorrentEvents()
     })
-
-    globalShortcut.register('CmdOrCtrl+shift+R', () => {
-      console.log('Restart')
-
-      const options = {
-        args: process.argv.slice(1).concat(['--relaunch']),
-        execPath: process.execPath
-      };
-      // Fix for .AppImage
-      if (app.isPackaged && process.env.APPIMAGE) {
-        execFile(process.env.APPIMAGE, options.args);
-        app.quit()
-
-        return
-      }
-
-      app.relaunch()
-      app.exit()
-    })
-
-    consoleLogToFile({
-      logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
-    })
-
-    handlers.catchAppAboutEvent() // About dialog
-    handlers.catchAppDockNumberEvent() // App dock number event
-    handlers.catchAppDevtoolsMainEvent() // Devtools main
-    handlers.catchAppDevtoolsTorrentEvent() // Devtools torrent
-    handlers.catchEnableSystemSleepBlockerEvent() // Disable system sleep
-    handlers.catchDisableSystemSleepBlockerEvent() // Enable system sleep
-    handlers.handleSafeStorageEncrypt()
-    handlers.handleRichPresense(setActivity)
-    handlers.handleRand()
-    handlers.handleShowConfig()
-    handlers.handleTorrentParse()
-    handlers.handleUpdateProxy(debounce(setProxy, 2000))
-    broadcastTorrentEvents()
-  })
+}

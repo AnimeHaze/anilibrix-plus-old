@@ -201,6 +201,8 @@ export class APICacheService {
 
     console.log('Initializing API cache...');
 
+    await fs.mkdir(this.cachePath).catch(console.error)
+
     await this.mutex.runExclusive(async () => {
       await this.downloadCache();
       await this.processCache()
