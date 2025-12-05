@@ -17,6 +17,7 @@ import { initProxy, setProxy } from './utils/proxy';
 import { initInternalServer } from './utils/internal-server';
 import { catGirlFetch } from '@utils/fetch';
 import fsp from 'fs/promises'
+import { stopOperaProxy } from '@main/utils/opera-proxy';
 
 applyAppSwitches()
 
@@ -42,6 +43,20 @@ if (process.env.NODE_ENV !== 'development') {
 
 process.on('uncaughtException', error => console.log('Unhandled Error', error))
 process.on('unhandledRejection', error => console.log('Unhandled Promise Rejection', error))
+
+let isQuitting = false
+
+app.on('before-quit', async (event) => {
+  if (!isQuitting) {
+    event.preventDefault()
+    isQuitting = true
+
+    await stopOperaProxy()
+      .catch(console.error)
+
+    app.quit()
+  }
+})
 
 // Close app on all windows closed (relevant for mac users)
 app.on('window-all-closed', () => {
