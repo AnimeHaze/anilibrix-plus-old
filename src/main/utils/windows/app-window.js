@@ -33,7 +33,7 @@ export default class Window {
   /**
    * Get window
    *
-   * @return BrowserWindow|null
+   * @return {BrowserWindow|null}
    */
   getWindow () {
     return this._window
@@ -54,8 +54,6 @@ export default class Window {
       defaultHeight: opts.height,
       fullScreen: false
     })
-
-    console.log('Window-state: is Main?', this.isMain ?? false)
 
     if (this.isMain === true) {
       // Create the window using the state information

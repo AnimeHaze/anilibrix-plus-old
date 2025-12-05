@@ -100,17 +100,7 @@ export default {
     return {
       teamProps: {
         voice: 'Озвучили',
-        translator: 'Перевели',
-        decor: 'Оформили',
-        editing: 'Субтитры',
-        timing: 'Таймили'
-      },
-      team: {
-        voice: [],
-        translator: [],
-        decor: [],
-        editing: [],
-        timing: []
+        other: 'Перевод, оформление, субтитры, тайминг',
       }
     }
   },
@@ -212,67 +202,16 @@ export default {
      */
     status () {
       return this.$__get(this.release, 'status')
-    }
-
-  },
-  async mounted() {
-    if (this.release?.id) {
-      await this.loadTeamMembers();
-    }
+    },
+    team () {
+      return {
+        voice: this.release.voices,
+        other: this.release.team?.filter(t => !this.release.voices.includes(t)) || [],
+      }
+    },
   },
   methods: {
-    toVideo,
-    async loadTeamMembers() {
-      try {
-        const domain = await window.newAPIDomain()
-        const response = await fetch(`https://${domain}/api/v1/anime/releases/${this.release.id}/members`);
-        if (!response.ok) throw new Error('Failed to load team members');
-
-        const members = await response.json();
-
-        this.team = {
-          voice: [],
-          translator: [],
-          decor: [],
-          editing: [],
-          timing: []
-        };
-
-
-        members.forEach(member => {
-          switch(member.role.value) {
-            case 'voicing':
-              this.team.voice.push(member.nickname);
-              break;
-            case 'translating':
-              this.team.translator.push(member.nickname);
-              break;
-            case 'decorating':
-              this.team.decor.push(member.nickname);
-              break;
-            case 'editing':
-              this.team.editing.push(member.nickname);
-              break;
-            case 'timing':
-              this.team.timing.push(member.nickname);
-              break;
-          }
-        });
-
-      } catch (error) {
-        console.error('Error loading team members:', error);
-      }
-    }
-  },
-  watch: {
-    'release.id': {
-      immediate: true,
-      handler(newId) {
-        if (newId) {
-          this.loadTeamMembers();
-        }
-      }
-    }
+    toVideo
   }
 }
 </script>

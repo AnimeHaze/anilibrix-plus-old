@@ -2,7 +2,7 @@
   <v-list-item v-on:click="toVideo(release, episode)">
     <!-- Avatar -->
     <v-list-item-avatar>
-      <v-img v-bind="{src}"/>
+      <v-img :transition="false" v-bind="{src}"/>
     </v-list-item-avatar>
 
     <!-- Content -->

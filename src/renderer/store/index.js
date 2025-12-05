@@ -10,7 +10,7 @@ import { createSharedMutations } from 'vuex-electron'
 import { getItem, removeItem, setItem } from '@utils/store/storage'
 import path from 'path'
 import os from 'os'
-import { existsSync, readFileSync, copyFileSync, writeFileSync } from 'fs'
+import { existsSync, copyFileSync, writeFileSync } from 'fs'
 
 import app from './app'
 import { app as electronApp } from 'electron'

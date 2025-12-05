@@ -41,7 +41,7 @@
 
 import ExitDialog from './dialogs/exit'
 import CacheDialog from './dialogs/cache'
-import { invokeShowConfig } from '@main/handlers/app/appHandlers'
+import { invokeShowConfig } from '@main/handlers/app/app-handlers'
 
 export default {
   data () {

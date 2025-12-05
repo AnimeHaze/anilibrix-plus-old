@@ -31,7 +31,7 @@
 
 import VideoLayout from '@layouts/video'
 import PlayerInterface from '@components/video/interface'
-import { ServerHandler, TorrentHandler } from '@components/video/player/types'
+import { ServerHandler, TorrentHandler, UpscaleHandler } from '@components/video/player/types'
 
 import { mapActions, mapState } from 'vuex'
 import { toBlank } from '@utils/router/views'
@@ -139,6 +139,7 @@ export default {
       return {
         server: ServerHandler,
         torrent: TorrentHandler,
+        upscale: UpscaleHandler
       }
     },
 

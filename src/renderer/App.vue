@@ -1,23 +1,15 @@
 <template>
   <v-app>
-    <!-- System Bar -->
     <app-system-bar/>
     <app-settings/>
-
-    <!-- Content -->
 
     <app-loader v-if="loading"/>
     <component :is="layout" v-else>
       <router-view :key="$route.fullPath"/>
     </component>
 
-    <!-- Errors -->
-    <!-- Downloads -->
-    <!-- Notifications -->
     <app-errors/>
-    <app-downloads/>
     <app-notifications/>
-
   </v-app>
 </template>
 
@@ -27,7 +19,6 @@ import AppErrors from '@components/app/errors'
 import AppToolBar from '@components/app/toolbar'
 import AppSettings from '@components/app/settings'
 import AppSystemBar from '@components/app/systembar'
-import AppDownloads from '@components/app/downloads'
 import AppBaseLayout from '@layouts/base'
 import AppNotifications from '@components/app/notifications'
 
@@ -41,7 +32,6 @@ export default {
     AppToolBar,
     AppSettings,
     AppSystemBar,
-    AppDownloads,
     AppBaseLayout,
     AppNotifications,
   },
@@ -107,29 +97,8 @@ export default {
 
   },
 
-  created () {
-    window.newAPIDomain = async function () {
-      try {
-        if (this.error === false) return this.domain
-
-        const domain = await fetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-v1-api.animehaze.me', { cache: 'no-cache' })
-          .then(e => e.json())
-          .then(response => response.Answer.pop().data)
-
-        console.log('Resolced domain:', domain)
-
-        this.domain = domain
-        this.error = false
-
-        return domain
-      } catch (e) {
-        this.domain = 'anilibria.top'
-        this.error = true
-
-        return domain
-      }
-    }
-
+  async created() {
+    const last_page_release = localStorage.getItem('last_page_release')
     // Initial loading
     this.loading = true
     setTimeout(() => this.loading = false, 1000)
@@ -139,9 +108,12 @@ export default {
     this._getReleases()
     this._getFavorites()
 
-    // Push to saved welcome view
-    if (this._welcome_view !== null && this.view !== this._welcome_view) {
-      this.$router.push({ name: this._welcome_view })
+    console.log('Last page release', last_page_release)
+    if (last_page_release) {
+      console.log('Redirecting to release', last_page_release)
+      await this.$router.push({name: 'release', params: JSON.parse(last_page_release)})
+    } else if (this._welcome_view !== null && this.view !== this._welcome_view) {
+      this.$router.push({name: this._welcome_view})
     }
 
   },

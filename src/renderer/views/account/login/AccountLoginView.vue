@@ -3,7 +3,7 @@
     <v-row justify="center" align="center">
 
       <v-col cols="12" sm="3" align-self="center">
-        <v-img class="image" contain :src="image"/>
+        <v-img :transition="false" class="image" contain :src="image"/>
       </v-col>
 
       <v-col cols="12" sm="6" align-self="center">
@@ -62,7 +62,7 @@ import { ipcRenderer } from "electron";
 // Utils
 import { required } from 'vuelidate/lib/validators'
 import { BackViewMixin } from '@mixins/views'
-import { invokeSafeStorageEncrypt } from '@main/handlers/app/appHandlers'
+import { invokeSafeStorageEncrypt } from '@main/handlers/app/app-handlers'
 
 export default {
   name: 'Account.Login.View',

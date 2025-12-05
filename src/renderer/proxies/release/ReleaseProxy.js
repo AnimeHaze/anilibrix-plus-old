@@ -1,5 +1,4 @@
 import BaseProxy from '@proxies/BaseProxy'
-import { catGirlFetch } from '@utils/fetch'
 
 export default class ReleaseProxy extends BaseProxy {
   /**
@@ -43,7 +42,7 @@ export default class ReleaseProxy extends BaseProxy {
     const { playlist } = response.data.data
     for (const ep in playlist) {
       if (playlist[ep].sources.is_rutube) {
-        playlist[ep].fullhd = 'http://localhost:9384/rutube/' + playlist[ep].rutube_id + '/main.m3u8'
+        playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/rutube/' + playlist[ep].rutube_id + '/main.m3u8'
       }
     }
     return this.handleResponse(response.data)
@@ -98,6 +97,6 @@ export default class ReleaseProxy extends BaseProxy {
    * @return {string|null}
    */
   getReleasePosterPath (src) {
-    return src ? 'http://localhost:9384/proxy-static?url=' + this.getStaticEndpoint() + src : null;
+    return src ? this.getStaticEndpoint() + src : null;
   }
 }

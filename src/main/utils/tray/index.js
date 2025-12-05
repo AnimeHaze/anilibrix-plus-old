@@ -1,3 +1,3 @@
-import AppTray from './appTray'
+import AppTray from './app-tray'
 
 export default AppTray

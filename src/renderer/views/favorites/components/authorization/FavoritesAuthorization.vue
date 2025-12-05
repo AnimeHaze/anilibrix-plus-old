@@ -3,7 +3,7 @@
     <v-layout align-center justify-center>
 
       <v-col cols="12" sm="3" align-self="center">
-        <v-img class="image" contain :src="image"/>
+        <v-img :transition="false" class="image" contain :src="image"/>
       </v-col>
 
       <v-col cols="12" sm="6" align-self="center">

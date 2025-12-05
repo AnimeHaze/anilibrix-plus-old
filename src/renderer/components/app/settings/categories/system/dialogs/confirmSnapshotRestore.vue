@@ -78,6 +78,7 @@ export default {
           'x-session': this._session
         }
       })
+        .then(x => x.json())
         .then(({ data, success, error }) => {
           if (success) {
             const {

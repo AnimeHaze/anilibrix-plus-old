@@ -20,7 +20,7 @@
 
     <template v-slot:item="{item}">
       <v-list-item-avatar>
-        <v-img :src="item.poster"/>
+        <v-img :transition="false" :src="item.poster"/>
       </v-list-item-avatar>
       <v-list-item-content :style="{maxWidth: $refs.search.$el.clientWidth + 'px'}">
         <v-list-item-title v-text="item.names.ru"/>

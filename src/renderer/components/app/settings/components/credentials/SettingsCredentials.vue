@@ -19,7 +19,7 @@
 
 import app from '@/../package'
 import { mapActions } from 'vuex'
-import { sendAppAboutEvent } from '@main/handlers/app/appHandlers'
+import { sendAppAboutEvent } from '@main/handlers/app/app-handlers'
 
 export default {
   computed: {

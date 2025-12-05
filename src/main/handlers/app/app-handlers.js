@@ -1,31 +1,17 @@
 import { Main, Torrent } from '@main/utils/windows'
 import { app, ipcMain, ipcRenderer } from 'electron'
-import { start as startSystemSleepBlocker, stop as stopSystemSleepBlocker } from '../../utils/powerSaveBlocker'
-import { setEncrypted } from '@main/utils/safeStorage'
-import axios from '@plugins/axios'
-import axiosRetry from 'axios-retry';
+import { start as startSystemSleepBlocker, stop as stopSystemSleepBlocker } from '../../utils/power-save-blocker'
+import { setEncrypted } from '@main/utils/safe-storage'
 import parseTorrent from 'parse-torrent';
 import qs from 'querystring';
 import { catGirlFetch } from '@utils/fetch';
 import { parse } from 'content-disposition-attachment';
-
-axiosRetry(axios, {
-  retryDelay: () => 1500,
-  retries: 10,
-  retryCondition: function (response) {
-    if (response.status === 404) return false
-    if (response.status === 401) return false
-
-    return true
-    // return axiosRetry.isNetworkOrIdempotentRequestError(response)
-  }
-})
+import FormData from 'form-data'
 
 const { shell } = require('electron')
 const path = require('path')
 
 export const APP_DISCORD_RICH_PRESENSE = 'app:richpresense'
-
 export const APP_ABOUT = 'app:about'
 export const APP_SYSTEM_SLEEP_DISABLE = 'app:system:disable_sleep'
 export const APP_SYSTEM_SLEEP_ENABLE = 'app:system:enable_sleep'
@@ -33,19 +19,11 @@ export const APP_DOCK_NUMBER = 'app:dock:number'
 export const APP_DEVTOOLS_MAIN = 'app:devtools:main'
 export const APP_DEVTOOLS_TORRENT = 'app:devtools:torrent'
 export const APP_SAFE_STORAGE_ENCRYPT_REQUEST = 'app:system:safe_storage:encrypt'
-export const APP_SAFE_STORAGE_DECRYPT_REQUEST = 'app:system:safe_storage:decrypt'
-
 export const APP_SHOW_CONFIG = 'app:show_config'
-export const APP_CHECK_API_ENDPOINT = 'app:check_api_endpoint'
-
 export const APP_RAND = 'app:rand'
-export const APP_GET_TITLE_V2 = 'app:get_title_v2'
-
-export const APP_GET_TITLE_V1_NEW = 'app:get_title_v1new'
-export const APP_GET_TITLE_V3 = 'app:get_title_v3'
-
 export const APP_TORRENT_PARSE = 'app:torrent_parse'
 export const APP_UPDATE_PROXY = 'app:update_proxy'
+
 /**
  * Send app about event
  *
@@ -219,64 +197,55 @@ export const invokeRand = () => ipcRenderer.invoke(APP_RAND)
  */
 export const handleRand = () => {
   ipcMain.handle(APP_RAND, async (event) => {
-    const endpoint = require('@store/index').default?.state?.app?.settings?.system?.api._endpoint
-
-    const { hostname } = new URL(endpoint)
-    const parts = hostname.split('.')
-    if (parts.length > 2) {
-      parts.shift()
-    }
+    // delay 500 - 1.5 sec
+    await new Promise((r) => setTimeout(r, Math.random() * 1000 + 500))
 
     try {
-      const { data } = await axios.get(`https://api.${parts.join('.')}/v3/title/random`)
-      console.log('Rand:', data.id)
-      return { id: data.id, name: data.names.en }
-    } catch (e) {
-      const { data: { data: { code } } } = await axios.post(`https://${hostname}/public/api/index.php`, new URLSearchParams({ query: 'random_release' }))
-      const { data: { data: { id, names } } } = await axios.post(`https://${hostname}/public/api/index.php`, new URLSearchParams({
-        query: 'release',
-        code: code
-      }))
-      return { id: id, name: names.pop() }
+      const apiUrl = `http://localhost:${global.internalServerPort}/public/api/index.php`;
+
+      const randomReleaseFormData = new FormData();
+      randomReleaseFormData.append('query', 'random_release');
+
+      const randomResponse = await catGirlFetch(apiUrl, {
+        method: 'POST',
+        body: randomReleaseFormData
+      })
+
+      if (!randomResponse.ok) {
+        throw new Error(`Failed to fetch random release: ${randomResponse.status}`);
+      }
+
+      const { data: randomData } = await randomResponse.json();
+
+      if (!randomData?.id) {
+        throw new Error('Invalid response: missing release ID');
+      }
+
+      const releaseFormData = new FormData();
+      releaseFormData.append('query', 'release');
+      releaseFormData.append('id', randomData.id);
+
+      const releaseResponse = await catGirlFetch(apiUrl, {
+        method: 'POST',
+        body: releaseFormData
+      });
+
+      if (!releaseResponse.ok) {
+        throw new Error(`Failed to fetch release details: ${releaseResponse.status}`);
+      }
+
+      const releaseData = await releaseResponse.json();
+
+      const { id, names } = releaseData.data;
+      const name = names.pop();
+
+      return { id, name };
+    } catch (error) {
+      console.error('Error in handleRand:', error);
+      throw new Error(`Random release fetch failed: ${error.message}`);
     }
-  })
-}
-
-export const invokeGetTitleV3 = (url) => ipcRenderer.invoke(APP_GET_TITLE_V3, url)
-export const handleGetTitleV3 = () => {
-  ipcMain.handle(APP_GET_TITLE_V3, async (event, filter) => {
-    let response
-    try {
-      response = await axios.get('https://api.anilibria.tv/v3/title?' + filter).then(x => x.data)
-    } catch (e) {
-      response = await axios.get('https://api.wwnd.space/v3/title?' + filter).then(x => x.data)
-    }
-
-    return response
-  })
-}
-
-export const invokeGetTitleV2 = (url) => ipcRenderer.invoke(APP_GET_TITLE_V2, url)
-export const handleGetTitleV2 = () => {
-  ipcMain.handle(APP_GET_TITLE_V2, async (event, rId) => {
-    let response
-
-    try {
-      response = await axios.get(`https://api.wwnd.space/v2/getTitle?id=${rId}&filter=player.playlist&playlist_type=array`).then(x => x.data)
-    } catch (e) {
-      response = await axios.get(`https://api.anilibria.tv/v2/getTitle?id=${rId}&filter=player.playlist&playlist_type=array`).then(x => x.data)
-    }
-
-    return response
-  })
-}
-
-export const invokeGetTitleV1New = (url) => ipcRenderer.invoke(APP_GET_TITLE_V1_NEW, url)
-export const handleGetTitleV1New = () => {
-  ipcMain.handle(APP_GET_TITLE_V1_NEW, async (event, rId) => {
-    return await axios.get('https://anilibria.top/api/v1/anime/releases/' + rId).then(x => x.data)
-  })
-}
+  });
+};
 
 export const invokeUpdateProxy = (url) => ipcRenderer.invoke(APP_UPDATE_PROXY, url)
 export const handleUpdateProxy = (cb) => {
@@ -289,11 +258,12 @@ export const invokeTorrentParse = (url) => ipcRenderer.invoke(APP_TORRENT_PARSE,
 
 export const handleTorrentParse = () => {
   ipcMain.handle(APP_TORRENT_PARSE, async (event, url) => {
-    const { file, name } = await catGirlFetch(url, { raw: true })
+    const { file, name } = await catGirlFetch('https://' + global.upstreamDomainV1Tv + url)
       .then(async x => {
         return {
           name: parse(x.headers.get('content-disposition')).filename || 'unknown.torrent',
-          file: Buffer.from(await x.arrayBuffer())
+          file: Buffer.from(await x.arrayBuffer()),
+          url: 'https://' + global.upstreamDomainV1Tv + url
         }
       })
 

@@ -10,6 +10,7 @@
     @dblclick="$emit('dblclick')">
 
     <v-img
+      :transition="false"
       v-if="src"
       v-bind="{key, src}"
       eager

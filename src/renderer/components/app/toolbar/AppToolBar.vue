@@ -56,8 +56,8 @@ import Search from './components/search'
 import Account from './components/account'
 import Settings from './components/settings'
 import Notifications from './components/notifications'
-import { invokeRand } from '@main/handlers/app/appHandlers'
-import {showAppError} from "@main/handlers/notifications/notificationsHandler";
+import { invokeRand } from '@main/handlers/app/app-handlers'
+import {showAppError} from "@main/handlers/notifications/notifications-handler";
 
 export default {
   components: {

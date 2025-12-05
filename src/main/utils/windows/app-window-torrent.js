@@ -1,4 +1,4 @@
-import Window from './appWindow'
+import Window from './app-window'
 
 class TorrentWindow extends Window {
   /**

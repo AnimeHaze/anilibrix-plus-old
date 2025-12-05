@@ -6,11 +6,11 @@ const storage = new Storage({
   clearInvalidConfig: true
 })
 
-function remove (prop) {
+export function remove (prop) {
   storage.delete(prop)
 }
 
-function setEncrypted (prop, string) {
+export function setEncrypted (prop, string) {
   if (!safeStorage.isEncryptionAvailable()) return false
   const encryptedString = safeStorage.encryptString(string)
     .toString('base64')
@@ -18,7 +18,7 @@ function setEncrypted (prop, string) {
   return encryptedString
 }
 
-function getDecrypted (prop) {
+export function getDecrypted (prop) {
   if (!safeStorage.isEncryptionAvailable()) return false
   const data = storage.get(prop)
   if (data === undefined) return false
@@ -27,10 +27,4 @@ function getDecrypted (prop) {
   )
 
   return safeStorage.decryptString(encryptedString)
-}
-
-module.exports = {
-  setEncrypted,
-  getDecrypted,
-  remove
 }

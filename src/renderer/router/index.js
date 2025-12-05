@@ -12,6 +12,7 @@ import favorites from './favorites'
 
 Vue.use(Router)
 
+// WTF? xD
 // Suppress router push errors
 // Overwrite native push function
 const push = Router.prototype.push
@@ -30,6 +31,20 @@ const router = new Router({
     releases,
     favorites
   )
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name === 'release') {
+    localStorage.setItem('last_page_release', JSON.stringify(to.params))
+    console.log('Set last page release', to.params)
+    next()
+  } else {
+    if (from.name) {
+      localStorage.removeItem('last_page_release')
+      console.log('Removed last page release', from)
+    }
+    next()
+  }
 })
 
 export default router

@@ -10,10 +10,9 @@ const CACHE_SETTINGS = {
 export class CacheManager {
   constructor(cachePath) {
     this.cachePath = cachePath;
-    this.init().catch(console.error);
   }
 
-  async init() {
+  async initialize() {
     try {
       await fs.mkdir(this.cachePath, { recursive: true });
       console.log(`Cache initialized at: ${this.cachePath}`);
@@ -52,10 +51,7 @@ export class CacheManager {
     } catch (cacheError) {
       console.warn(`Cache miss (${cacheName}):`, cacheError.message);
 
-      const result = await catGirlFetch(originalUrl, {
-        raw: true,
-        bypass404: true
-      });
+      const result = await catGirlFetch(originalUrl);
 
       if (!result.ok && result.status !== 404) {
         throw new Error(`Failed to fetch: ${result.status}`);

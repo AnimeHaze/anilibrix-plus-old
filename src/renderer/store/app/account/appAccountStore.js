@@ -3,11 +3,11 @@ import AccountProxy from '@proxies/account'
 
 // Utils
 import __get from 'lodash/get'
-import { v4 as uuid } from 'uuid'
+import { randomUUID as uuid } from 'crypto'
 
 // Handlers
-import { showAppError } from '@main/handlers/notifications/notificationsHandler'
-import * as safeStorage from '@main/utils/safeStorage'
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
+import * as safeStorage from '@main/utils/safe-storage'
 
 const SET_USER_ID = 'SET_USER_ID'
 const SET_SESSION = 'SET_SESSION'

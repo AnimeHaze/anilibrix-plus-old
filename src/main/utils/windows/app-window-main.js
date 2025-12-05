@@ -1,4 +1,4 @@
-import Window from './appWindow'
+import Window from './app-window'
 import * as path from 'path'
 
 class MainWindow extends Window {

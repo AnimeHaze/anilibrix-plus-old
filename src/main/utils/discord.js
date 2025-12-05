@@ -57,11 +57,11 @@ export function discordActivity () {
             .then(() => logger('Discord set activity', activity))
             .catch(err => logger('Discord set activity error', err))
         } else {
-          client.clearActivity()
+          client.clearActivity().catch(() => {})
         }
       }
     } else {
-      client.clearActivity()
+      client.clearActivity().catch(() => {})
     }
   }, 1000)
 
