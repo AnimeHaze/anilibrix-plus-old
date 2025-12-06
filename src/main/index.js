@@ -14,10 +14,9 @@ import { debounce } from 'lodash';
 import store, { setUserId } from '@store'
 import { initProxy, setProxy } from './utils/proxy';
 import { initInternalServer } from './utils/internal-server';
-import { catGirlFetch } from '@utils/fetch';
-import fsp from 'fs/promises'
 import { stopOperaProxy } from '@main/utils/opera-proxy';
 import { consoleLogToFile } from './utils/log-to-file';
+import { initGlobals } from '@main/utils/init-globals';
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
@@ -134,76 +133,10 @@ if (!gotTheLock) {
 
   app.whenReady()
     .then(async () => {
-      const defaultsValues = {
-        upstreamDomainV1Tv: process.env.DEFAULT_V1_TV,
-        cacheURL: process.env.CACHE_URL,
-        overrideNet: false
-      }
-
-      try {
-        const defaults = await fsp.readFile(path.join(app.getPath('userData'), 'defaults.json'), 'utf-8')
-        const parsedDefaults = JSON.parse(defaults)
-        defaultsValues.cacheURL = parsedDefaults.cacheURL
-        defaultsValues.upstreamDomainV1Tv = parsedDefaults.upstreamDomainV1Tv
-        defaultsValues.overrideNet = parsedDefaults.overrideNet
-
-        console.log('Defaults file read', parsedDefaults)
-      } catch (e) {
-        if (e.code === 'ENOENT') {
-          console.log('Defaults file not found, using default values')
-        } else {
-          console.error('Can\'t read defaults file', e)
-        }
-      }
-
-      if (!defaultsValues.overrideNet) {
-        const dnsURL = 'https://dns.google.com/resolve?type=TXT&name='
-        await Promise.allSettled([
-          new Promise(async (resolve, reject) => {
-            try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-              controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
-
-              const domain = await catGirlFetch(dnsURL + 'anilibrix-plus-v1-tv.animehaze.me', { cache: 'no-cache', signal: controller.signal })
-                .then(e => e.json())
-                .then(response => response.Answer.pop().data)
-
-              console.log('Resolved upstream v1-tv domain:', domain);
-              defaultsValues.upstreamDomainV1Tv = domain;
-              resolve()
-            } catch (e) {
-              reject(e)
-              console.error('Can\'t resolve domain for upstream v1-tv, using default', defaultsValues.upstreamDomainV1Tv, e.message);
-            }
-          }),
-          new Promise(async (resolve, reject) => {
-            try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-              controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
-
-              const cacheURL = await catGirlFetch(dnsURL + 'anilibrix-plus-cache.animehaze.me', { cache: 'no-cache', signal: controller.signal })
-                .then(e => e.json())
-                .then(response => response.Answer.pop().data)
-
-              console.log('Resolved cache URL:', cacheURL);
-              defaultsValues.cacheURL = cacheURL;
-              resolve()
-            } catch (e) {
-              reject(e)
-              console.error('Can\'t resolve cache URL, using default', defaultsValues.cacheURL, e.message);
-            }
-          })
-        ])
-      }
+      console.log('Start init globals')
+      await initGlobals()
 
       console.log('App is ready')
-
-      global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
-      global.cacheURL = defaultsValues.cacheURL
       global.internalServerPort = await initInternalServer()
       console.log('Internal server listens', global.internalServerPort)
 
