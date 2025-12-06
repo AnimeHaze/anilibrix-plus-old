@@ -177,6 +177,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-electron-
 
+      - name: Prepare build application (Windows)
+        run: |
+          jq '.name = "anilibrix-plus"' package.json > package.json.tmp && mv package.json.tmp package.json
+
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
 
