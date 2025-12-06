@@ -108,7 +108,7 @@ export class APICacheService {
       })
       const uuid = crypto.randomUUID();
       const pathToZip = path.join(this.cachePath, 'main.zip')
-      await this.downloadFile(githubCacheUrl, pathToZip)
+      await this.downloadFile(global.cacheURL, pathToZip)
 
       const zip = new AdmZip(pathToZip);
       const entries = zip.getEntries();
