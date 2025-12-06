@@ -144,6 +144,7 @@ export default {
         commit(SET_RELEASES_LOADING, true)
         commit(SET_RELEASES_HAS_ERROR, false)
 
+        await global.apiCacheService.initialize()
         await global.apiCacheService.downloadCache()
         await global.apiCacheService.processCache()
 

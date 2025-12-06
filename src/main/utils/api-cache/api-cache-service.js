@@ -7,8 +7,6 @@ import { ipcMain } from 'electron';
 import AdmZip from 'adm-zip';
 import { Mutex } from 'async-mutex';
 import crypto from 'crypto';
-
-const githubCacheUrl = 'https://github.com/trueromanus/LocalCacheChecker/archive/refs/heads/main.zip'
 import { catGirlFetch } from '@utils/fetch';
 
 export class APICacheService {
@@ -19,6 +17,18 @@ export class APICacheService {
     this.cache = new Map();
     this.search = null
     this.mutex = new Mutex()
+
+    this.initializationPromise = null;
+    this.initializationResolve = null;
+    this.initializationReject = null;
+    this.createInitializationPromise();
+  }
+
+  createInitializationPromise() {
+    this.initializationPromise = new Promise((resolve, reject) => {
+      this.initializationResolve = resolve;
+      this.initializationReject = reject;
+    });
   }
 
   async setCacheKey (key, value) {
@@ -207,23 +217,32 @@ export class APICacheService {
     this.buildSearchCache();
   }
 
+
   async initialize() {
     if (this.isInitialized) return;
 
     console.log('Initializing API cache...');
 
-    await fs.mkdir(this.cachePath).catch(console.error)
+    try {
+      await fs.mkdir(this.cachePath).catch(console.error);
 
-    await this.mutex.runExclusive(async () => {
       await this.downloadCache();
-      await this.processCache()
-    });
+      await this.processCache();
 
-    this.isInitialized = true;
+      this.isInitialized = true;
+      console.log('API cache initialized successfully');
 
-    ipcMain.handle('getTorrent', (event, torrentId) => {
-      return this.torrentsRaw.get(torrentId)
-    })
+      this.initializationResolve();
+
+      ipcMain.handle('getTorrent', (event, torrentId) => {
+        return this.torrentsRaw.get(torrentId);
+      });
+    } catch (error) {
+      console.error('Failed to initialize API cache:', error);
+      this.initializationReject(error);
+      this.createInitializationPromise();
+      throw error;
+    }
   }
 
   buildSearchCache() {
@@ -322,7 +341,7 @@ export class APICacheService {
 
   async ensureInitialized() {
     if (!this.isInitialized) {
-      await this.initialize();
+      return this.initializationPromise;
     }
   }
 }

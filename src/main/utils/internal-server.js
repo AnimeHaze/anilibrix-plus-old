@@ -41,7 +41,6 @@ export async function initInternalServer () {
     }
   }));
 
-  await cacheService.initialize()
   await cacheManager.initialize()
   const port = await getPort()
   server.listen(port)
