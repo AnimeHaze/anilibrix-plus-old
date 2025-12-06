@@ -9,6 +9,7 @@ import { Mutex } from 'async-mutex';
 import crypto from 'crypto';
 
 const githubCacheUrl = 'https://github.com/trueromanus/LocalCacheChecker/archive/refs/heads/main.zip'
+import { catGirlFetch } from '@utils/fetch';
 
 export class APICacheService {
   constructor(cachePath) {
@@ -60,7 +61,12 @@ export class APICacheService {
   async downloadFile(url, filePath) {
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(url);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
+
+        const response = await catGirlFetch(url, { signal: controller.signal })
 
         if (!response.ok) {
           const res = await response.text()

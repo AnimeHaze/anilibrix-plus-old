@@ -157,27 +157,47 @@ if (!gotTheLock) {
       }
 
       if (!defaultsValues.overrideNet) {
-        try {
-          const domain = await catGirlFetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-v1-tv.animehaze.me', { cache: 'no-cache' })
-            .then(e => e.json())
-            .then(response => response.Answer.pop().data)
+        const dnsURL = 'https://dns.google.com/resolve?type=TXT&name='
+        await Promise.allSettled([
+          new Promise(async (resolve, reject) => {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-          console.log('Resolved upstream v1-tv domain:', domain)
-          defaultsValues.upstreamDomainV1Tv = domain
-        } catch (e) {
-          console.error('Can\'t resolve domain for upstream v1-tv, using default', defaultsValues.upstreamDomainV1Tv)
-        }
+              controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
-        try {
-          const cacheURL = await catGirlFetch('https://dns.google.com/resolve?type=TXT&name=anilibrix-plus-cache.animehaze.me', { cache: 'no-cache' })
-            .then(e => e.json())
-            .then(response => response.Answer.pop().data)
+              const domain = await catGirlFetch(dnsURL + 'anilibrix-plus-v1-tv.animehaze.me', { cache: 'no-cache', signal: controller.signal })
+                .then(e => e.json())
+                .then(response => response.Answer.pop().data)
 
-          console.log('Resolved cache URL:', cacheURL)
-          defaultsValues.cacheURL = cacheURL
-        } catch (e) {
-          console.error('Can\'t resolve cache URL, using default', defaultsValues.cacheURL)
-        }
+              console.log('Resolved upstream v1-tv domain:', domain);
+              defaultsValues.upstreamDomainV1Tv = domain;
+              resolve()
+            } catch (e) {
+              reject(e)
+              console.error('Can\'t resolve domain for upstream v1-tv, using default', defaultsValues.upstreamDomainV1Tv, e.message);
+            }
+          }),
+          new Promise(async (resolve, reject) => {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+              controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
+
+              const cacheURL = await catGirlFetch(dnsURL + 'anilibrix-plus-cache.animehaze.me', { cache: 'no-cache', signal: controller.signal })
+                .then(e => e.json())
+                .then(response => response.Answer.pop().data)
+
+              console.log('Resolved cache URL:', cacheURL);
+              defaultsValues.cacheURL = cacheURL;
+              resolve()
+            } catch (e) {
+              reject(e)
+              console.error('Can\'t resolve cache URL, using default', defaultsValues.cacheURL, e.message);
+            }
+          })
+        ])
       }
 
       console.log('App is ready')
