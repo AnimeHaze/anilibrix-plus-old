@@ -10,7 +10,6 @@ import { broadcastTorrentEvents } from './handlers/torrents/torrents-handler'
 import Tray from './utils/tray'
 import Menu from './utils/menu'
 import { openWindowInterceptor } from './utils/windows/open-window-interceptor'
-import { consoleLogToFile } from './utils/log-to-file';
 import { debounce } from 'lodash';
 import store, { setUserId } from '@store'
 import { initProxy, setProxy } from './utils/proxy';
@@ -18,6 +17,11 @@ import { initInternalServer } from './utils/internal-server';
 import { catGirlFetch } from '@utils/fetch';
 import fsp from 'fs/promises'
 import { stopOperaProxy } from '@main/utils/opera-proxy';
+import { consoleLogToFile } from './utils/log-to-file';
+
+consoleLogToFile({
+  logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
+})
 
 applyAppSwitches()
 
@@ -244,10 +248,6 @@ if (!gotTheLock) {
 
         app.relaunch()
         app.exit()
-      })
-
-      consoleLogToFile({
-        logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
       })
 
       handlers.catchAppAboutEvent() // About dialog
