@@ -12,7 +12,7 @@ const defaultsValues = {
 const dnsGoogleURL = 'https://dns.google/resolve?type=TXT&name='
 const dnsCloudflareURL = 'https://one.one.one.one/dns-query?type=TXT&name='
 const dnsCloudflareAdGuardSecure = 'https://94.140.14.140/resolve?type=TXT&name='
-const dnsCloudflareAdGuardNotSecure = 'http://94.140.14.140/resolve?type=TXT&name='
+const dnsCloudflareAdGuardSecond = 'http://94.140.15.15/resolve?type=TXT&name='
 
 function parseTxtRecord(record) {
   if (record.startsWith('"') && record.endsWith('"')) {
@@ -63,7 +63,7 @@ async function resolveTxtRecordCloudflare(domain) {
   }
 }
 
-async function resolveTxtRecordAdGuardNotSecure(domain) {
+async function resolveTxtRecordAdGuardSecond(domain) {
   let timeoutId
   try {
     const controller = new AbortController();
@@ -71,7 +71,7 @@ async function resolveTxtRecordAdGuardNotSecure(domain) {
 
     controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
-    return await catGirlFetch(dnsCloudflareAdGuardNotSecure + domain, {
+    return await catGirlFetch(dnsCloudflareAdGuardSecond + domain, {
       headers: {
         accept: 'application/dns-json'
       },
@@ -183,9 +183,9 @@ export async function initGlobals() {
 
     if (!resolved) {
       Promise.all([
-        resolveTxtRecordAdGuardNotSecure('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordAdGuardNotSecure('anilibrix-plus-cache.animehaze.me')
-      ]).then(processResult('adguard-not-secure', true)).catch(processResult('adguard-not-secure', false))
+        resolveTxtRecordAdGuardSecond('anilibrix-plus-v1-tv.animehaze.me'),
+        resolveTxtRecordAdGuardSecond('anilibrix-plus-cache.animehaze.me')
+      ]).then(processResult('adguard-second', true)).catch(processResult('adguard-second', false))
     }
   }
 
