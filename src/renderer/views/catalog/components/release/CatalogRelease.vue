@@ -25,6 +25,7 @@
             <v-select
               v-model="selectedDomain"
               :items="availableDomains"
+              @change="updateShareLinks"
               dense
               outlined
               hide-details
@@ -115,12 +116,20 @@ export default {
       _removeWatchedEpisodes: 'removeWatchedEpisodes'
     }),
     show (e) {
+      if (window.__ctxMenuClose) {
+        window.__ctxMenuClose()
+        window.__ctxMenuClose = null
+      }
+
       if (this.lockShow) return
       e.preventDefault()
       this.showMenu = false
       this.x = e.clientX
       this.y = e.clientY
       this.$nextTick(() => {
+        window.__ctxMenuClose = () => {
+          this.showMenu = false
+        }
         this.showMenu = true
       })
     },
