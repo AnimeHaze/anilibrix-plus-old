@@ -62,6 +62,7 @@ import humanFormat from 'human-format'
 import moment from 'moment'
 import { invokeTorrentParse } from '@main/handlers/app/app-handlers';
 import { mapActions, mapGetters, mapState } from 'vuex';
+import {showAppError} from "@main/handlers/notifications/notifications-handler";
 
 const props = {
   loading: {
@@ -111,6 +112,11 @@ export default {
       if (this._torrentType === 'magnet') {
         window.open(torrent.magnet, '_blank')
       } else {
+        if (torrent.filename === 'fuckyou') {
+          this.$toasted.show('Невомзонжо получить файл торрента с сервера, проверьте подключение к интернету или воспользуйтесь Magnet', { type: 'error' })
+          return
+        }
+
         let downloadLink = document.createElement("a");
         downloadLink.href = 'data:application/x-bittorrent;base64,' + torrent.file;
         downloadLink.download = torrent.filename ;

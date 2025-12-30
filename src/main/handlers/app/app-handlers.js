@@ -2,11 +2,11 @@ import { Main, Torrent } from '@main/utils/windows'
 import { app, ipcMain, ipcRenderer } from 'electron'
 import { start as startSystemSleepBlocker, stop as stopSystemSleepBlocker } from '../../utils/power-save-blocker'
 import { setEncrypted } from '@main/utils/safe-storage'
-import parseTorrent from 'parse-torrent';
-import qs from 'querystring';
 import { catGirlFetch } from '@utils/fetch';
 import { parse } from 'content-disposition-attachment';
 import FormData from 'form-data'
+import {showAppError} from "@main/handlers/notifications/notifications-handler";
+import {debounce} from "lodash";
 
 const { shell } = require('electron')
 const path = require('path')
@@ -256,27 +256,44 @@ export const handleUpdateProxy = (cb) => {
 
 export const invokeTorrentParse = (url) => ipcRenderer.invoke(APP_TORRENT_PARSE, url)
 
+const showTorrentError = debounce(
+  () => showAppError('Ошибка получения файла торрента, ссылка просрочена или торрент не существует'),
+  1000
+)
+
 export const handleTorrentParse = () => {
   ipcMain.handle(APP_TORRENT_PARSE, async (event, url) => {
-    const { file, name } = await catGirlFetch('https://' + global.upstreamDomainV1Tv + url)
+    url = new URL('https://' + global.upstreamDomainV1Tv + url)
+
+    const abortCtrl = new AbortController()
+
+    console.log('Downloading torrent file', url.toString())
+
+    const timer = setTimeout(() => {
+      abortCtrl.abort()
+    }, 5000)
+
+    const torrent = await catGirlFetch(url, { signal: abortCtrl.signal })
       .then(async x => {
+        clearTimeout(timer)
         return {
           name: parse(x.headers.get('content-disposition')).filename || 'unknown.torrent',
           file: Buffer.from(await x.arrayBuffer()),
           url: 'https://' + global.upstreamDomainV1Tv + url
         }
       })
+      .catch(() => {
+        clearTimeout(timer)
+      })
 
-    const data = parseTorrent(file);
+    if (torrent.name === 'unknown.torrent') {
+      showTorrentError()
+    }
 
     return {
-      file: file.toString('base64'),
-      name,
-      magnet: 'magnet:?' + qs.stringify({
-        xt: `urn:btih:${data.infoHash}`,
-        dn: data.name,
-        tr: data.announce
-      })
+      file: torrent?.file ? torrent.file.toString('base64') : '',
+      name: torrent?.name || 'fuckyou',
+      magnet: global.apiCacheService.torrentsRaw.get(+url.searchParams.get('id'))?.magnet
     }
   })
 }
