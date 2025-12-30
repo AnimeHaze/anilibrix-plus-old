@@ -191,7 +191,8 @@ export class APICacheService {
         series: torrent.description,
         size: torrent.size,
         url: '/public/torrent/download.php?id=' + torrent.id,
-        magnet: torrent.magnet
+        magnet: torrent.magnet,
+        ctime: torrent.time
       }
 
       this.torrentsRaw.set(torrent.id, torrentNew);
