@@ -27,7 +27,7 @@ global.apiCacheService = cacheService
 export async function initInternalServer () {
   const apiController = new APIController(cacheService);
   server.get('/proxy-static', proxyStatic(cacheManager));
-  server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController));
+  server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController, cacheService));
   server.get('/rutube/:id/*', lazyRutube)
 
   server.all('/', (req, res) => res.send('Hello from Anilibrix Plus!'))

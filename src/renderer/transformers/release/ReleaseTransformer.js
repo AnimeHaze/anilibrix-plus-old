@@ -25,6 +25,7 @@ export default class ReleaseTransformer extends BaseTransformer {
       team: this.get(release, 'team') || [],
       franchises: this.get(release, 'franchises') || [],
       series: this.get(release, 'series'),
+      total_series: this.get(release, 'total_series'),
       voices: this.get(release, 'voices') || [],
       genres: this.get(release, 'genres') || [],
       poster: this.get(release, 'poster'),

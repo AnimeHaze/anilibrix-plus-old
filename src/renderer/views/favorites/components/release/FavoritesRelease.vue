@@ -188,7 +188,7 @@ export default {
       showMenu: false,
       x: 0,
       y: 0,
-      totalEpisodes: this.release.series
+      totalEpisodes: this.release.total_series
     }
   },
   methods: {

@@ -1,4 +1,4 @@
-export default function (apiController) {
+export default function (apiController, cacheService) {
   return async (req, res, next) => {
     const { query } = req.body;
 
@@ -10,6 +10,12 @@ export default function (apiController) {
       } else {
         response = await apiController.handleProxyWithCache(query, {
           ...req.body
+        })
+      }
+
+      if (query === 'favorites' && !response.error && !req.body.action) {
+        response.data.items.forEach((v, i) => {
+          v.total_series = cacheService.releases.get(v.id)?.series || '(0)'
         })
       }
 
