@@ -4,11 +4,12 @@
 import app from '@/../package'
 
 // Torrent handlers
-import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentParsedData, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
+import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
 
 // Utils
 import { parse, stringify } from 'flatted'
 import {ipcRenderer} from "electron";
+import parseTorrent from "parse-torrent";
 
 const http = require('http')
 const path = require('path')
@@ -63,6 +64,7 @@ const startTorrent = async ({
     // Add torrent
     torrentClient.add(t.magnet, { path: torrentPath }, async torrent => {
       try {
+        torrent.files.sort((a, b) => a.name.localeCompare(b.name))
         // Get file with provided file index
         const file = torrent.files[fileIndex]
 
@@ -301,7 +303,7 @@ const _sendError = ({
 };
 
 (() => {
-  catchTorrentParse(payload => parseTorrent(payload))
+  catchTorrentParse(payload => parseTorrentData(payload))
   catchTorrentStart(payload => startTorrent(payload))
   catchTorrentDestroy(payload => destroyTorrent(payload))
 })()
