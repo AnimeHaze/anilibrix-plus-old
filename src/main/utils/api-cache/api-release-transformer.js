@@ -42,8 +42,8 @@ export class APIResponseTransformer {
       statusCode: '1',
       torrents,
       type: release.type + (release.series && release.series !== '(0)' ? ` (${release.series.replace(/[\(\)]/g, '')} эп.)` : ''),
-      voices: release.voices?.split(',').map(x => x.trim()),
-      team: release.team?.split(',').map(x => x.trim()),
+      voices: release.voices?.split(',').map(x => x.trim()).filter(x => x !== ''),
+      team: release.team?.split(',').map(x => x.trim()).filter(x => x !== ''),
       year: release.year
     };
   }
