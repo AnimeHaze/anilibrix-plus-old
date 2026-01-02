@@ -240,7 +240,7 @@ export default class EpisodesTransformer extends BaseTransformer {
       const start = range[0]
       const end = range[1] || range[0]
 
-      console.log('Processing torrent:', torrent)
+      console.log(`Processing torrent: ${torrent.id} | ${torrent.hash} | ${torrent.quality} | ${rangeStr} | ${torrent.series}`)
 
       for (let seriesNum = start; seriesNum <= end; seriesNum++) {
         this._createEpisode(seriesNum, episodes)

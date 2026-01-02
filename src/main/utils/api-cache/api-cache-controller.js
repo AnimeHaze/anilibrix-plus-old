@@ -66,6 +66,7 @@ export class APIController {
 
       await this.handleErrorResponse(response);
     } catch (error) {
+      console.error('Request', query, 'failed, fallback to cache', error)
       return this.handleFallbackToCache(query, error);
     }
   }
