@@ -47,15 +47,15 @@ export default class ReleaseProxy extends BaseProxy {
         const { sd, hd, fullhd } = playlist[ep]
         
         if (fullhd) {
-          playlist[ep].fullhd = encodeURIComponent('http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].fullhd) 
+          playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].fullhd) 
         }
 
         if (hd) {
-          playlist[ep].hd = encodeURIComponent('http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].hd)
+          playlist[ep].hd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].hd)
         }
         
         if (sd) {
-          playlist[ep].sd = encodeURIComponent('http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].sd)
+          playlist[ep].sd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].sd)
         }
       }
     }
