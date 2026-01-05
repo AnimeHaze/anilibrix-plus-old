@@ -43,6 +43,20 @@ export default class ReleaseProxy extends BaseProxy {
     for (const ep in playlist) {
       if (playlist[ep].sources.is_rutube) {
         playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/rutube/' + playlist[ep].rutube_id + '/main.m3u8'
+      } else {
+        const { sd, hd, fullhd } = playlist[ep]
+        
+        if (fullhd) {
+          playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].fullhd
+        }
+
+        if (hd) {
+          playlist[ep].hd = 'http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].hd
+        }
+        
+        if (sd) {
+          playlist[ep].sd = 'http://localhost:' + global.internalServerPort + '/hls/' + playlist[ep].sd
+        }
       }
     }
     return this.handleResponse(response.data)
