@@ -1,6 +1,5 @@
 import { applyAppSwitches } from './utils/app-switches';
-import { app, BrowserWindow, globalShortcut } from 'electron'
-
+import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import { execFile } from 'child_process'
 import path from 'path'
 import { meta, version } from '@package'
@@ -17,6 +16,7 @@ import { initInternalServer } from './utils/internal-server';
 import { stopOperaProxy } from '@main/utils/opera-proxy';
 import { consoleLogToFile } from './utils/log-to-file';
 import { initGlobals } from '@main/utils/init-globals';
+import { createSplash } from '@main/utils/splash-window';
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
@@ -54,6 +54,7 @@ app.on('before-quit', async (event) => {
     event.preventDefault()
     isQuitting = true
 
+    destroyRichPresence()
     await stopOperaProxy()
       .catch(console.error)
 
@@ -63,7 +64,6 @@ app.on('before-quit', async (event) => {
 
 // Close app on all windows closed (relevant for mac users)
 app.on('window-all-closed', () => {
-  destroyRichPresence()
   app.quit()
 })
 
@@ -133,6 +133,10 @@ if (!gotTheLock) {
 
   app.whenReady()
     .then(async () => {
+      const splash = createSplash()
+
+      global.splash = splash
+
       console.log('Start init globals')
       await initGlobals()
 
@@ -150,7 +154,11 @@ if (!gotTheLock) {
       const mainWindow = Main.getWindow()
       const torrentWindow = Torrent.getWindow()
 
-      await initProxy([mainWindow, torrentWindow])
+      try {
+        await initProxy([mainWindow, torrentWindow])
+      } catch (e) {
+        console.log('Proxy start err', e)
+      }
 
       if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
 
@@ -158,7 +166,10 @@ if (!gotTheLock) {
       require('@electron/remote/main').enable(torrentWindow.webContents)
 
       mainWindow
-        .once('ready-to-show', () => mainWindow.show())
+        .once('ready-to-show', () => {
+          splash.destroy()
+          mainWindow.show()
+        })
         .on('close', () => {
           destroyRichPresence()
           app.quit()
@@ -184,7 +195,7 @@ if (!gotTheLock) {
         }
       })
 
-      globalShortcut.register('CmdOrCtrl+shift+R', () => {
+      function restart () {
         console.log('Restart')
 
         const options = {
@@ -201,7 +212,11 @@ if (!gotTheLock) {
 
         app.relaunch()
         app.exit()
-      })
+      }
+
+      globalShortcut.register('CmdOrCtrl+shift+R', restart)
+      ipcMain.handle('restart', restart)
+      ipcMain.handle('exit', () => app.quit())
 
       handlers.catchAppAboutEvent() // About dialog
       handlers.catchAppDockNumberEvent() // App dock number event
