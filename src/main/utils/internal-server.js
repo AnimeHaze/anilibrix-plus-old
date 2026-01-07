@@ -12,6 +12,7 @@ import { CacheManager } from './api-cache/cache-manager';
 
 import mainEndpoint from './api-cache/handlers/api-main-endpoint';
 import lazyRutube from './api-cache/handlers/lazy-rutube';
+import lazyVideo from './api-cache/handlers/lazy-video';
 import proxyStatic from './api-cache/handlers/proxy-static';
 
 const server = express()
@@ -29,7 +30,8 @@ export async function initInternalServer () {
   server.get('/proxy-static', proxyStatic(cacheManager));
   server.post('/public/api/index.php', multer().none(), mainEndpoint(apiController, cacheService));
   server.get('/rutube/:id/*', lazyRutube)
-
+  server.get('/hls/:url', lazyVideo)
+  
   server.all('/', (req, res) => res.send('Hello from Anilibrix Plus!'))
 
   server.get('/public/torrent/download.php', expressProxy(apiController.endpoint));
