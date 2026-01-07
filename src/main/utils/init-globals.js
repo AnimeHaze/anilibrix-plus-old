@@ -2,6 +2,7 @@ import fsp from 'fs/promises'
 import path from 'path'
 import { app } from 'electron'
 import { catGirlFetch } from '@utils/fetch';
+import * as dns from 'dns';
 
 const defaultsValues = {
   upstreamDomainV1Tv: process.env.DEFAULT_V1_TV,
@@ -12,7 +13,6 @@ const defaultsValues = {
 const dnsGoogleURL = 'https://dns.google/resolve?type=TXT&name='
 const dnsCloudflareURL = 'https://one.one.one.one/dns-query?type=TXT&name='
 const dnsCloudflareAdGuardSecure = 'https://94.140.14.140/resolve?type=TXT&name='
-const dnsCloudflareAdGuardSecond = 'http://94.140.15.15/resolve?type=TXT&name='
 
 function parseTxtRecord(record) {
   if (record.startsWith('"') && record.endsWith('"')) {
@@ -26,7 +26,7 @@ async function resolveTxtRecordGoogle(domain) {
   let timeoutId
   try {
     const controller = new AbortController();
-    timeoutId = setTimeout(() => controller.abort(), 5000);
+    timeoutId = setTimeout(() => controller.abort(), 600);
 
     controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
@@ -45,7 +45,7 @@ async function resolveTxtRecordCloudflare(domain) {
   let timeoutId
   try {
     const controller = new AbortController();
-    timeoutId = setTimeout(() => controller.abort(), 5000);
+    timeoutId = setTimeout(() => controller.abort(), 600);
 
     controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
@@ -63,23 +63,35 @@ async function resolveTxtRecordCloudflare(domain) {
   }
 }
 
-async function resolveTxtRecordAdGuardSecond(domain) {
+async function resolveTxtRecordDefaultDns (domain) {
   let timeoutId
   try {
     const controller = new AbortController();
-    timeoutId = setTimeout(() => controller.abort(), 5000);
+    timeoutId = setTimeout(() => controller.abort(), 600);
 
     controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
-    return await catGirlFetch(dnsCloudflareAdGuardSecond + domain, {
-      headers: {
-        accept: 'application/dns-json'
-      },
-      cache: 'no-cache',
-      signal: controller.signal
+    return new Promise((resolve, reject) => {
+      if (controller.signal.aborted) {
+        reject(new Error('Aborted'))
+      }
+
+      controller.signal.addEventListener('abort', () => reject(new Error('Aborted')), { once: true });
+
+      dns.resolveTxt(domain, (err, addresses) => {
+        if (err) {
+          reject(err)
+        } else {
+          const addr = addresses?.pop()?.pop()
+
+          if (!addr) {
+            reject(new Error('No addresses found'))
+          }
+
+          resolve(addr)
+        }
+      })
     })
-      .then(e => e.json())
-      .then(response => parseTxtRecord(response.Answer.pop().data))
   } finally {
     clearTimeout(timeoutId)
   }
@@ -89,7 +101,7 @@ async function resolveTxtRecordAdGuardSecure(domain) {
   let timeoutId
   try {
     const controller = new AbortController();
-    timeoutId = setTimeout(() => controller.abort(), 5000);
+    timeoutId = setTimeout(() => controller.abort(), 600);
 
     controller.signal.addEventListener('abort', () => clearTimeout(timeoutId), { once: true });
 
@@ -183,9 +195,9 @@ export async function initGlobals() {
 
     if (!resolved) {
       Promise.all([
-        resolveTxtRecordAdGuardSecond('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordAdGuardSecond('anilibrix-plus-cache.animehaze.me')
-      ]).then(processResult('adguard-second', true)).catch(processResult('adguard-second', false))
+        resolveTxtRecordDefaultDns('anilibrix-plus-v1-tv.animehaze.me'),
+        resolveTxtRecordDefaultDns('anilibrix-plus-cache.animehaze.me')
+      ]).then(processResult('default-dns', true)).catch(processResult('default-dns', false))
     }
   }
 
