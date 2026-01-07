@@ -150,7 +150,7 @@ export class APICacheService {
         const files = await fs.readdir(this.cachePath)
         await Promise.all(
           files
-            .filter(file => file.startsWith(activeCachePrefix))
+            .filter(file => !file.startsWith(uuid) && !['active.cache', 'user.json', 'favorites.json'].includes(file))
             .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
         )
       }
