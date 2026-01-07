@@ -38,6 +38,8 @@ export function createSplash() {
 
     splash.center();
     splash.show();
+    splash.focus();
+    
 
     splash.on('closed', () => {
       splash.removeAllListeners();
