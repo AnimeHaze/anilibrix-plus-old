@@ -22,7 +22,7 @@ export class APIController {
       query: 'favorites'
     });
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(apiUrl, {
@@ -74,7 +74,7 @@ export class APIController {
   async makeApiRequest(apiUrl, session, extra) {
     const formData = this.createFormData(extra);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       return await fetch(apiUrl, {
