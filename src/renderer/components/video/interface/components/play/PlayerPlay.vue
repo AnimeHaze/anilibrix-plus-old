@@ -179,6 +179,13 @@ export default {
       }
     })
 
+    this.player.on('loadeddata', () => {
+      const v = document.querySelector('video')
+       if (!v.audioTracks.length) {
+         this.$toasted.show('Аудио дорожка не поддерживается', { type: 'error' })
+       }
+    })
+
     // Update PIP video if PIP exists
     this.player.on('playing', () => {
       if (document.pictureInPictureElement) {
