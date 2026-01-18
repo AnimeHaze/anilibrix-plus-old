@@ -12,7 +12,6 @@ export default async (req, res) => {
     u.host = 'cache.libria.fun'
 
     const alternativeUrl = u.toString()
-    
 
     const fetchPromises = [
       catGirlFetch(url).then(response => ({
@@ -28,7 +27,7 @@ export default async (req, res) => {
     ];
 
     const result = await Promise.any(
-      fetchPromises.map(promise => 
+      fetchPromises.map(promise =>
         promise.catch(error => {
           console.log('Fetch playlist error: ', error, url)
           throw error;
@@ -37,9 +36,8 @@ export default async (req, res) => {
     );
 
     const data = await result.response.text();
-    
-    res.send(data)
 
+    res.send(data)
   } catch (error) {
     console.error('All playlist fetch attempts failed:', error, url);
     return res.status(500).send('Failed to fetch from all sources');
