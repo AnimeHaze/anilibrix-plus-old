@@ -281,7 +281,7 @@ jobs:
         run: yarn --ignore-platform --ignore-engines
 
       - name: Download opera proxy
-        run: yarn run operaproxy-download
+        run: yarn run proxies-download
 
       - name: Run build
         run: npm run release:mac
