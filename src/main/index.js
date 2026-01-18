@@ -17,6 +17,7 @@ import { stopOperaProxy } from '@main/utils/opera-proxy';
 import { consoleLogToFile } from './utils/log-to-file';
 import { initGlobals } from '@main/utils/init-globals';
 import { createSplash } from '@main/utils/splash-window';
+import {stopForwardProxy} from "@main/utils/forward-proxy";
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
@@ -55,6 +56,9 @@ app.on('before-quit', async (event) => {
     isQuitting = true
 
     destroyRichPresence()
+    await stopForwardProxy()
+      .catch(console.error)
+
     await stopOperaProxy()
       .catch(console.error)
 
@@ -135,6 +139,18 @@ if (!gotTheLock) {
     .then(async () => {
       const splash = createSplash()
 
+      const mWindowInstance = Main.createWindow({ title: meta.name })
+      const tWindowInstance = Torrent.createWindow({ title: `${meta.name} Torrent` })
+
+      const mainWindow = Main.getWindow()
+      const torrentWindow = Torrent.getWindow()
+
+      try {
+        await initProxy([mainWindow, torrentWindow])
+      } catch (e) {
+        console.log('Proxy start err', e)
+      }
+
       global.splash = splash
 
       console.log('Start init globals')
@@ -147,18 +163,8 @@ if (!gotTheLock) {
       // Set user id
       await setUserId()
 
-      // Create windows
-      Main.createWindow({ title: meta.name }).loadUrl()
-      Torrent.createWindow({ title: `${meta.name} Torrent` }).loadUrl()
-
-      const mainWindow = Main.getWindow()
-      const torrentWindow = Torrent.getWindow()
-
-      try {
-        await initProxy([mainWindow, torrentWindow])
-      } catch (e) {
-        console.log('Proxy start err', e)
-      }
+      mWindowInstance.loadUrl()
+      tWindowInstance.loadUrl()
 
       if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools()
 
