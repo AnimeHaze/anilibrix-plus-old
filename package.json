@@ -17,10 +17,10 @@
     "build": "node .electron-vue/build.js",
     "serve": "node .electron-vue/dev-runner.js",
     "release": "yarn build && electron-builder -wml -c.compression=store --publish never",
-    "release:mac": "yarn run operaproxy-download && yarn build && electron-builder -m -c.compression=store --publish never",
-    "release:linux": "yarn run operaproxy-download && yarn build && electron-builder -l -c.compression=store --publish never",
-    "release:windows": "yarn run operaproxy-download && yarn build && electron-builder -w -c.compression=maximum --publish never",
-    "operaproxy-download": "./scripts/opera-proxy.sh"
+    "release:mac": "yarn run proxies-download && yarn build && electron-builder -m -c.compression=store --publish never",
+    "release:linux": "yarn run proxies-download && yarn build && electron-builder -l -c.compression=store --publish never",
+    "release:windows": "yarn run proxies-download && yarn build && electron-builder -w -c.compression=maximum --publish never",
+    "proxies-download": "./scripts/opera-proxy.sh && ./scripts/forward-proxy.sh"
   },
   "meta": {
     "name": "AniLibrix",
