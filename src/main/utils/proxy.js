@@ -27,6 +27,11 @@ export async function setProxy (url) {
       w.webContents.session.setProxy({ proxyRules: proxyServer })
     }
 
+    proxy.setConfig({
+      http: url,
+      https: url
+    })
+
     proxy.start();
   } else {
     proxy.system()
