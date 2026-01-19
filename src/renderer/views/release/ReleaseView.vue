@@ -64,7 +64,7 @@
         <v-card-title>Связанное</v-card-title>
         <v-list three-line>
           <template v-for="(item, index) in franchises">
-            <v-list-item :link="true" @click="router().push('/release/' + release.id + '/' + release.names.en)"
+            <v-list-item :link="true" @click="router().push('/release/' + release.id + '/' + encodeURIComponent(release.names.en))"
                          :disabled="release.id == releaseId"
                          v-for="(release, index) in item.releases"
                          :key="release.id"
