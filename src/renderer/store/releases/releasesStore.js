@@ -144,9 +144,10 @@ export default {
         commit(SET_RELEASES_LOADING, true)
         commit(SET_RELEASES_HAS_ERROR, false)
 
-        await global.apiCacheService.initialize()
-        await global.apiCacheService.downloadCache()
-        await global.apiCacheService.processCache()
+        if (await global.apiCacheService.initialize() === 'already_initialized') {
+          await global.apiCacheService.downloadCache()
+          await global.apiCacheService.processCache()
+        }
 
         if (REQUEST_FOR_RELEASES) {
           REQUEST_FOR_RELEASES.cancel();

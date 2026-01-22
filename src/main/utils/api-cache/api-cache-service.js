@@ -218,9 +218,8 @@ export class APICacheService {
     this.buildSearchCache();
   }
 
-
   async initialize() {
-    if (this.isInitialized) return;
+    if (this.isInitialized) return 'already_initialized';
 
     console.log('Initializing API cache...');
 
