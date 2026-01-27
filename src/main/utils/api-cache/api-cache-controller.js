@@ -248,6 +248,8 @@ export class APIController {
         if (genre) {
           genre = genre.split(',').map(x => x.trim()).filter(Boolean)
           uniqueReleasesFiltered = uniqueReleasesFiltered.filter(x => {
+            if (!x.genres) return false
+
             const genres = x.genres.split(',').map(x => x.trim())
             return genre.some(g => genres.includes(g))
           })

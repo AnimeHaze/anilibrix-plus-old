@@ -20,7 +20,7 @@ export class APIResponseTransformer {
           poster: `http://localhost:${global.internalServerPort}/proxy-static?url=` + x.poster
         }
       }) ?? [],
-      genres: release.genres.split(',').map(x => x.trim()),
+      genres: release.genres?.split(',').map(x => x.trim()),
       id: release.id,
       last: '', // TODO
       members: {

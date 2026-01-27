@@ -204,7 +204,7 @@ export class APICacheService {
     this.releases = new Map();
     releasesData.forEach(release => {
       release.year && this.years.add(release.year.toString());
-      release.genres.split(',').forEach(v => v && this.genres.add(v.trim()))
+      if (release.genres) release.genres.split(',').forEach(v => v && this.genres.add(v.trim()))
       return this.releases.set(release.id, release)
     });
 
