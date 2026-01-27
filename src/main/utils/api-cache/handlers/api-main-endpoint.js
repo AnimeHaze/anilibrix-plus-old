@@ -15,6 +15,7 @@ export default function (apiController, cacheService) {
         }
 
         if (query === 'favorites' && !response.error && !req.body.action) {
+          await cacheService.ensureInitialized()
           response.data.items.forEach((v, i) => {
             v.total_series = cacheService.releases.get(v.id)?.series || '(0)'
           })
