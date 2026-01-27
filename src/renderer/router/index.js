@@ -39,7 +39,7 @@ router.beforeEach((to, from, next) => {
     console.log('Set last page release', to.params)
     next()
   } else {
-    if (from.name) {
+    if (from.name && to.name !== 'video' && to.name !== 'ads') {
       localStorage.removeItem('last_page_release')
       console.log('Removed last page release', from)
     }
