@@ -10,6 +10,8 @@
 
     <app-errors/>
     <app-notifications/>
+
+    <AppUpdate :notes="update_notes" ref="appUpdate"/>
   </v-app>
 </template>
 
@@ -21,6 +23,8 @@ import AppSettings from '@components/app/settings'
 import AppSystemBar from '@components/app/systembar'
 import AppBaseLayout from '@layouts/base'
 import AppNotifications from '@components/app/notifications'
+import AppUpdate from '@components/app/AppUpdate.vue'
+import { version } from '@package'
 
 import { mapActions, mapState } from 'vuex'
 
@@ -34,11 +38,13 @@ export default {
     AppSystemBar,
     AppBaseLayout,
     AppNotifications,
+    AppUpdate
   },
   data () {
     return {
       loading: false,
-      update_handler: null
+      update_handler: null,
+      update_notes: ''
     }
   },
 
@@ -97,6 +103,34 @@ export default {
 
   },
 
+  async mounted () {
+    try {
+      const data = await fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json")
+        .then(async x => {
+          const text = await x.text()
+          try {
+            return JSON.parse(text)
+          } catch (e) {
+            console.error('Check version error', x.status, x.statusText, text, e)
+
+            throw e
+          }
+        })
+
+      if (version.includes('beta') && data.beta !== version) {
+        this.update_notes = data.beta_notes
+        this.$refs.appUpdate.showDialog()
+      }
+
+      if (!version.includes('beta') && data.stable !== version) {
+        this.update_notes = data.stable_notes
+        this.$refs.appUpdate.showDialog()
+      }
+    } catch (e) {
+      console.error('Check version error', e)
+    }
+  },
+
   async created() {
     const last_page_release = localStorage.getItem('last_page_release')
     // Initial loading
@@ -138,8 +172,6 @@ export default {
         if (['releases', 'catalog', 'favorites'].includes(view)) this._setWelcomeView(view)
       }
     }
-
   }
-
 }
 </script>
