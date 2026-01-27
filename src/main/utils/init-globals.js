@@ -7,6 +7,7 @@ import * as dns from 'dns';
 const defaultsValues = {
   upstreamDomainV1Tv: process.env.DEFAULT_V1_TV,
   cacheURL: process.env.CACHE_URL,
+  cacheHashesURL: process.env.CACHE_HASHES_URL,
   overrideNet: false
 }
 
@@ -137,9 +138,17 @@ export async function initGlobals() {
   }
 
   if (defaultsValues.overrideNet) {
-    console.log('Override net is enabled, skipping txt record resolution')
-    global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
-    global.cacheURL = defaultsValues.cacheURL
+    if (defaultsValues.upstreamDomainV1Tv) {
+      global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
+    }
+
+    if (defaultsValues.cacheURL) {
+      global.cacheURL = defaultsValues.cacheURL
+    }
+
+    if (defaultsValues.cacheHashesURL) {
+      global.cacheHashesURL = defaultsValues.cacheHashesURL
+    }
     return
   }
 
@@ -181,22 +190,26 @@ export async function initGlobals() {
     await Promise.all([
       Promise.all([
         resolveTxtRecordGoogle('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordGoogle('anilibrix-plus-cache.animehaze.me')
+        resolveTxtRecordGoogle('anilibrix-plus-cache.animehaze.me'),
+        resolveTxtRecordGoogle('anilibrix-plus-cache-hashes.animehaze.me')
       ]).then(processResult('google', true)).catch(processResult('google', false)),
       Promise.all([
         resolveTxtRecordCloudflare('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordCloudflare('anilibrix-plus-cache.animehaze.me')
+        resolveTxtRecordCloudflare('anilibrix-plus-cache.animehaze.me'),
+        resolveTxtRecordCloudflare('anilibrix-plus-cache-hashes.animehaze.me')
       ]).then(processResult('cloudflare', true)).catch(processResult('cloudflare', false)),
       Promise.all([
         resolveTxtRecordAdGuardSecure('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordAdGuardSecure('anilibrix-plus-cache.animehaze.me')
+        resolveTxtRecordAdGuardSecure('anilibrix-plus-cache.animehaze.me'),
+        resolveTxtRecordAdGuardSecure('anilibrix-plus-cache-hashes.animehaze.me')
       ]).then(processResult('adguard', true)).catch(processResult('adguard', false))
     ])
 
     if (!resolved) {
       Promise.all([
         resolveTxtRecordDefaultDns('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordDefaultDns('anilibrix-plus-cache.animehaze.me')
+        resolveTxtRecordDefaultDns('anilibrix-plus-cache.animehaze.me'),
+        resolveTxtRecordDefaultDns('anilibrix-plus-cache-hashes.animehaze.me')
       ]).then(processResult('default-dns', true)).catch(processResult('default-dns', false))
     }
   }
@@ -208,9 +221,11 @@ export async function initGlobals() {
     console.log('Txt record resolved successfully')
     global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
     global.cacheURL = defaultsValues.cacheURL
+    global.cacheHashesURL = defaultsValues.cacheHashesURL
   } catch (e) {
     console.error('Failed to resolve txt record, using default values', e)
     global.upstreamDomainV1Tv = defaultsValues.upstreamDomainV1Tv
     global.cacheURL = defaultsValues.cacheURL
+    global.cacheHashesURL = defaultsValues.cacheHashesURL
   }
 }

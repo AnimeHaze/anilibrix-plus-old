@@ -117,6 +117,69 @@ export class APICacheService {
         throw e;
       })
       const uuid = crypto.randomUUID();
+
+      const pathToHashes = path.join(this.cachePath, activeCachePrefix + '_' + 'hashes.json')
+      const pathToHashesTmp = path.join(this.cachePath, 'hashes.json')
+
+      const hashes = await fs.readFile(pathToHashes, 'utf8').catch((e) => {
+        if (e.code === 'ENOENT') {
+          return null;
+        }
+
+        throw e;
+      })
+
+      let oldHashes
+
+      if (hashes) {
+        console.log('Hashes file found, loading')
+
+        try {
+          oldHashes = JSON.parse(hashes)
+        } catch (e) {
+          console.log('can\'t parse hashes file', e)
+        }
+      }
+
+      let newHashesFileContent
+
+      try {
+        console.log('Downloading hashes file from ', global.cacheHashesURL)
+        await this.downloadFile(global.cacheHashesURL, pathToHashesTmp)
+
+        newHashesFileContent = await fs.readFile(pathToHashesTmp, 'utf8')
+        const newHashes = JSON.parse(newHashesFileContent)
+
+        if (oldHashes) {
+          if (oldHashes?.cache_files && newHashes?.cache_files) {
+            const oldFiles = Object.keys(oldHashes.cache_files);
+            const newFiles = Object.keys(newHashes.cache_files);
+
+            const hasNewFiles = newFiles.filter(f => !oldFiles.includes(f));
+            const hasRemovedFiles = oldFiles.filter(f => !newFiles.includes(f));
+            const hasUpdatedFiles = newFiles.filter(f =>
+              oldFiles.includes(f) &&
+              oldHashes.cache_files[f].toLowerCase() !== newHashes.cache_files[f].toLowerCase()
+            );
+
+            if (!hasNewFiles.length && !hasRemovedFiles.length && !hasUpdatedFiles.length) {
+              console.log('No changes detected in cache, skipping download');
+              return;
+            }
+
+            if (hasNewFiles.length) console.log('New files:', hasNewFiles);
+            if (hasRemovedFiles.length) console.log('Removed files:', hasRemovedFiles);
+            if (hasUpdatedFiles.length) console.log('Updated files:', hasUpdatedFiles);
+
+            console.log('Changes detected, proceeding with download');
+          }
+        } else {
+          console.log('No old hashes found, nothing to diff, downloading')
+        }
+      } catch (e) {
+        console.log('can\'t download hashes file', e)
+      }
+
       const pathToZip = path.join(this.cachePath, 'main.zip')
       await this.downloadFile(global.cacheURL, pathToZip)
 
@@ -132,8 +195,8 @@ export class APICacheService {
       for (const entry of cacheFiles) {
         const relativePath = entry.entryName.replaceAll(prefix + '/cache/', '');
         const outputPath = path.join(this.cachePath, relativePath);
-
         const dir = path.dirname(outputPath);
+
         if (!existsSync(dir)) {
           await fs.mkdir(dir, { recursive: true });
         }
@@ -141,6 +204,10 @@ export class APICacheService {
         const newOutputPath = path.join(dir, `${uuid}_${path.basename(outputPath)}`);
 
         await fs.writeFile(newOutputPath, entry.getData());
+      }
+
+      if (newHashesFileContent) {
+        await fs.writeFile(path.join(this.cachePath, `${uuid}_hashes.json`), newHashesFileContent)
       }
 
       await fs.unlink(pathToZip).catch(console.error);
