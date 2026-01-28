@@ -12,6 +12,10 @@ export function createSplash() {
     resizable: false,
     width: 400,
     height: 400,
+    maxHeight: 400,
+    maxWidth: 400,
+    minHeight: 400,
+    minWidth: 400,
     transparent: true,
     webPreferences: {
       nodeIntegration: true,
@@ -39,7 +43,7 @@ export function createSplash() {
     splash.center();
     splash.show();
     splash.focus();
-    
+
 
     splash.on('closed', () => {
       splash.removeAllListeners();
