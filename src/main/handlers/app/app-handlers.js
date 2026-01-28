@@ -279,7 +279,7 @@ export const handleTorrentParse = () => {
         return {
           name: parse(x.headers.get('content-disposition')).filename || 'unknown.torrent',
           file: Buffer.from(await x.arrayBuffer()),
-          url: 'https://' + global.upstreamDomainV1Tv + url
+          url
         }
       })
       .catch(() => {
