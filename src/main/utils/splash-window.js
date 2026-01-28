@@ -10,6 +10,9 @@ export function createSplash() {
     show: false,
     frame: false,
     resizable: false,
+    fullscreenable: false,
+    maximizable: false,
+    minimizable: false,
     width: 400,
     height: 400,
     maxHeight: 400,
@@ -22,6 +25,14 @@ export function createSplash() {
       contextIsolation: false
     }
   });
+
+  splash.on('maximize', () => {
+    splash.unmaximize();
+  })
+
+  splash.on('enter-full-screen', () => {
+    splash.setFullScreen(false);
+  })
 
   // splash.webContents.openDevTools();
 
@@ -43,7 +54,6 @@ export function createSplash() {
     splash.center();
     splash.show();
     splash.focus();
-
 
     splash.on('closed', () => {
       splash.removeAllListeners();
