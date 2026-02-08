@@ -86,7 +86,8 @@
                     {{ release.status }}
                   </v-chip>
                 </v-list-item-title>
-                <v-list-item-subtitle v-html="release.type"></v-list-item-subtitle>
+                <v-list-item-subtitle v-if="release.type && release.type !== 'null'" v-text="release.type">
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>
