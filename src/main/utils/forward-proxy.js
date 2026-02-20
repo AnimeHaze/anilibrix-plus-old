@@ -26,8 +26,15 @@ async function stopForwardProxy() {
 
 async function startForwardProxy() {
   if (spawnedProcess) {
+    console.log('Forward Proxy already started, skipping')
     return
   }
+
+  let resolve, reject
+  const forwardPromise = new Promise((_r, _rj) => {
+    resolve = _r
+    reject = _rj
+  })
 
   port = await getPort()
 
@@ -35,23 +42,31 @@ async function startForwardProxy() {
 
   spawnedProcess = forward
 
-  console.log('forward Proxy started on port ' + port)
-
-  const rl = readline.createInterface({
-    input: forward.stderr
-  })
-
-  rl.on('close', () => {
-    console.log('forward Proxy closed')
-  })
-
-  rl.on('line', (line) => {
-    console.log('forward Proxy', line)
+  forward.stdout.on('data', (data) => {
+    if (data.toString().includes('OK_SUCCESS')) {
+      resolve()
+      console.log('Forward Proxy send OK_SUCCESS')
+      return
+    }
+    console.log('Forward Proxy:', data.toString())
   })
 
   forward.on('error', error => {
     console.log(error)
+    reject()
   })
+
+  forward.on('close', () => {
+    console.log('forward Proxy closed')
+    reject()
+  })
+
+  forward.on('disconnect', () => {
+    console.log('forward Proxy disconnected')
+    reject()
+  })
+
+  return forwardPromise
 }
 
 function getActiveForwardProxyURL() {
