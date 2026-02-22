@@ -1,6 +1,7 @@
 import { APIResponseTransformer } from './api-release-transformer'
 import store from '@store';
 import FormData from 'form-data'
+import {catGirlFetch} from "@utils/fetch";
 
 export class APIController {
   constructor(cacheService) {
@@ -25,7 +26,7 @@ export class APIController {
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await catGirlFetch(apiUrl, {
         method: 'POST',
         body: formData,
         signal: controller.signal,
@@ -77,7 +78,7 @@ export class APIController {
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      return await fetch(apiUrl, {
+      return await catGirlFetch(apiUrl, {
         method: 'POST',
         body: formData,
         signal: controller.signal,

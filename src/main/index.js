@@ -17,7 +17,7 @@ import { stopOperaProxy } from '@main/utils/opera-proxy';
 import { consoleLogToFile } from './utils/log-to-file';
 import { initGlobals } from '@main/utils/init-globals';
 import { createSplash } from '@main/utils/splash-window';
-import {stopForwardProxy} from "@main/utils/forward-proxy";
+import { stopForwardProxy } from '@main/utils/forward-proxy';
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
