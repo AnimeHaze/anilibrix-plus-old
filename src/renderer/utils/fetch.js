@@ -27,12 +27,14 @@ export async function catGirlFetch(url, init) {
     console.log('EU IP OF WWND.SPACE FOUND, ENABLE REWRITE')
   }
 
-  if (fixWwwdNeeded && url.includes(DOMAIN)) {
-    url = url.replace(DOMAIN, NEW_IP)
+  const u = new URL(url)
 
-    if (!init) {
-      init = {}
-    }
+  if (!init) {
+    init = {}
+  }
+
+  if (fixWwwdNeeded && u.host === DOMAIN) {
+    url = url.replace(DOMAIN, NEW_IP)
 
     if (!init.headers) {
       init.headers = {}
@@ -41,6 +43,9 @@ export async function catGirlFetch(url, init) {
     init.headers.Host = DOMAIN
     console.log('FIX WWND.SPACE REQUEST')
   }
+
+  init.redirect = 'follow'
+  init.follow = 10000
 
   return originalFetch(url, init)
 }
