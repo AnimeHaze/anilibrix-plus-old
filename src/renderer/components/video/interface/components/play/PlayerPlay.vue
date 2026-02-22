@@ -48,6 +48,7 @@ import { invokeRichPresense, sendDisableSystemSleepBlockerEvent, sendEnableSyste
 import { toVideo } from '@utils/router/views'
 import { ActivityBuilder } from '@utils/activityBuilder'
 import humanTime from "@utils/strings/human-time";
+import {debounce} from "lodash";
 
 const props = {
   player: {
@@ -179,17 +180,20 @@ export default {
       }
     })
 
-    this.player.on('loadeddata', () => {
-      const v = document.querySelector('video')
-       if (!v.audioTracks.length) {
-         this.$toasted.show('Аудио дорожка не поддерживается', { type: 'error' })
-       }
-    })
+    const noAudio = debounce(() =>
+      this.$toasted.show('Аудио дорожка не поддерживается', { type: 'error' }),
+      1500
+    )
 
     // Update PIP video if PIP exists
     this.player.on('playing', () => {
       if (document.pictureInPictureElement) {
         this.player.pip = true
+      }
+
+      const v = document.querySelector('video')
+      if (v && !v.audioTracks.length) {
+        noAudio()
       }
     })
 
