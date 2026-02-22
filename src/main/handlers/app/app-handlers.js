@@ -286,7 +286,7 @@ export const handleTorrentParse = () => {
         clearTimeout(timer)
       })
 
-    if (torrent.name === 'unknown.torrent') {
+    if (torrent?.name === 'unknown.torrent') {
       showTorrentError()
     }
 
