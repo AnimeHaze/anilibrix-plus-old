@@ -2166,6 +2166,7 @@ __metadata:
     lethargy: ^1.0.9
     lodash: ^4.17.19
     logrotate-stream: ^0.2.9
+    magnet2torrent-js: ^1.4.0
     matroska-subtitles: ^3.3.2
     mini-css-extract-plugin: 0.9.0
     moment: ^2.24.0
@@ -4088,6 +4089,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bitfield@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "bitfield@npm:0.1.0"
+  checksum: 253b0b6825337e6ecbb2c05df1dfd8bb169259d049e469cb88dc9d8e287b440918cc7eb3f73af7bcb1ab15f0643d4c009ccb53ae5c3578fbf816656da63b7d05
+  languageName: node
+  linkType: hard
+
 "bitfield@npm:^4.0.0, bitfield@npm:^4.1.0":
   version: 4.1.0
   resolution: "bitfield@npm:4.1.0"
@@ -4236,6 +4244,20 @@ __metadata:
   version: 5.2.1
   resolution: "bn.js@npm:5.2.1"
   checksum: 3dd8c8d38055fedfa95c1d5fc3c99f8dd547b36287b37768db0abab3c239711f88ff58d18d155dd8ad902b0b0cee973747b7ae20ea12a09473272b0201c9edd3
+  languageName: node
+  linkType: hard
+
+"bncode@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "bncode@npm:0.2.3"
+  checksum: af2a1bb59a8344f498bf6a0ab0c493cdd716c5263313ad07d380f91ab25323b6712ab7a414e2354733dbcc2261d30e7f35d2df3f6d930bc289b6b3089fec65fc
+  languageName: node
+  linkType: hard
+
+"bncode@npm:^0.5.3":
+  version: 0.5.3
+  resolution: "bncode@npm:0.5.3"
+  checksum: 4ab5ee3ebbccb4aa1548f88157ee85160310b7181405849ed90eaf79029a1ce4ad45a01e4bc602e61100882eb501b7920cfcc01ec92e3ca06e6157d008726c4f
   languageName: node
   linkType: hard
 
@@ -4511,7 +4533,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer-from@npm:^1.0.0":
+"buffer-from@npm:^1.0.0, buffer-from@npm:^1.1.1":
   version: 1.1.2
   resolution: "buffer-from@npm:1.1.2"
   checksum: 0448524a562b37d4d7ed9efd91685a5b77a50672c556ea254ac9a6d30e3403a517d8981f10e565db24e8339413b43c97ca2951f10e399c6125a0d8911f5679bb
@@ -5814,6 +5836,13 @@ __metadata:
   version: 1.0.2
   resolution: "cyclist@npm:1.0.2"
   checksum: d7c0336565b9b72ee72347831cbd05fadcc59cc9ab89dcf38293b1a64c2c5fb777c9ce44967390dabe8235f9898f5cb222cd6672f4920b757da8861310082716
+  languageName: node
+  linkType: hard
+
+"cyclist@npm:~0.1.0":
+  version: 0.1.1
+  resolution: "cyclist@npm:0.1.1"
+  checksum: 0d310f71c5065d8b3a77edacfe0cea88e2c0214a54a30b5ad948e61fa97a753132ad2749f1ea7e10ad542a82baa85aa9a9d0463f8f153f1b6adf8bbc2e7e305b
   languageName: node
   linkType: hard
 
@@ -7486,6 +7515,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fifo@npm:^0.1.4":
+  version: 0.1.4
+  resolution: "fifo@npm:0.1.4"
+  checksum: 9545776f3f48922c4148cd4eae68e45e7cc57d922a4e19e5e824e2170a9fc004ebff31e2631864a2c8b5f85b40cf388b5aeacbfc962a523555db409ac2e83c62
+  languageName: node
+  linkType: hard
+
 "figgy-pudding@npm:^3.5.1":
   version: 3.5.2
   resolution: "figgy-pudding@npm:3.5.2"
@@ -8449,6 +8485,13 @@ __metadata:
     inherits: ^2.0.3
     minimalistic-assert: ^1.0.1
   checksum: e350096e659c62422b85fa508e4b3669017311aa4c49b74f19f8e1bc7f3a54a584fdfd45326d4964d6011f2b2d882e38bea775a96046f2a61b7779a979629d8f
+  languageName: node
+  linkType: hard
+
+"hat@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "hat@npm:0.0.3"
+  checksum: 810409c8a5d6b44f193028aba6db4952702493e4d24b0631f9cadeb97632b32cd3bc6d43e290ef0d923ced7f0be6cc00ef82f1bdda32a450255d164cc1aa2488
   languageName: node
   linkType: hard
 
@@ -9440,6 +9483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"isarray@npm:0.0.1":
+  version: 0.0.1
+  resolution: "isarray@npm:0.0.1"
+  checksum: 49191f1425681df4a18c2f0f93db3adb85573bcdd6a4482539d98eac9e705d8961317b01175627e860516a2fc45f8f9302db26e5a380a97a520e272e2a40a8d4
+  languageName: node
+  linkType: hard
+
 "isarray@npm:1.0.0, isarray@npm:^1.0.0, isarray@npm:~1.0.0":
   version: 1.0.0
   resolution: "isarray@npm:1.0.0"
@@ -10378,6 +10428,20 @@ __metadata:
     bep53-range: ^1.1.0
     thirty-two: ^1.0.2
   checksum: 3e51c3018f3ea019409a5976c210d6d1b75472e207a21f6fb4daa14498646eb170aaf3d33ccaa9ba9fd15a54a84165321f91548ac7326e0c9b300ed3033c3ec7
+  languageName: node
+  linkType: hard
+
+"magnet2torrent-js@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "magnet2torrent-js@npm:1.4.0"
+  dependencies:
+    bncode: ^0.5.3
+    buffer-from: ^1.1.1
+    hat: ^0.0.3
+    parse-torrent: ^7.1.2
+    peer-wire-swarm: ^0.12.2
+    torrent-discovery: ^9.2.1
+  checksum: c50fbf45a6f3b9aa26bccbbd2484580ed849a84f72a51b337fdaf6d012933a981794c3908f4a7ee0e6404728b4f0a042aa0d7e0275c0159ec2480a752c243eae
   languageName: node
   linkType: hard
 
@@ -11498,7 +11562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"once@npm:^1.3.0, once@npm:^1.3.1, once@npm:^1.4.0":
+"once@npm:^1.1.1, once@npm:^1.3.0, once@npm:^1.3.1, once@npm:^1.4.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
   dependencies:
@@ -11755,7 +11819,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse-torrent@npm:^7.0.1":
+"parse-torrent@npm:^7.0.1, parse-torrent@npm:^7.1.2":
   version: 7.1.3
   resolution: "parse-torrent@npm:7.1.3"
   dependencies:
@@ -11946,6 +12010,34 @@ __metadata:
     safe-buffer: ^5.0.1
     sha.js: ^2.4.8
   checksum: 2c950a100b1da72123449208e231afc188d980177d021d7121e96a2de7f2abbc96ead2b87d03d8fe5c318face097f203270d7e27908af9f471c165a4e8e69c92
+  languageName: node
+  linkType: hard
+
+"peer-wire-protocol@npm:^0.7.0":
+  version: 0.7.1
+  resolution: "peer-wire-protocol@npm:0.7.1"
+  dependencies:
+    bitfield: ^0.1.0
+    bncode: ^0.2.3
+    buffer-alloc: ^1.1.0
+    buffer-from: ^1.0.0
+    readable-stream: ^1.0.2
+    speedometer: ^0.1.2
+  checksum: 5c930b9e8b15b86d81d8a5316e96f497cf47d4f1d18d2d3a9a8b7518c4cd35657b40c2b91be698bc4bdc8667a99f6695f677b63fe388e460f160bc1b1bc6ce42
+  languageName: node
+  linkType: hard
+
+"peer-wire-swarm@npm:^0.12.2":
+  version: 0.12.2
+  resolution: "peer-wire-swarm@npm:0.12.2"
+  dependencies:
+    buffer-from: ^1.0.0
+    fifo: ^0.1.4
+    once: ^1.1.1
+    peer-wire-protocol: ^0.7.0
+    speedometer: ^0.1.2
+    utp: 0.0.7
+  checksum: 7ee0baf913944215d2f24d58bc02ebc84125c421340928e4f2c64d7c953ebc86ca662f6364f2243c06bdcbe3c9d1e09f7a6877efba13f3116a46756db53b85f2
   languageName: node
   linkType: hard
 
@@ -12606,6 +12698,18 @@ __metadata:
     string_decoder: ~1.1.1
     util-deprecate: ~1.0.1
   checksum: 65645467038704f0c8aaf026a72fbb588a9e2ef7a75cd57a01702ee9db1c4a1e4b03aaad36861a6a0926546a74d174149c8c207527963e0c2d3eee2f37678a42
+  languageName: node
+  linkType: hard
+
+"readable-stream@npm:^1.0.2":
+  version: 1.1.14
+  resolution: "readable-stream@npm:1.1.14"
+  dependencies:
+    core-util-is: ~1.0.0
+    inherits: ~2.0.1
+    isarray: 0.0.1
+    string_decoder: ~0.10.x
+  checksum: 17dfeae3e909945a4a1abc5613ea92d03269ef54c49288599507fc98ff4615988a1c39a999dcf9aacba70233d9b7040bc11a5f2bfc947e262dedcc0a8b32b5a0
   languageName: node
   linkType: hard
 
@@ -13915,6 +14019,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"speedometer@npm:^0.1.2":
+  version: 0.1.4
+  resolution: "speedometer@npm:0.1.4"
+  checksum: 870fde43572f61a3face661392696484615c2b40aa2c6555a546fe0aea1e0a634730af1e0941977fb4f21769f6cd7bbf8cd9e3d660be0326f2ad4af31345ed18
+  languageName: node
+  linkType: hard
+
 "speedometer@npm:^1.1.0":
   version: 1.1.0
   resolution: "speedometer@npm:1.1.0"
@@ -14224,6 +14335,13 @@ __metadata:
   dependencies:
     safe-buffer: ~5.2.0
   checksum: 8417646695a66e73aefc4420eb3b84cc9ffd89572861fe004e6aeb13c7bc00e2f616247505d2dbbef24247c372f70268f594af7126f43548565c68c117bdeb56
+  languageName: node
+  linkType: hard
+
+"string_decoder@npm:~0.10.x":
+  version: 0.10.31
+  resolution: "string_decoder@npm:0.10.31"
+  checksum: fe00f8e303647e5db919948ccb5ce0da7dea209ab54702894dd0c664edd98e5d4df4b80d6fabf7b9e92b237359d21136c95bf068b2f7760b772ca974ba970202
   languageName: node
   linkType: hard
 
@@ -14640,7 +14758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"torrent-discovery@npm:^9.4.15":
+"torrent-discovery@npm:^9.2.1, torrent-discovery@npm:^9.4.15":
   version: 9.4.15
   resolution: "torrent-discovery@npm:9.4.15"
   dependencies:
@@ -15231,6 +15349,15 @@ __metadata:
   bin:
     ucat: ucat.js
   checksum: 2be574eb18fc7394b7d23a18ef6f5aabf879d3f6a5727b7928abf53fb3fdbf783cfe70a1bf342ea306f55868583e4f419fd5288d2b8c2312a8d77d2af15a4244
+  languageName: node
+  linkType: hard
+
+"utp@npm:0.0.7":
+  version: 0.0.7
+  resolution: "utp@npm:0.0.7"
+  dependencies:
+    cyclist: ~0.1.0
+  checksum: 40c809fe378b79370aa508104aabd287aa4223e7df74ae54d347aaa522e8d4a39c6516e5bb9c03968ee02be210d33e89c627a4206034c7ee6792e2445e892f1f
   languageName: node
   linkType: hard
 

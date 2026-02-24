@@ -5,11 +5,12 @@ import { setEncrypted } from '@main/utils/safe-storage'
 import { catGirlFetch } from '@utils/fetch';
 import { parse } from 'content-disposition-attachment';
 import FormData from 'form-data'
-import {showAppError} from "@main/handlers/notifications/notifications-handler";
-import {debounce} from "lodash";
+import { showAppError } from '@main/handlers/notifications/notifications-handler';
+import { debounce } from 'lodash';
 
 const { shell } = require('electron')
 const path = require('path')
+const Magnet2torrent = require('magnet2torrent-js');
 
 export const APP_DISCORD_RICH_PRESENSE = 'app:richpresense'
 export const APP_ABOUT = 'app:about'
@@ -23,6 +24,22 @@ export const APP_SHOW_CONFIG = 'app:show_config'
 export const APP_RAND = 'app:rand'
 export const APP_TORRENT_PARSE = 'app:torrent_parse'
 export const APP_UPDATE_PROXY = 'app:update_proxy'
+
+const trackers = [
+  'aHR0cDovL3RyLmxpYnJpYS5mdW46MjcxMC9hbm5vdW5jZQ==',
+  'dWRwOi8vdHJhY2tlci50b3JyZW50LmV1Lm9yZzo0NTEvYW5ub3VuY2U=',
+  'dWRwOi8vdHJhY2tlci5vcGVudHJhY2tyLm9yZzoxMzM3L2Fubm91bmNl',
+  'dWRwOi8vdHJhY2tlci5vcGVuYml0dG9ycmVudC5jb206Njk2OS9hbm5vdW5jZQ==',
+  'dWRwOi8vdHJhY2tlci50b3JyZW50LmV1Lm9yZzo0NTEvYW5ub3VuY2U='
+].map((value) => atob(value))
+
+console.log(trackers)
+
+const m2t = new Magnet2torrent({
+  timeout: 8,
+  addTrackersToTorrent: true,
+  trackers: trackers
+});
 
 /**
  * Send app about event
@@ -286,14 +303,30 @@ export const handleTorrentParse = () => {
         clearTimeout(timer)
       })
 
-    if (torrent?.name === 'unknown.torrent') {
-      showTorrentError()
+    const magnet = global.apiCacheService.torrentsRaw.get(+url.searchParams.get('id'))?.magnet
+
+    if (!torrent?.name || torrent?.name === 'unknown.torrent') {
+      try {
+        console.log('Resolve magnet via torrent net', magnet)
+        const t = await m2t.getTorrent(magnet)
+        console.log('Resolved successfully via torrent net', t.name, t.infoHash)
+
+        const file = t.toTorrentFile()
+
+        return {
+          file: file.toString('base64'),
+          name: t.name,
+          magnet: magnet
+        }
+      } catch (e) {
+        showTorrentError()
+      }
     }
 
     return {
       file: torrent?.file ? torrent.file.toString('base64') : '',
       name: torrent?.name || 'fuckyou',
-      magnet: global.apiCacheService.torrentsRaw.get(+url.searchParams.get('id'))?.magnet
+      magnet: magnet
     }
   })
 }
