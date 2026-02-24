@@ -17,7 +17,7 @@
 
 [![Загрузите из Snap Store](https://snapcraft.io/static/images/badges/ru/snap-store-black.svg)](https://snapcraft.io/anilibrix-plus)
 
-![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/master/.github/assets/anilibrix.png)
+![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/lord/.github/assets/anilibrix.png)
 
 ### Сравнение возможностей: Anilibria (официальный) vs Anilibrix Plus
 | Особенность / Функция | AnilibriX (официальный) | AnilibriX Plus (неофициальный форк) |
