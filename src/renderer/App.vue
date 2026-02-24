@@ -117,7 +117,7 @@ export default {
           }
         })
 
-      if (version.includes('beta') && data.beta !== version) {
+      if (version.includes('beta') && data.beta !== version && data.beta !== 'v1.4.3-ext.21.beta2') {
         this.update_notes = data.beta_notes
         this.$refs.appUpdate.showDialog()
       }
