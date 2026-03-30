@@ -18,6 +18,8 @@ import { consoleLogToFile } from './utils/log-to-file';
 import { initGlobals } from '@main/utils/init-globals';
 import { createSplash } from '@main/utils/splash-window';
 import { stopForwardProxy } from '@main/utils/forward-proxy';
+import { normalizeLocale } from '@shared/i18n/resolveLocale'
+import { setMainLocale } from '@main/utils/i18n'
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
@@ -36,6 +38,14 @@ require('@electron/remote/main').initialize()
 
 const trayController = new Tray()
 const menuController = new Menu()
+
+function resolveSystemLocale () {
+  const preferred = typeof app.getPreferredSystemLanguages === 'function'
+    ? app.getPreferredSystemLanguages()[0]
+    : null
+
+  return preferred || app.getLocale()
+}
 
 /**
  * Set `__static` path to static files in production
@@ -137,6 +147,7 @@ if (!gotTheLock) {
 
   app.whenReady()
     .then(async () => {
+      setMainLocale(normalizeLocale(resolveSystemLocale()))
       const splash = createSplash()
 
       const mWindowInstance = Main.createWindow({ title: meta.name })
@@ -236,6 +247,19 @@ if (!gotTheLock) {
       handlers.handleShowConfig()
       handlers.handleTorrentParse()
       handlers.handleUpdateProxy(debounce(setProxy, 2000))
+      handlers.handleGetSystemLocale(() => resolveSystemLocale())
+      handlers.handleSetAppLocale((locale) => {
+        const normalized = normalizeLocale(locale)
+        setMainLocale(normalized)
+        menuController.init()
+        trayController.refreshMenu().setTooltip(meta.name)
+
+        if (global.splash && typeof global.splash.reloadLocale === 'function') {
+          global.splash.reloadLocale()
+        }
+
+        return normalized
+      })
       broadcastTorrentEvents()
     })
 }

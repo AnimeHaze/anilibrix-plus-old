@@ -2,8 +2,8 @@
   <div ref="settings">
 
     <div class="pa-4 caption grey--text">
-      <div class="body-1">Системные команды</div>
-      <div>Некоторые полезные команды для управления приложением</div>
+      <div class="body-1">{{ $t('settings.actionsTitle') }}</div>
+      <div>{{ $t('settings.actionsDescription') }}</div>
     </div>
 
     <v-card>
@@ -60,27 +60,27 @@ export default {
     settings () {
       return [
         {
-          title: 'Перезагрузить приложение',
+          title: this.$t('settings.reloadApp'),
           value: this.shortcuts['reload'],
           action: () => require('@electron/remote').getCurrentWindow().reload(),
         },
         {
-          title: 'Показать расположение конфиг файла',
+          title: this.$t('settings.showConfig'),
           value: '',
           action: () => invokeShowConfig(),
         },
         {
-          title: 'Свернуть приложение',
+          title: this.$t('settings.minimizeApp'),
           value: this.shortcuts['minimize'],
           action: () => require('@electron/remote').getCurrentWindow().minimize(),
         },
         {
-          title: 'Закрыть приложение',
+          title: this.$t('settings.closeApp'),
           value: this.shortcuts['close'],
           action: () => this.$refs.exit[0].showDialog(),
         },
         {
-          title: 'Сбросить кеш и настройки приложения',
+          title: this.$t('settings.resetCache'),
           action: () => this.$refs.cache[0].showDialog(),
         }
       ]

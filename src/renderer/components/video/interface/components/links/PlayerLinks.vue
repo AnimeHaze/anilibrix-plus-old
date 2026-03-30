@@ -9,7 +9,7 @@
             <v-icon size="24">mdi-view-column</v-icon>
           </v-btn>
         </template>
-        <span>К списку релизов</span>
+        <span>{{ $t('player.toReleases') }}</span>
       </v-tooltip>
 
       <!-- Release -->
@@ -33,7 +33,7 @@
             <v-icon size="24">mdi-folder-text-outline</v-icon>
           </v-btn>
         </template>
-        <span>Каталог</span>
+        <span>{{ $t('player.toCatalog') }}</span>
       </v-tooltip>
 
       <!-- Favorites -->
@@ -43,7 +43,7 @@
             <v-icon size="24">mdi-star</v-icon>
           </v-btn>
         </template>
-        <span>Избранное</span>
+        <span>{{ $t('player.toFavorites') }}</span>
       </v-tooltip>
 
       <!-- Episodes -->
@@ -53,7 +53,7 @@
             <v-icon size="24">mdi-playlist-play</v-icon>
           </v-btn>
         </template>
-        <span>Эпизоды</span>
+        <span>{{ $t('player.toEpisodes') }}</span>
       </v-tooltip>
 
 
@@ -64,7 +64,7 @@
             <v-icon size="20">mdi-file-table-box-multiple</v-icon>
           </v-btn>
         </template>
-        <span>Торрент</span>
+        <span>{{ $t('player.toTorrent') }}</span>
       </v-tooltip>
 
       <!-- Opening skip button -->
@@ -74,7 +74,7 @@
             <span class="caption font-weight-bold">+{{ _opening_skip_time }}</span>
           </v-btn>
         </template>
-        <span>Перемотка опенинга</span>
+        <span>{{ $t('player.openingSeek') }}</span>
       </v-tooltip>
 
 

@@ -13,7 +13,23 @@
 
     <!-- Header -->
     <v-toolbar flat class="shrink" color="#363636" :class="{'mt-9': !this.isMacOnFullscreen}">
-      <v-toolbar-title class="body-1">Настройки приложения</v-toolbar-title>
+      <v-toolbar-title class="body-1">{{ $t('settings.title') }}</v-toolbar-title>
+      <v-spacer/>
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            small
+            text
+            min-width="48"
+            class="font-weight-bold"
+            v-bind="attrs"
+            v-on="on"
+            @click="toggleLanguage">
+            {{ nextLanguageLabel }}
+          </v-btn>
+        </template>
+        <span>{{ languageTooltip }}</span>
+      </v-tooltip>
     </v-toolbar>
     <v-divider/>
 
@@ -57,7 +73,10 @@ export default {
   },
   computed: {
     ...mapState('app', { _drawer: s => s.drawer }),
-    ...mapState('app/settings/system', { _devtools: s => s.devtools }),
+    ...mapState('app/settings/system', {
+      _devtools: s => s.devtools,
+      _language: s => s.language
+    }),
 
     /**
      * Get categories components
@@ -94,12 +113,27 @@ export default {
       set (state) {
         this._setDrawer(state)
       }
+    },
+
+    nextLanguageLabel () {
+      return this.$locale === 'ru' ? 'EN' : 'RU'
+    },
+
+    languageTooltip () {
+      return this.$locale === 'ru'
+        ? this.$t('language.switchToEnglish')
+        : this.$t('language.switchToRussian')
     }
 
   },
 
   methods: {
     ...mapActions('app', { _setDrawer: 'setDrawer' }),
+    ...mapActions('app/settings/system', { _setLanguage: 'setLanguage' }),
+
+    toggleLanguage () {
+      this._setLanguage(this.$locale === 'ru' ? 'en' : 'ru')
+    }
   }
 
 }

@@ -6,16 +6,16 @@
   >
     <v-card>
       <v-card-title class="text-h5">
-        ПРЕДУПРЕЖДЕНИЕ
+        {{ $t('dialogs.warning') }}
       </v-card-title>
       <v-card-text>
 
         <p>
-          Требуется согласие на передачу данных (сессионного идентификатора) на сторонний сервер для работы с снапшотами
+          {{ $t('dialogs.confirmSnapshotConsent') }}
         </p>
 
         <p class="mt-1">
-          <b>Пароль учетной записи не раскрывается и не передается ни в каком виде</b>
+          <b>{{ $t('dialogs.confirmSnapshotNoPassword') }}</b>
         </p>
       </v-card-text>
       <v-card-actions>
@@ -25,14 +25,14 @@
           text
           v-on:click="$emit('openSnapshots')"
         >
-          Я согласен
+          {{ $t('dialogs.confirmAccept') }}
         </v-btn>
         <v-btn
           color="green darken-1"
           text
           v-on:click="visible = false"
         >
-          Нет, спасибо
+          {{ $t('dialogs.confirmDecline') }}
         </v-btn>
       </v-card-actions>
     </v-card>

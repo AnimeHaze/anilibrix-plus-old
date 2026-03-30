@@ -25,6 +25,10 @@ import AppBaseLayout from '@layouts/base'
 import AppNotifications from '@components/app/notifications'
 import AppUpdate from '@components/app/AppUpdate.vue'
 import { version } from '@package'
+import { setLocale } from './i18n'
+import { setVuetifyLocale } from '@plugins/vuetify'
+import { setMomentLocale } from '@plugins/moment'
+import { invokeSetAppLocale } from '@main/handlers/app/app-handlers'
 
 import { mapActions, mapState } from 'vuex'
 
@@ -52,7 +56,8 @@ export default {
     ...mapState('app', { _welcome_view: s => s.welcome_view }),
     ...mapState('app/settings/system', {
       _updates_enabled: s => s.updates.enabled,
-      _updates_timeout: s => (s.updates.timeout > 0 ? s.updates.timeout : 1) * 60 * 1000
+      _updates_timeout: s => (s.updates.timeout > 0 ? s.updates.timeout : 1) * 60 * 1000,
+      _language: s => s.language
     }),
 
     /**
@@ -98,6 +103,22 @@ export default {
           this._getFavorites()
 
         }, this._updates_timeout)
+      }
+    },
+
+    async syncLocale (locale) {
+      if (!locale) {
+        return
+      }
+
+      setLocale(locale)
+      setVuetifyLocale(locale)
+      setMomentLocale(locale)
+
+      try {
+        await invokeSetAppLocale(locale)
+      } catch (error) {
+        console.error('Failed to sync app locale', error)
       }
     }
 
@@ -164,6 +185,13 @@ export default {
     _timeout: {
       handler () {
         this.toggleUpdates()
+      }
+    },
+
+    _language: {
+      immediate: true,
+      handler (locale) {
+        this.syncLocale(locale)
       }
     },
 

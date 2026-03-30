@@ -146,7 +146,7 @@ export default {
       a.setLargeImageText('AniLibrix plus t.me/anilibrix_plus')
       a.firstLine(`[${this.episode.id}/${this.episodes.length}] ` + this.title)
 
-      a.secondLine(`${humanTime(this.player.currentTime)} / ${humanTime(this.player.duration)}` + (this.player.paused ? ' [ПАУЗА]' : ''))
+      a.secondLine(`${humanTime(this.player.currentTime)} / ${humanTime(this.player.duration)}` + (this.player.paused ? ' [PAUSE]' : ''))
       a.firstButton('Anilibria.TV', 'https://anilibria.tv')
       // a.start(new Date())
       // const d = new Date()
@@ -181,7 +181,7 @@ export default {
     })
 
     const noAudio = debounce(() =>
-      this.$toasted.show('Аудио дорожка не поддерживается', { type: 'error' }),
+      this.$toasted.show(this.$t('player.unsupportedAudioTrack'), { type: 'error' }),
       1500
     )
 

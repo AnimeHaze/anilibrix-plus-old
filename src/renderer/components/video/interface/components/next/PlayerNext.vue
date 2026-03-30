@@ -28,7 +28,7 @@
 
       <!-- Cancel -->
       <div class="player__next__label player__next__label--bottom">
-        <v-btn text @click="cancel">Отмена</v-btn>
+        <v-btn text @click="cancel">{{ $t('player.nextCancel') }}</v-btn>
       </div>
 
     </div>

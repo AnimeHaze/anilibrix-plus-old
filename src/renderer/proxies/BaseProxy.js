@@ -3,6 +3,7 @@ import store from '@store/index'
 import axios from '@plugins/axios'
 import FormData from 'form-data'
 import { meta, version } from '@package'
+import { getLocale, translate } from '@/renderer/i18n'
 
 export default class BaseProxy {
   /**
@@ -38,7 +39,7 @@ export default class BaseProxy {
   handleResponse (response) {
     const data = __get(response, 'data', null)
     const status = __get(response, 'status', false)
-    const message = __get(response, 'error.message', 'Ошибка при запросе')
+    const message = __get(response, 'error.message', translate('errors.requestFailed', {}, getLocale()))
 
     if (status === true) {
       return data

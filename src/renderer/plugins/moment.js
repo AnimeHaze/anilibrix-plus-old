@@ -1,11 +1,14 @@
 import Vue from 'vue'
 import moment from 'moment'
 
-// Import russian locale
 import 'moment/locale/ru'
 
-// Set russian locale
-moment.locale('ru')
+import { DEFAULT_LOCALE } from '@shared/i18n/locales'
 
-// Set to prototype
+export function setMomentLocale (locale) {
+  moment.locale(locale || DEFAULT_LOCALE)
+}
+
+setMomentLocale(DEFAULT_LOCALE)
+
 Vue.prototype.$moment = moment

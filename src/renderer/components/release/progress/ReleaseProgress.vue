@@ -12,20 +12,20 @@
       <div class="release__progress__description caption white--text font-weight-bold px-4 ellipsis-container">
         <!-- Complete All Episodes -->
         <span v-if="isComplete" class="ellipsis-text">
-          <span v-if="!dense">Просмотрены все эпизоды {{ total }}</span>
-          <span v-else>Все эпизоды {{ total }}</span>
+          <span v-if="!dense">{{ $t('release.progressAllWatched', { total }) }}</span>
+          <span v-else>{{ $t('release.progressAllWatchedDense', { total }) }}</span>
         </span>
 
         <!-- Not seen episodes -->
         <span v-else-if="isUnseen" class="ellipsis-text">
-          <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }} {{ total }}</span>
-          <span v-else>Ни одного эпизода из {{ episodes.length }} {{ total }}</span>
+          <span v-if="!dense">{{ $t('release.progressNone', { episodes: episodes.length, total }) }}</span>
+          <span v-else>{{ $t('release.progressNoneDense', { episodes: episodes.length, total }) }}</span>
         </span>
 
         <!-- Episodes Progress -->
         <span v-else class="ellipsis-text">
-          <span v-if="!dense">Просмотрено {{ watched }} из {{ episodes.length }} {{ total }}</span>
-          <span v-else>{{ watched }} из {{ episodes.length }} {{ total }}</span>
+          <span v-if="!dense">{{ $t('release.progressPartial', { watched, episodes: episodes.length, total }) }}</span>
+          <span v-else>{{ $t('release.progressPartialDense', { watched, episodes: episodes.length, total }) }}</span>
         </span>
 
       </div>
@@ -128,7 +128,7 @@ export default {
       // Get watched episodes
       // Convert to string with suffix
       const watched_episodes = this.$store.getters['app/watch/getWatchedEpisodes'](payload)
-      return pluralize(watched_episodes.length, ['эпизод', 'эпизода', 'эпизодов'])
+      return pluralize(watched_episodes.length, this.$t('units.episode'))
 
     },
 

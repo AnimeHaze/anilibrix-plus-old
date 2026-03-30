@@ -46,14 +46,14 @@
             >
               <div class="text-body-1 mb-2">
                 <v-icon small class="mr-2">mdi-help-circle</v-icon>
-                <strong>Что произошло?</strong>
+                <strong>{{ $t('blank.title') }}</strong>
               </div>
               <div class="text-caption">
                 <p class="mb-2">
-                  Возможно, проблема связана с внутренней ошибкой API или ошибкой навигации в приложении.
+                  {{ $t('blank.subtitle') }}
                 </p>
                 <p>
-                  Если вы видите эту ошибку после нажатия кнопки "Назад" — это известная проблема, которую мы ещё не исправили.
+                  {{ $t('blank.backBug') }}
                 </p>
               </div>
 
@@ -66,7 +66,7 @@
                   to="/"
                 >
                   <v-icon left small>mdi-home</v-icon>
-                  На главную
+                  {{ $t('common.home') }}
                 </v-btn>
               </div>
             </v-card>
@@ -106,7 +106,7 @@ export default {
      * @return {string}
      */
     text () {
-      return this.message || 'При загрузке эпизода произошла ошибка'
+      return this.message || this.$t('blank.defaultError')
     }
 
   },

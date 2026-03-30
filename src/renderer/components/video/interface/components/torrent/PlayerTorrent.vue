@@ -12,8 +12,8 @@
 
     <!-- Torrent Details -->
     <v-card :class="{'mt-9': !this.isMacOnFullscreen}">
-      <v-card-title>Торрент</v-card-title>
-      <v-card-subtitle>Данные по воспроизводимому торренту и соединению</v-card-subtitle>
+      <v-card-title>{{ $t('player.torrentTitle') }}</v-card-title>
+      <v-card-subtitle>{{ $t('player.torrentSubtitle') }}</v-card-subtitle>
       <v-list dense>
         <template v-for="(item, k) in items">
           <v-divider :key="`d:${k}`"/>
@@ -32,8 +32,7 @@
 
     <!-- Notice -->
     <div class="caption grey--text px-4 mt-4">
-      Малое количество сидеров и личеров может негативно сказаться на скорости загрузки и
-      привести к буфферизации воспроизведения
+      {{ $t('player.torrentWarning') }}
     </div>
 
   </v-navigation-drawer>
@@ -97,41 +96,41 @@ export default {
     items () {
       return [
         {
-          title: 'Название торрента',
+          title: this.$t('player.torrentName'),
           value: this.$__get(this.torrent, 'name'),
           classes: ['white-space--pre-wrap']
         },
         {
-          title: 'Дата создания торрента',
+          title: this.$t('player.torrentCreatedAt'),
           value: this.$__get(this.torrent, 'datetime') ? new Date(this.$__get(this.torrent, 'datetime')).toLocaleString() : null,
         },
         {
-          title: 'Количество сидеров',
+          title: this.$t('player.torrentSeeders'),
           value: this.$__get(this.torrent, 'seeders'),
         },
         {
-          title: 'Количество личеров',
+          title: this.$t('player.torrentLeechers'),
           value: this.$__get(this.torrent, 'leechers'),
         },
         {
-          title: 'Воспроизводимый файл',
+          title: this.$t('player.torrentFile'),
           value: this.$__get(this.file, 'name'),
           classes: ['white-space--pre-wrap']
         },
         {
-          title: 'Размер файла',
+          title: this.$t('player.torrentSize'),
           value: prettyBytes(this.$__get(this.file, 'length')),
         },
         {
-          title: 'Скорость загрузки',
+          title: this.$t('player.torrentDownloadSpeed'),
           value: prettyBytes(parseFloat(this.speed.toFixed(2)), { bits: true }),
         },
         {
-          title: 'Скорость раздачи',
+          title: this.$t('player.torrentUploadSpeed'),
           value: prettyBytes(parseFloat(this.seeding.toFixed(2)), { bits: true }),
         },
         {
-          title: 'Прогресс',
+          title: this.$t('player.torrentProgress'),
           value: `${(this.progress * 100).toFixed(2)}%`,
         }
       ].filter(item => item.value !== null)

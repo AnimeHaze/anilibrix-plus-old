@@ -7,6 +7,7 @@ import CatalogTransformer from '@transformers/catalog'
 
 // Utils
 import __capitalize from 'lodash/capitalize'
+import { getLocale, translate } from '@/renderer/i18n'
 
 // Handlers
 import { showAppError } from '@main/handlers/notifications/notifications-handler'
@@ -200,7 +201,7 @@ export default {
       } catch (error) {
         // Show app error
         // Throw error
-        showAppError('Произошла ошибка при загрузке релизов')
+        showAppError(translate('errors.genericLoadReleases', {}, getLocale()))
       } finally {
         commit(SET_CATALOG_LOADING, false)
       }
@@ -230,7 +231,7 @@ export default {
       } catch (error) {
         // Show app error
         // Throw error
-        showAppError('Произошла ошибка при загрузке фильтров по жанрам')
+        showAppError(translate('errors.genericLoadGenres', {}, getLocale()))
       } finally {
         commit(SET_FILTER_LOADING, {
           filter,
@@ -263,7 +264,7 @@ export default {
       } catch (error) {
         // Show app error
         // Throw error
-        showAppError('Произошла ошибка при загрузке фильтров по годам')
+        showAppError(translate('errors.genericLoadYears', {}, getLocale()))
 
       } finally {
         commit(SET_FILTER_LOADING, {

@@ -2,8 +2,8 @@
   <div>
     <v-tooltip left activator="#toolbar__reload">
       <div class="py-1" :style="{ lineHeight: 1 }">
-        <div class="font-weight-bold">Обновить последние релизы</div>
-        <div class="caption">Обновлено в {{ datetime }}</div>
+        <div class="font-weight-bold">{{ $t('toolbar.refreshTitle') }}</div>
+        <div class="caption">{{ $t('toolbar.refreshedAt', { datetime }) }}</div>
       </div>
     </v-tooltip>
 
@@ -38,7 +38,7 @@ export default {
      */
     datetime () {
       return this._datetime
-        ? this._datetime.toLocaleString()
+        ? new Date(this._datetime).toLocaleString()
         : null
     }
 

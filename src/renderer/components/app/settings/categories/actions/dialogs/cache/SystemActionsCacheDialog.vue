@@ -2,13 +2,13 @@
   <v-overlay v-if="visible" absolute opacity=".85">
     <v-dialog v-bind="{attach}" v-model="visible" hide-overlay>
       <v-card>
-        <v-card-title>Кэш приложения</v-card-title>
-        <v-card-subtitle class="pt-2 pb-0">Вы действительно хотите сбросить кеш и настройки приложения?
+        <v-card-title>{{ $t('dialogs.cacheTitle') }}</v-card-title>
+        <v-card-subtitle class="pt-2 pb-0">{{ $t('dialogs.cacheSubtitle') }}
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn v-bind="{loading}" text color="red" @click="resetCache">Сбросить</v-btn>
-          <v-btn v-bind="{loading}" text @click="visible = false">Отмена</v-btn>
+          <v-btn v-bind="{loading}" text color="red" @click="resetCache">{{ $t('dialogs.cacheConfirm') }}</v-btn>
+          <v-btn v-bind="{loading}" text @click="visible = false">{{ $t('common.cancel') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

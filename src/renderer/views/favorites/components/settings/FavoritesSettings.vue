@@ -5,8 +5,8 @@
     <v-card class="mb-2">
       <v-list-item class="py-2" @click="_setSettingsShowSeen(!_show_seen)">
         <v-list-item-content>
-          <v-list-item-title>Просмотренные релизы</v-list-item-title>
-          <v-list-item-subtitle>Вы можете показать или скрыть уже просмотренные релизы</v-list-item-subtitle>
+          <v-list-item-title>{{ $t('favorites.watchedReleases') }}</v-list-item-title>
+          <v-list-item-subtitle>{{ $t('favorites.watchedReleasesHint') }}</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
           <v-switch :input-value="_show_seen" @click="_setSettingsShowSeen"/>
@@ -18,8 +18,8 @@
     <v-card class="mb-2">
       <v-list-item class="py-2" @click="_setSettingsShowCompleted(!_show_completed)">
         <v-list-item-content>
-          <v-list-item-title>Только завершенные</v-list-item-title>
-          <v-list-item-subtitle>Вы можете показать или скрыть незаконченные релизы</v-list-item-subtitle>
+          <v-list-item-title>{{ $t('favorites.completedOnly') }}</v-list-item-title>
+          <v-list-item-subtitle>{{ $t('favorites.completedOnlyHint') }}</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
           <v-switch :input-value="_show_completed" @click="_setSettingsShowCompleted"/>
@@ -32,15 +32,15 @@
     <v-card class="mb-2">
       <v-list-item class="py-2">
         <v-list-item-content>
-          <v-list-item-title>Сортировка</v-list-item-title>
-          <v-list-item-subtitle>Вы можете настроить способ сортировки релизов</v-list-item-subtitle>
+          <v-list-item-title>{{ $t('favorites.sorting') }}</v-list-item-title>
+          <v-list-item-subtitle>{{ $t('favorites.sortingHint') }}</v-list-item-subtitle>
           <v-select
             outlined
             hide-details
             class="mt-4"
             item-text="title"
             item-value="value"
-            placeholder="Сортировка"
+            :placeholder="$t('favorites.sorting')"
             :items="sort"
             :value="_sort"
             @input="_setSettingsSort">
@@ -54,15 +54,15 @@
     <v-card>
       <v-list-item class="py-2">
         <v-list-item-content>
-          <v-list-item-title>Группировка</v-list-item-title>
-          <v-list-item-subtitle>Вы можете настроить способ группровки релизов</v-list-item-subtitle>
+          <v-list-item-title>{{ $t('favorites.grouping') }}</v-list-item-title>
+          <v-list-item-subtitle>{{ $t('favorites.groupingHint') }}</v-list-item-subtitle>
           <v-select
             outlined
             hide-details
             class="mt-4"
             item-text="title"
             item-value="value"
-            placeholder="Группировка"
+            :placeholder="$t('favorites.grouping')"
             :items="group"
             :value="_group"
             @input="_setSettingsGroup">
@@ -83,29 +83,29 @@ export default {
     return {
       sort: [
         {
-          title: 'По названию',
+          title: this.$t('favorites.sortTitle'),
           value: 'title'
         },
         {
-          title: 'По популярности',
+          title: this.$t('favorites.sortPopularity'),
           value: 'rating'
         },
         {
-          title: 'По дате добавления в избранное',
+          title: this.$t('favorites.sortFavoriteDate'),
           value: 'original'
         },
         {
-          title: 'По дате обновления релизов',
+          title: this.$t('favorites.sortUpdates'),
           value: 'updates'
         }
       ],
       group: [
         {
-          title: 'Без группировки',
+          title: this.$t('favorites.noGrouping'),
           value: 'original'
         },
         {
-          title: 'По годам',
+          title: this.$t('favorites.yearsGrouping'),
           value: 'years'
         },
       ]

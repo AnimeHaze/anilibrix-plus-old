@@ -2,32 +2,34 @@ import store from '@store'
 import { meta, repository } from '@package'
 import { Menu, shell } from 'electron'
 
-export const aboutTemplate = [
+import { t } from '@main/utils/i18n'
+
+export const createAboutTemplate = () => [
   {
     role: 'about',
-    label: 'О приложении'
+    label: t('main.about')
   },
   {
-    label: 'Telegram-канал',
+    label: t('main.telegram'),
     click: () => shell.openExternal(meta.links.telegram)
   },
   {
-    label: 'Исходный код на GitHub',
+    label: t('main.sourceCode'),
     click: () => shell.openExternal(repository.url)
   },
   {
     type: 'separator'
   },
   {
-    label: 'Анилибрия',
+    label: t('main.anilibria'),
     click: () => shell.openExternal(meta.links.anilibria)
   },
   {
-    label: 'Канал не официальных релизов',
+    label: t('main.unofficial'),
     click: () => shell.openExternal(meta.links.unofficial)
   },
   {
-    label: 'Поддержать проект',
+    label: t('main.donate'),
     click: () => shell.openExternal(meta.links.donate)
   },
   {
@@ -35,11 +37,11 @@ export const aboutTemplate = [
   },
   {
     role: 'minimize',
-    label: 'Свернуть приложение'
+    label: t('main.minimize')
   },
   {
     role: 'quit',
-    label: 'Закрыть приложение'
+    label: t('main.quit')
   }
 ]
 
@@ -50,29 +52,14 @@ export default class AppMenu {
     this._torrentWindow = null
   }
 
-  /**
-   * Init menu
-   *
-   * @return AppMenu
-   */
   init () {
-    // Build from template
     this._menu = Menu.buildFromTemplate(this._getMenuTemplate())
-
-    // Set menu
     this._mainWindow.setMenu(this._menu)
     this._torrentWindow.setMenu(this._menu)
 
     return this
   }
 
-  /**
-   * Set window
-   *
-   * @param main
-   * @param torrent
-   * @return {AppMenu}
-   */
   setWindows (main = null, torrent = null) {
     this._mainWindow = main
     this._torrentWindow = torrent
@@ -80,39 +67,33 @@ export default class AppMenu {
     return this
   }
 
-  /**
-   * Get menu template
-   *
-   * @return Array
-   * @private
-   */
   _getMenuTemplate () {
     return [
       {
         label: meta.name,
-        submenu: aboutTemplate
+        submenu: createAboutTemplate()
       },
       {
-        label: 'Отладка',
+        label: t('main.debug'),
         submenu: [
           {
             role: 'toggledevtools',
-            label: 'Консоль приложения',
+            label: t('main.appConsole'),
             click: () => this._mainWindow.showDevTools()
           },
           {
-            label: 'Консоль торрент-сервер',
+            label: t('main.torrentConsole'),
             click: () => this._torrentWindow.showDevTools()
           },
           {
             type: 'separator'
           },
           {
-            label: 'Добавить уведомление в хранилище',
+            label: t('main.addNotification'),
             click: () => store.dispatch('notifications/setRelease', store.state.releases.data[0])
           },
           {
-            label: 'Показать данные хранилища в консоли',
+            label: t('main.logStore'),
             click: () => console.log(store.state)
           },
           {
@@ -120,12 +101,12 @@ export default class AppMenu {
           },
           {
             role: 'forcereload',
-            label: 'Перезагрузить приложение'
+            label: t('main.forceReload')
           }
         ]
       },
       {
-        label: 'Окно',
+        label: t('main.window'),
         submenu: [
           { role: 'cut' },
           { role: 'copy' },
@@ -135,4 +116,4 @@ export default class AppMenu {
       }
     ]
   }
-};
+}

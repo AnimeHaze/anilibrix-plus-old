@@ -8,6 +8,7 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
+import { getLocale, translate } from '@/renderer/i18n'
 
 // Handlers
 import { sendReleaseNotification, showAppError } from '@main/handlers/notifications/notifications-handler'
@@ -172,7 +173,7 @@ export default {
           console.log(error)
           // Show error
           // Throw error
-          showAppError('Произошла ошибка при загрузке релизов')
+          showAppError(translate('errors.genericLoadReleases', {}, getLocale()))
         }
       } finally {
         commit(SET_RELEASES_LOADING, false)
@@ -211,7 +212,7 @@ export default {
           // Show app error
           // Return empty array
           console.log(error)
-          showAppError('Произошла ошибка при поиске релизов')
+          showAppError(translate('errors.genericSearchReleases', {}, getLocale()))
           return []
         }
       }

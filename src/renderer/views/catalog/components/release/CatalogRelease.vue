@@ -29,7 +29,7 @@
               dense
               outlined
               hide-details
-              label="Домен для ссылки"
+              :label="$t('catalog.releaseDomain')"
               @click.stop
             ></v-select>
           </v-list-item-content>
@@ -244,7 +244,7 @@ export default {
     getShareText() {
       const { ru, en } = this.release?.names || {};
       const domain = this.selectedDomain.split('/')[0];
-      return `Смотри "${ru || en || 'этот релиз'}" на ${domain}`;
+      return this.$t('release.shareText', { title: ru || en || this.$t('generated.shareThisRelease'), domain });
     },
 
     /**
@@ -257,12 +257,12 @@ export default {
       const shareText = this.getShareText();
 
       this.shareLinks = [
-        this.createShareLink('Ссылка на релиз', 'mdi-link', shareUrl),
-        this.createShareLink('Поделиться в VK', 'mdi-vk',
+        this.createShareLink(this.$t('common.releaseLink'), 'mdi-link', shareUrl),
+        this.createShareLink(this.$t('common.shareVk'), 'mdi-vk',
           this.generateSocialShareUrl('vk', shareUrl, shareText), true),
-        this.createShareLink('Поделиться в Telegram', 'mdi-telegram',
+        this.createShareLink(this.$t('common.shareTelegram'), 'mdi-telegram',
           this.generateSocialShareUrl('telegram', shareUrl, shareText), true),
-        this.createShareLink('Поделиться в Twitter', 'mdi-twitter',
+        this.createShareLink(this.$t('common.shareTwitter'), 'mdi-twitter',
           this.generateSocialShareUrl('twitter', shareUrl, shareText), true)
       ];
     },
@@ -310,10 +310,10 @@ export default {
           });
         }, 2000);
 
-        this.$toasted.success('Ссылка скопирована в буфер');
+        this.$toasted.success(this.$t('release.copySuccess'));
       } catch (err) {
         console.error(err);
-        this.$toasted.error('Не удалось скопировать ссылку');
+        this.$toasted.error(this.$t('release.copyError'));
       }
     },
   },
@@ -323,40 +323,40 @@ export default {
       actions: [
         {
           icon: 'mdi-check',
-          title: 'Отметить все серии как просмотренные',
+          title: this.$t('release.markAllSeen'),
           action: this.setWatched,
         },
         {
           icon: 'mdi-close',
-          title: 'Снять все отметки о просмотре',
+          title: this.$t('release.unmarkAllSeen'),
           action: this.removeWatched,
         }
       ],
       selectedDomain: 'anilibria.tv/release/',
       shareLinks: [
         {
-          title: 'Ссылка на релиз',
+          title: this.$t('common.releaseLink'),
           icon: 'mdi-link',
           link: '',
           copied: false,
           isExternal: false
         },
         {
-          title: 'Поделиться в VK',
+          title: this.$t('common.shareVk'),
           icon: 'mdi-vk',
           link: '',
           copied: false,
           isExternal: true
         },
         {
-          title: 'Поделиться в Telegram',
+          title: this.$t('common.shareTelegram'),
           icon: 'mdi-telegram',
           link: '',
           copied: false,
           isExternal: true
         },
         {
-          title: 'Поделиться в Twitter',
+          title: this.$t('common.shareTwitter'),
           icon: 'mdi-twitter',
           link: '',
           copied: false,

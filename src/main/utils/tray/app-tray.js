@@ -1,4 +1,4 @@
-import { aboutTemplate } from '../menu/app-menu'
+import { createAboutTemplate } from '../menu/app-menu'
 import { Menu, nativeImage, Tray } from 'electron'
 
 export default class {
@@ -12,7 +12,7 @@ export default class {
    * @return Array
    */
   getTemplate () {
-    return [...aboutTemplate]
+    return [...createAboutTemplate()]
   }
 
   /**
@@ -38,6 +38,14 @@ export default class {
    */
   setTooltip (tooltip) {
     this._tray.setToolTip(tooltip)
+
+    return this
+  }
+
+  refreshMenu () {
+    if (this._tray) {
+      this._tray.setContextMenu(Menu.buildFromTemplate(this.getTemplate()))
+    }
 
     return this
   }

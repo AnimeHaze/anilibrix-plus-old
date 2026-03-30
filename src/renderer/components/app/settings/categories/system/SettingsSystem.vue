@@ -2,11 +2,8 @@
   <div ref="settings">
 
     <div class="pa-4 caption grey--text">
-      <div class="body-1">Настройки приложения</div>
-      <div>
-        В данном разделе вы можете настроить автоматическое обновление релизов, системные уведомления
-        и другие параметры приложения
-      </div>
+      <div class="body-1">{{ $t('settings.systemTitle') }}</div>
+      <div>{{ $t('settings.systemDescription') }}</div>
     </div>
 
     <!-- Appbar inverse -->
@@ -14,7 +11,7 @@
       <v-card class="mt-2">
         <v-list-item dense @click="_setAppbarRight(!_appbar_right)">
           <v-list-item-title>
-            Переместить кнопки контроля вправо
+            {{ $t('settings.moveWindowButtons') }}
           </v-list-item-title>
 
           <v-list-item-action class="mr-2">
@@ -24,7 +21,7 @@
 
         <v-card-text class="pt-2">
           <div class="caption">
-            Перемещает кнопки управления окном (свернуть, закрыть и развернуть) вправо
+            {{ $t('settings.moveWindowButtonsHint') }}
           </div>
         </v-card-text>
       </v-card>
@@ -34,7 +31,7 @@
     <v-card class="mt-2">
       <v-list-item dense @click="_setFilterNotify(!_filter_notify)">
         <v-list-item-title>
-          Фильтровать уведомления по избранному
+          {{ $t('settings.favoriteNotifications') }}
         </v-list-item-title>
 
         <v-list-item-action class="mr-2">
@@ -44,26 +41,26 @@
 
       <v-card-text class="pt-2">
         <div class="caption">
-          Включает показ уведомлений только для избранных релизов
+          {{ $t('settings.favoriteNotificationsHint') }}
         </div>
       </v-card-text>
     </v-card>
 
     <v-card class="mt-2">
       <v-list-item dense @click="_setIgnoreCerts(!_ignore_certs)">
-        <v-list-item-title>Игнорировать ошибки сертификатов</v-list-item-title>
+        <v-list-item-title>{{ $t('settings.ignoreCerts') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_ignore_certs" @change="_setIgnoreCerts"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Игнорирование проверки доверенных сертификатов
+        {{ $t('settings.ignoreCertsHint') }}
       </v-card-text>
     </v-card>
 
     <v-card class="mt-2">
       <v-list-item dense @click="toggleOperaProxy">
-        <v-list-item-title>Использовать Opera Proxy</v-list-item-title>
+        <v-list-item-title>{{ $t('settings.operaProxy') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_proxy === 'http://opera'" @click="toggleOperaProxy"/>
         </v-list-item-action>
@@ -78,16 +75,16 @@
           class="mb-2"
           :value="_proxy"
           @input="setProxyServer($event)"
-          label="Прокси сервер"
+          :label="$t('settings.proxyServer')"
           persistent-hint
         />
 
         <div class="caption">
           <div>
-            Прокси для подключения к серверам статики и API. Поддерживаются HTTP и HTTPS
+            {{ $t('settings.proxyHint') }}
           </div>
           <div>
-            <b>После изменения серверов рекомендуется перезагрузить приложение</b>
+            <b>{{ $t('settings.restartAfterServerChange') }}</b>
           </div>
         </div>
       </v-card-text>
@@ -101,7 +98,7 @@
           :value="_api_endpoint"
           @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
           :items="['https://anilibria.tv/', 'https://wwnd.space/']"
-          label="Адрес сервера API (выберите или впишите свой)"
+          :label="$t('settings.apiEndpoint')"
           persistent-hint
         />
 
@@ -111,17 +108,13 @@
           :value="_static_endpoint"
           @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
           :items="['https://static-libria.weekstorm.one/', 'https://anilibria.tv/', 'https://static.wwnd.space/']"
-          label="Адрес сервера статики (выберите или впишите свой)"
+          :label="$t('settings.staticEndpoint')"
           persistent-hint
         />
 
         <div class="caption">
-          Вы можете использовать основной сервер, если он не заблокирован вашим провайдером, или использовать
-          дополнительные сервера.
-
-          Также, Вы можете ввести свои адреса серверов API и статики в соответствующие поля
-
-          <b>После изменения серверов рекомендуется перезагрузить приложение</b>
+          {{ $t('settings.apiDescription') }}
+          <b>{{ $t('settings.restartAfterServerChange') }}</b>
         </div>
       </v-card-text>
     </v-card>
@@ -134,7 +127,7 @@
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Приложение будет выводить информацию о просматриваемом релизе в Discord Rich Presence
+        {{ $t('settings.richPresenceHint') }}
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -142,15 +135,14 @@
     <!-- System Notifications -->
     <v-card>
       <v-list-item dense @click="_setSystemNotifications(!_notifications_system)">
-        <v-list-item-title>Показывать системные уведомления</v-list-item-title>
+        <v-list-item-title>{{ $t('settings.systemNotifications') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_notifications_system" @change="_setSystemNotifications"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2">
         <div class="caption">
-          Если при загрузке последних релизов приложение обнаружит обновленный релиз,
-          то оно покажет системное уведомление о новом эпизоде
+          {{ $t('settings.systemNotificationsHint') }}
         </div>
       </v-card-text>
     </v-card>
@@ -159,13 +151,13 @@
     <!-- Auto update -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setUpdates(!_updates_enabled)">
-        <v-list-item-title>Автоматическое обновление релизов</v-list-item-title>
+        <v-list-item-title>{{ $t('settings.autoUpdates') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_updates_enabled" @change="_setUpdates"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Приложение будет в фоне обновлять последние релизы, даже если оно свернуто
+        {{ $t('settings.autoUpdatesHint') }}
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -174,7 +166,7 @@
     <v-card>
       <v-card-text class="pb-2">
         <div class="caption">
-          Вы можете указать с какой периодичностью приложение будет обновлять релизы в фоновом режиме
+          {{ $t('settings.updatesTimeoutHint') }}
         </div>
       </v-card-text>
       <v-card-text>
@@ -183,8 +175,8 @@
           hide-details
           class="mb-2"
           type="number"
-          label="Периодичность обновления релизов"
-          suffix="мин"
+          :label="$t('settings.updatesTimeoutLabel')"
+          :suffix="$t('common.minutesShort')"
           :value="_updates_timeout"
           @input="_setUpdatesTimeout($event ? parseInt($event) : 1)">
         </v-text-field>
@@ -225,8 +217,8 @@
     </v-card>-->
 
     <div v-show="_isAuthorized" class="pa-4 caption grey--text">
-      <div class="body-1">Снапшоты</div>
-      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту</div>
+      <div class="body-1">{{ $t('settings.snapshots') }}</div>
+      <div>{{ $t('settings.snapshotsHint') }}</div>
     </div>
 
     <v-card v-show="_isAuthorized">
@@ -234,7 +226,7 @@
         <template>
           <v-list-item @click="snapshots">
             <v-list-item-content>
-              <v-list-item-title v-text="'Список снапшотов'"/>
+              <v-list-item-title>{{ $t('settings.snapshotsList') }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </template>
