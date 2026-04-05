@@ -202,6 +202,8 @@ if (!gotTheLock) {
       })
 
       function restart () {
+        if (!mainWindow.isFocused()) return
+
         console.log('Restart')
 
         const options = {
