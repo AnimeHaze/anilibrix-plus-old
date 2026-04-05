@@ -39,7 +39,7 @@ export default {
      */
     next () {
       return this.episodes
-        .find(episode => episode.id === (this.$__get(this.episode, 'id') || -1) + 1) || null
+        .find(episode => episode.id === (this.$__get(this.episode, 'id')) + 1) || null
     },
 
     /**

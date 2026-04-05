@@ -15,7 +15,7 @@
 <script>
 
 import PlayerHandler from './../../components/handler'
-import { catchTorrentClear, catchTorrentError, catchTorrentServer, sendTorrentDestroy, sendTorrentStart } from '@main/handlers/torrents/torrentsHandler'
+import { catchTorrentClear, catchTorrentError, catchTorrentServer, sendTorrentDestroy, sendTorrentStart } from '@main/handlers/torrents/torrents-handler'
 
 const props = {
   time: {

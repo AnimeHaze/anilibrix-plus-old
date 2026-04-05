@@ -18,7 +18,7 @@
       <v-btn icon id="toolbar__profile">
         <v-icon v-if="menu" key="expanded">mdi-account</v-icon>
         <v-avatar size="28" v-else>
-          <v-img :src="_profile.avatar"/>
+          <v-img :transition="false" :src="_profile.avatar"/>
         </v-avatar>
       </v-btn>
 
@@ -35,7 +35,7 @@
         <v-list dense>
           <v-list-item>
             <v-list-item-avatar>
-              <v-img :src="_profile.avatar"/>
+              <v-img :transition="false" :src="_profile.avatar"/>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title v-text="_profile.login"/>

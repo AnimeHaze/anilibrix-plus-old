@@ -15,10 +15,10 @@ const SET_IGNORE_CERTS = 'SET_IGNORE_CERTS'
 
 function normalizeEndpoint (endpoint) {
   if (endpoint.endsWith('/')) {
-    return endpoint.slice(0, -1)
+    return endpoint.slice(0, -1).trim()
   }
 
-  return endpoint.replace(/([^:]\/)\/+/g, '$1')
+  return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
 }
 
 export default {

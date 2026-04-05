@@ -1,4 +1,7 @@
-.yarn
+build/**/opera-proxy*
+build/**/forward-proxy*
+.yarn/cache
+.yarn/install-state.gz
 .DS_Store
 /release/
 node_modules/

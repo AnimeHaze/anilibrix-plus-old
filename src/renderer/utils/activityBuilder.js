@@ -4,6 +4,10 @@ class ActivityBuilder {
     this.largeImageKey = 'libriatyan03'
   }
 
+  setActivityType (type) {
+    this.type = type
+  }
+
   setImage (img) {
     this.largeImageKey = img
   }
@@ -12,9 +16,12 @@ class ActivityBuilder {
     this.details = text
   }
 
+  setLargeImageText (text) {
+    this.largeImageText = text
+  }
+
   secondLine (text) {
     this.state = text
-    this.largeImageText = text
   }
 
   start (date) {

@@ -82,8 +82,6 @@ import PlayerBuffering from './components/buffering'
 import screenfull from 'screenfull'
 import { AppKeyboardHandlerMixin, AppMouseHandlerMixin } from '@mixins/app'
 import { mapActions, mapState } from 'vuex'
-import { catGirlFetch } from '@utils/fetch'
-import {invokeGetTitleV2} from "@main/handlers/app/appHandlers";
 
 const props = {
   player: {
@@ -317,22 +315,10 @@ export default {
     document.addEventListener('keyup', this.handleKeyUp)
     document.addEventListener('keydown', this.handleKeyDown)
 
-    try {
-      const epId = this.$__get(this.episode, 'id')
-      const rId = this.$__get(this.release, 'id')
-      const { player: playlist } = invokeGetTitleV2(rId)
-      const serie = playlist.playlist.find(x => x.serie === epId)
+    const { ending, opening } = this.episode.skips
 
-      if (serie) {
-        Object.values(serie.skips).forEach(skip => {
-          if(skip.length === 2) {
-            this.skips.push({start: skip[0], end: skip[1]})
-          }
-        });
-      }
-    } catch (e) {
-      console.log(e)
-    }
+    if (ending) this.skips.push({ start: ending[0], end: ending[1] })
+    if (opening) this.skips.push({ start: opening[0], end: opening[1] })
 
     // Hide / Show controls
     this.showInterface()

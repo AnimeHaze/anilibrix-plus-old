@@ -1,56 +1,51 @@
+import { lookup } from 'dns';
+
 const originalFetch = require('isomorphic-fetch');
-const fetchRetry = require('fetch-retry')(originalFetch)
 
-const attempt = Symbol('attempt')
+let fixWwndChecked = false
+let fixWwwdNeeded = false
+const DOMAIN = 'wwnd.space'
+const OLD_IP = '78.46.255.254'
+const NEW_IP = '31.184.217.238'
 
-export function catGirlFetch(url, init = {}, timeout = 2000) {
-  init[attempt] || (init[attempt] = 0)
-  init.retryOn = function (attempt, error) {
-    if (attempt > 10) return false // Stop retry after 10 attempt
+export async function catGirlFetch(url, init) {
+  if (!fixWwndChecked) {
+    await new Promise((resolve) => {
+      lookup(DOMAIN, (err, address, family) => {
+        if (!err) {
+          if (address === OLD_IP && family === 4) {
+            fixWwwdNeeded = true
+          }
 
-    if (error !== null) {
-      console.log(`Oh fuck, retrying, attempt number ${attempt + 1}`);
-      return true // Retry every fucking error
+          fixWwndChecked = true
+        }
+
+        resolve()
+      })
+    })
+
+    console.log('EU IP OF WWND.SPACE FOUND, ENABLE REWRITE')
+  }
+
+  const u = new URL(url)
+
+  if (!init) {
+    init = {}
+  }
+
+  if (fixWwwdNeeded && u.host === DOMAIN) {
+    url = url.replace(DOMAIN, NEW_IP)
+
+    if (!init.headers) {
+      init.headers = {}
     }
+
+    init.headers.Host = DOMAIN
+    console.log('FIX WWND.SPACE REQUEST')
   }
 
-  init.retryDelay = function (attempt, error, response) {
-    return Math.pow(2, attempt) * 1000; // 1000, 2000, 4000
-  }
+  init.redirect = 'follow'
+  init.follow = 10000
 
-  return Promise.race([
-    fetchRetry(url, init)
-      .then(x => {
-        if (!x.ok && x.status === 404) {
-          const err = new Error('Not found')
-          err.status = 404
-          throw err
-        }
-
-        return x
-      })
-      .then(async x => {
-        if (init.raw) return x
-
-        const text = await x.text()
-        try {
-          return JSON.parse(text)
-        } catch (e) {
-          console.log(text)
-          throw e
-        }
-      })
-      .catch(err => {
-        if (err.status === 404) throw err
-
-        init[attempt]++
-        console.log('Parse err', init[attempt])
-        if (init[attempt] > 5) return Promise.reject(err)
-        return catGirlFetch(url, init)
-      }),
-
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout, mazafaka!')), timeout) // 😂
-    )
-  ])
+  return originalFetch(url, init)
 }

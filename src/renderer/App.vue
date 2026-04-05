@@ -1,23 +1,17 @@
 <template>
   <v-app>
-    <!-- System Bar -->
     <app-system-bar/>
     <app-settings/>
-
-    <!-- Content -->
 
     <app-loader v-if="loading"/>
     <component :is="layout" v-else>
       <router-view :key="$route.fullPath"/>
     </component>
 
-    <!-- Errors -->
-    <!-- Downloads -->
-    <!-- Notifications -->
     <app-errors/>
-    <app-downloads/>
     <app-notifications/>
 
+    <AppUpdate :notes="update_notes" ref="appUpdate"/>
   </v-app>
 </template>
 
@@ -27,9 +21,10 @@ import AppErrors from '@components/app/errors'
 import AppToolBar from '@components/app/toolbar'
 import AppSettings from '@components/app/settings'
 import AppSystemBar from '@components/app/systembar'
-import AppDownloads from '@components/app/downloads'
 import AppBaseLayout from '@layouts/base'
 import AppNotifications from '@components/app/notifications'
+import AppUpdate from '@components/app/AppUpdate.vue'
+import { version } from '@package'
 
 import { mapActions, mapState } from 'vuex'
 
@@ -41,14 +36,15 @@ export default {
     AppToolBar,
     AppSettings,
     AppSystemBar,
-    AppDownloads,
     AppBaseLayout,
     AppNotifications,
+    AppUpdate
   },
   data () {
     return {
       loading: false,
-      update_handler: null
+      update_handler: null,
+      update_notes: ''
     }
   },
 
@@ -107,8 +103,36 @@ export default {
 
   },
 
-  created () {
+  async mounted () {
+    try {
+      const data = await fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json")
+        .then(async x => {
+          const text = await x.text()
+          try {
+            return JSON.parse(text)
+          } catch (e) {
+            console.error('Check version error', x.status, x.statusText, text, e)
 
+            throw e
+          }
+        })
+
+      if (version.includes('beta') && data.beta !== version) {
+        this.update_notes = data.beta_notes
+        this.$refs.appUpdate.showDialog()
+      }
+
+      if (!version.includes('beta') && data.stable !== version) {
+        this.update_notes = data.stable_notes
+        this.$refs.appUpdate.showDialog()
+      }
+    } catch (e) {
+      console.error('Check version error', e)
+    }
+  },
+
+  async created() {
+    const last_page_release = localStorage.getItem('last_page_release')
     // Initial loading
     this.loading = true
     setTimeout(() => this.loading = false, 1000)
@@ -118,9 +142,12 @@ export default {
     this._getReleases()
     this._getFavorites()
 
-    // Push to saved welcome view
-    if (this._welcome_view !== null && this.view !== this._welcome_view) {
-      this.$router.push({ name: this._welcome_view })
+    console.log('Last page release', last_page_release)
+    if (last_page_release) {
+      console.log('Redirecting to release', last_page_release)
+      await this.$router.push({name: 'release', params: JSON.parse(last_page_release)})
+    } else if (this._welcome_view !== null && this.view !== this._welcome_view) {
+      this.$router.push({name: this._welcome_view})
     }
 
   },
@@ -145,8 +172,6 @@ export default {
         if (['releases', 'catalog', 'favorites'].includes(view)) this._setWelcomeView(view)
       }
     }
-
   }
-
 }
 </script>

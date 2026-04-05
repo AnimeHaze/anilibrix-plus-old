@@ -22,6 +22,10 @@ export default class ReleaseTransformer extends BaseTransformer {
         ru: this._stripHtml(this.get(release, 'names.0')),
         original: this._stripHtml(this.get(release, 'names.1'))
       },
+      team: this.get(release, 'team') || [],
+      franchises: this.get(release, 'franchises') || [],
+      series: this.get(release, 'series'),
+      total_series: this.get(release, 'total_series'),
       voices: this.get(release, 'voices') || [],
       genres: this.get(release, 'genres') || [],
       poster: this.get(release, 'poster'),
@@ -34,7 +38,7 @@ export default class ReleaseTransformer extends BaseTransformer {
         playlist: this.get(release, 'playlist'),
         torrents: this.get(release, 'torrents')
       },
-      description: this._stripHtml(this.get(release, 'description'))
+      description: this._stripHtml(this.get(release, 'description'))?.split(/Порядок\s+просмотра/)[0]
     }
   }
 
@@ -64,8 +68,16 @@ export default class ReleaseTransformer extends BaseTransformer {
    */
   _getFavoriteRating (release) {
     const rating = this.get(release, 'favorite.rating')
+    const fuckingAPIBrokenRating = this.get(release, 'rating')
 
-    return { count: rating, text: humanFormat(rating) }
+    return {
+      count: rating,
+      text: humanFormat(
+        rating || // If api wor  fine
+            fuckingAPIBrokenRating || // Fallback to "new api" xD
+            0 // Oni-chan kill me,  it makes me want to cry
+      )
+    }
   }
 
   /**

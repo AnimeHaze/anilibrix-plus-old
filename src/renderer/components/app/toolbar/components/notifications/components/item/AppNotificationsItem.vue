@@ -2,7 +2,7 @@
   <v-list-item v-on:click="toVideo(release, episode)">
     <!-- Avatar -->
     <v-list-item-avatar>
-      <v-img v-bind="{src}"/>
+      <v-img :transition="false" v-bind="{src}"/>
     </v-list-item-avatar>
 
     <!-- Content -->
@@ -54,7 +54,13 @@ export default {
      * @return {*}
      */
     src () {
-      return this.$__get(this.release, 'poster')
+      const url = new URL(this.$__get(this.release, 'poster'))
+      if (url.pathname === '/proxy-static') {
+        const u = url.searchParams.get('url')
+        const { pathname } = new URL(u)
+
+        return `http://localhost:${global.internalServerPort}/proxy-static?url=` + pathname
+      }
     },
 
     /**

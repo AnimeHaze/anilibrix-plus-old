@@ -9,24 +9,23 @@
     :indeterminate="loading">
 
     <template v-if="!loading && showNumbers" v-slot>
-      <div class="release__progress__description caption white--text font-weight-bold px-4">
-
+      <div class="release__progress__description caption white--text font-weight-bold px-4 ellipsis-container">
         <!-- Complete All Episodes -->
-        <span v-if="isComplete">
-          <span v-if="!dense">All episodes watched</span>
-          <span v-else>All episodes</span>
+        <span v-if="isComplete" class="ellipsis-text">
+          <span v-if="!dense">Просмотрены все эпизоды {{ total }}</span>
+          <span v-else>Все эпизоды {{ total }}</span>
         </span>
 
         <!-- Not seen episodes -->
-        <span v-else-if="isUnseen">
-          <span v-if="!dense">Not a single episode has been watched</span>
-          <span v-else>Not a single episode</span>
+        <span v-else-if="isUnseen" class="ellipsis-text">
+          <span v-if="!dense">Не просмотрено ни одного эпизода из {{ episodes.length }} {{ total }}</span>
+          <span v-else>Ни одного эпизода из {{ episodes.length }} {{ total }}</span>
         </span>
 
         <!-- Episodes Progress -->
-        <span v-else>
-          <span v-if="!dense">Viewed {{ watched }} of {{ episodes.length }}</span>
-          <span v-else>{{ watched }} of {{ episodes.length }}</span>
+        <span v-else class="ellipsis-text">
+          <span v-if="!dense">Просмотрено {{ watched }} из {{ episodes.length }} {{ total }}</span>
+          <span v-else>{{ watched }} из {{ episodes.length }} {{ total }}</span>
         </span>
 
       </div>
@@ -47,6 +46,10 @@ const props = {
   episodes: {
     type: Array,
     default: null
+  },
+  totalEpisodes: {
+    type: String,
+    default: ''
   },
   showNumbers: {
     type: Boolean,
@@ -81,6 +84,13 @@ const props = {
 export default {
   props,
   computed: {
+    total () {
+      const totalValue = this.totalEpisodes
+        .replace('(0)', '(?)')
+        .replace(/^(\d+)$/, '($1)')
+        .replace(/^\d+\-(\d+)$/, '($1)')
+      return totalValue && this.totalEpisodes !== 'null' ? ' ' + totalValue : ''
+    },
 
     /**
      * Calculate total seen progress
@@ -118,7 +128,7 @@ export default {
       // Get watched episodes
       // Convert to string with suffix
       const watched_episodes = this.$store.getters['app/watch/getWatchedEpisodes'](payload)
-      return pluralize(watched_episodes.length, ['episode', 'episode', 'episodes'])
+      return pluralize(watched_episodes.length, ['эпизод', 'эпизода', 'эпизодов'])
 
     },
 
@@ -158,6 +168,16 @@ export default {
   &__description {
     left: 0;
     position: absolute;
+    width: 100%;
+    overflow: hidden;
+
+    .ellipsis-text {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 

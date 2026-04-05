@@ -44,7 +44,7 @@ import AppSystemBarPlaceholder from '@components/app/systembar/placeholder'
 
 import prettyBytes from 'pretty-bytes'
 import { AppPlatformMixin } from '@mixins/app'
-import { catchTorrentDownload } from '@main/handlers/torrents/torrentsHandler'
+import { catchTorrentDownload } from '@main/handlers/torrents/torrents-handler'
 
 const props = {
   source: {

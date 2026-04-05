@@ -2,10 +2,10 @@
   <div ref="settings">
 
     <div class="pa-4 caption grey--text">
-      <div class="body-1">Application settings</div>
+      <div class="body-1">Настройки приложения</div>
       <div>
-        In this section, you can configure automatic release updates, system notifications
-and other application parameters
+        В данном разделе вы можете настроить автоматическое обновление релизов, системные уведомления
+        и другие параметры приложения
       </div>
     </div>
 
@@ -14,7 +14,7 @@ and other application parameters
       <v-card class="mt-2">
         <v-list-item dense @click="_setAppbarRight(!_appbar_right)">
           <v-list-item-title>
-            Move the control buttons to the right
+            Переместить кнопки контроля вправо
           </v-list-item-title>
 
           <v-list-item-action class="mr-2">
@@ -24,7 +24,7 @@ and other application parameters
 
         <v-card-text class="pt-2">
           <div class="caption">
-            Move window control buttons (minimize, close and maximize) to the right
+            Перемещает кнопки управления окном (свернуть, закрыть и развернуть) вправо
           </div>
         </v-card-text>
       </v-card>
@@ -34,7 +34,7 @@ and other application parameters
     <v-card class="mt-2">
       <v-list-item dense @click="_setFilterNotify(!_filter_notify)">
         <v-list-item-title>
-          Filter notifications by favorites
+          Фильтровать уведомления по избранному
         </v-list-item-title>
 
         <v-list-item-action class="mr-2">
@@ -44,40 +44,50 @@ and other application parameters
 
       <v-card-text class="pt-2">
         <div class="caption">
-          Enables displaying notifications only for releases from favorites
+          Включает показ уведомлений только для избранных релизов
         </div>
       </v-card-text>
     </v-card>
 
     <v-card class="mt-2">
       <v-list-item dense @click="_setIgnoreCerts(!_ignore_certs)">
-        <v-list-item-title>Ignore certificate errors</v-list-item-title>
+        <v-list-item-title>Игнорировать ошибки сертификатов</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_ignore_certs" @change="_setIgnoreCerts"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        Ignoring Trusted Certificate Checking
+        Игнорирование проверки доверенных сертификатов
       </v-card-text>
+    </v-card>
+
+    <v-card class="mt-2">
+      <v-list-item dense @click="toggleOperaProxy">
+        <v-list-item-title>Использовать Opera Proxy</v-list-item-title>
+        <v-list-item-action class="mr-2">
+          <v-switch :input-value="_proxy === 'http://opera'" @click="toggleOperaProxy"/>
+        </v-list-item-action>
+      </v-list-item>
     </v-card>
 
     <v-card>
       <v-card-text class="mt-2">
         <v-text-field
+          v-if="_proxy !== 'http://opera'"
           outlined
           class="mb-2"
           :value="_proxy"
           @input="setProxyServer($event)"
-          label="Proxy server"
+          label="Прокси сервер"
           persistent-hint
         />
 
         <div class="caption">
           <div>
-            Proxy for connecting to static and API server. HTTP and HTTPS supported
+            Прокси для подключения к серверам статики и API. Поддерживаются HTTP и HTTPS
           </div>
           <div>
-            <b>After changing the access point, it is recommended to restart the application</b>
+            <b>После изменения серверов рекомендуется перезагрузить приложение</b>
           </div>
         </div>
       </v-card-text>
@@ -90,8 +100,8 @@ and other application parameters
           outlined
           :value="_api_endpoint"
           @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
-          :items="['https://anilibria.tv/', 'https://wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="API connection point"
+          :items="['https://anilibria.tv/', 'https://wwnd.space/']"
+          label="Адрес сервера API (выберите или впишите свой)"
           persistent-hint
         />
 
@@ -100,18 +110,18 @@ and other application parameters
           class="mb-2"
           :value="_static_endpoint"
           @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
-          :items="['https://static-libria.weekstorm.one/', 'https://static.anilibria.tv/', 'https://static.wwnd.space/', 'https://anilibriaqt.anilib.top/', 'https://anilibrix.anilib.top/', 'https://anilibria.animehaze.me/']"
-          label="Connection point to the static server"
+          :items="['https://static-libria.weekstorm.one/', 'https://anilibria.tv/', 'https://static.wwnd.space/']"
+          label="Адрес сервера статики (выберите или впишите свой)"
           persistent-hint
         />
 
         <div class="caption">
-          You can use the main domain if it is not blocked by your provider, or use
-          additional domains
+          Вы можете использовать основной сервер, если он не заблокирован вашим провайдером, или использовать
+          дополнительные сервера.
 
-          You can enter your connection point to the API and the static server in the "API connection point" and "Static server connection point" fields
+          Также, Вы можете ввести свои адреса серверов API и статики в соответствующие поля
 
-        <b>After changing the access point, it is recommended to restart the application</b>
+          <b>После изменения серверов рекомендуется перезагрузить приложение</b>
         </div>
       </v-card-text>
     </v-card>
@@ -124,7 +134,7 @@ and other application parameters
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        The app will display information about the anime being viewed in Discord Rich Presence
+        Приложение будет выводить информацию о просматриваемом релизе в Discord Rich Presence
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -132,15 +142,15 @@ and other application parameters
     <!-- System Notifications -->
     <v-card>
       <v-list-item dense @click="_setSystemNotifications(!_notifications_system)">
-        <v-list-item-title>Show system notifications</v-list-item-title>
+        <v-list-item-title>Показывать системные уведомления</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_notifications_system" @change="_setSystemNotifications"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2">
         <div class="caption">
-          “If the app detects an update while downloading the latest releases, 
-          it will display a system notification about the new episode.
+          Если при загрузке последних релизов приложение обнаружит обновленный релиз,
+          то оно покажет системное уведомление о новом эпизоде
         </div>
       </v-card-text>
     </v-card>
@@ -149,13 +159,13 @@ and other application parameters
     <!-- Auto update -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setUpdates(!_updates_enabled)">
-        <v-list-item-title>Automatic release update</v-list-item-title>
+        <v-list-item-title>Автоматическое обновление релизов</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_updates_enabled" @change="_setUpdates"/>
         </v-list-item-action>
       </v-list-item>
       <v-card-text class="pt-2 caption">
-        The app will update the latest releases in the background, even if it is minimized
+        Приложение будет в фоне обновлять последние релизы, даже если оно свернуто
       </v-card-text>
     </v-card>
     <v-divider/>
@@ -164,7 +174,7 @@ and other application parameters
     <v-card>
       <v-card-text class="pb-2">
         <div class="caption">
-          You can specify how often the application will update releases in the background
+          Вы можете указать с какой периодичностью приложение будет обновлять релизы в фоновом режиме
         </div>
       </v-card-text>
       <v-card-text>
@@ -173,8 +183,8 @@ and other application parameters
           hide-details
           class="mb-2"
           type="number"
-          label="Frequency of release updates"
-          suffix="min"
+          label="Периодичность обновления релизов"
+          suffix="мин"
           :value="_updates_timeout"
           @input="_setUpdatesTimeout($event ? parseInt($event) : 1)">
         </v-text-field>
@@ -215,8 +225,8 @@ and other application parameters
     </v-card>-->
 
     <div v-show="_isAuthorized" class="pa-4 caption grey--text">
-      <div class="body-1">Snapshots</div>
-      <div>You can create backup copies of application data linked to your anilibria account</div>
+      <div class="body-1">Снапшоты</div>
+      <div>Вы можете создавать резервные копии данных приложения привязанные к вашему аккаунту</div>
     </div>
 
     <v-card v-show="_isAuthorized">
@@ -224,7 +234,7 @@ and other application parameters
         <template>
           <v-list-item @click="snapshots">
             <v-list-item-content>
-              <v-list-item-title v-text="'List of snapshots'"/>
+              <v-list-item-title v-text="'Список снапшотов'"/>
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -251,7 +261,7 @@ import Confirm from '@components/app/settings/categories/system/dialogs/confirm.
 import snapshotsList from '@components/app/settings/categories/system/dialogs/snapshotsList.vue'
 import { AppPlatformMixin } from '@mixins/app'
 import {debounce} from "lodash";
-import {invokeUpdateProxy} from "@main/handlers/app/appHandlers";
+import {invokeUpdateProxy} from "@main/handlers/app/app-handlers";
 
 export default {
   mixins: [AppPlatformMixin],
@@ -270,8 +280,8 @@ export default {
       _ads_maximum: s => s.ads.maximum,
       _updates_enabled: s => s.updates.enabled,
       _updates_timeout: s => s.updates.timeout,
-      _api_endpoint: s => s.api.endpoint,
-      _static_endpoint: s => s.api.static_endpoint,
+      _api_endpoint: s => s.api._endpoint,
+      _static_endpoint: s => s.api._static_endpoint,
       _notifications_system: s => s.notifications.system,
       _appbar_right: s => s.appbar_right,
       _filter_notify: s => s.filter_notify,
@@ -282,6 +292,15 @@ export default {
   },
 
   methods: {
+    toggleOperaProxy: function () {
+      if (this._proxy === 'http://opera') {
+        this.setProxyServer('')
+        console.log('opera proxy disabled')
+      } else {
+        this.setProxyServer('http://opera')
+        console.log('opera proxy enabled')
+      }
+    },
     setProxyServer: function ($event) {
       this._setProxy($event)
       invokeUpdateProxy($event)

@@ -26,26 +26,38 @@ export default class AccountProxy extends BaseProxy {
       data,
       headers: data.getHeaders()
     }
-    const response = await this.submit('POST', this.getApiLoginEndpoint(), params)
-    const status = __get(response, 'data.err')
 
-    // Get status
-    // If err === 'ok' -> authorization is success
-    if (status === 'ok') {
-      // Parse header cookies
-      const headerCookies = __get(response, 'headers.set-cookie', null)
-      const cookies = cookieParser(headerCookies, { map: true })
-      const session = __get(cookies, 'PHPSESSID.value', null)
+    try {
+      const response = await this.submit('POST', this.getApiLoginEndpoint(), params)
 
-      // Get session
-      // If session is not defined -> throw error
-      if (session && session.length > 0) {
-        return session
+      const status = __get(response, 'data.err')
+
+      // Get status
+      // If err === 'ok' -> authorization is success
+      if (status === 'ok') {
+        // Parse header cookies
+        const headerCookies = __get(response, 'headers.set-cookie', null)
+        const cookies = cookieParser(headerCookies, { map: true })
+        const session = __get(cookies, 'PHPSESSID.value', null)
+
+        // Get session
+        // If session is not defined -> throw error
+        if (session && session.length > 0) {
+          return session
+        } else {
+          throw new Error('Сессия не определена')
+        }
       } else {
-        throw new Error('Сессия не определена')
+        throw new Error(__get(response, 'data.mes', 'Ошибка сервера'))
       }
-    } else {
-      throw new Error(__get(response, 'data.mes', 'Ошибка сервера'))
+    } catch (e) {
+      // Re throw non http errors
+      if (!e.code) {
+        throw e
+      }
+
+      // System errors line ENOTFOUND
+      throw new Error('Произошла ошибка при авторизации: ' + e.message)
     }
   }
 

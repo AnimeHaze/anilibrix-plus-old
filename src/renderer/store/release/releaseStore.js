@@ -7,10 +7,9 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
-import axiosRetry from 'axios-retry';
-axiosRetry(axios);
+
 // Handlers
-import { showAppError } from '@main/handlers/notifications/notificationsHandler'
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
 // Mutations
 const SET_RELEASE_DATA = 'SET_RELEASE_DATA'

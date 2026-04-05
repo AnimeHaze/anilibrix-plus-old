@@ -25,7 +25,7 @@ export default class BaseProxy {
       url,
       method, ...parameters,
       headers,
-      timeout: 15000
+      timeout: 20000
     })
   }
 
@@ -53,27 +53,19 @@ export default class BaseProxy {
    * @return {string}
    */
   getApiEndpoint () {
-    const endpoint = store.getters['app/settings/system/apiEndpoint']
-    console.log('Endpoint for api', endpoint)
-    return endpoint + '/public/api/index.php'
+    return `http://localhost:${global.internalServerPort}/public/api/index.php`
   }
 
   getTorrentEndpoint () {
-    const endpoint = store.getters['app/settings/system/apiEndpoint']
-    console.log('Endpoint for torrent', endpoint)
-    return endpoint
+    return `http://localhost:${global.internalServerPort}/`
   }
 
   getApiLoginEndpoint () {
-    const endpoint = store.getters['app/settings/system/apiEndpoint']
-    console.log('Endpoint for login', endpoint)
-    return endpoint + '/public/login.php'
+    return `http://localhost:${global.internalServerPort}/public/login.php`
   }
 
   getApiLogoutEndpoint () {
-    const endpoint = store.getters['app/settings/system/apiEndpoint']
-    console.log('Endpoint for logout', endpoint)
-    return endpoint + '/public/logout.php'
+    return `http://localhost:${global.internalServerPort}/public/logout.php`
   }
 
   /**
@@ -83,9 +75,7 @@ export default class BaseProxy {
    */
   getStaticEndpoint () {
     // eslint-disable-next-line camelcase
-    const endpoint = store.getters['app/settings/system/staticEndpoint']
-    console.log('Endpoint for static', endpoint)
-    return endpoint
+    return 'http://localhost:' + global.internalServerPort + '/proxy-static?url='
   }
 
   /**

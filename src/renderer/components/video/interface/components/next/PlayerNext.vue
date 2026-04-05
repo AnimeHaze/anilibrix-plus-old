@@ -85,10 +85,8 @@ export default {
      * @return {*|null}
      */
     next () {
-
-      const current_episode_id = this.$__get(this.episode, 'id') || -1
+      let current_episode_id = this.$__get(this.episode, 'id')
       const next_episode_id = current_episode_id + 1
-
       return this.episodes.find(episode => episode.id === next_episode_id) || null
     },
 

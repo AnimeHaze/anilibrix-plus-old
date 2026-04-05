@@ -2,14 +2,14 @@
 // process from the main window.
 
 import app from '@/../package'
-import sentry from './../main/utils/sentry'
-import { getStore } from '@store'
 
 // Torrent handlers
-import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentParsedData, sendTorrentServer } from '@main/handlers/torrents/torrentsHandler'
+import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
 
 // Utils
 import { parse, stringify } from 'flatted'
+import {ipcRenderer} from "electron";
+import parseTorrent from "parse-torrent";
 
 const http = require('http')
 const path = require('path')
@@ -23,19 +23,12 @@ const { SubtitleParser } = require('matroska-subtitles')
 // client, as explained here: https://webtorrent.io/faq
 const torrentClient = new WebTorrent()
 
-// Enable Sentry.io electron handler
-sentry({
-  store: getStore(),
-  source: 'torrent'
-})
-
 // Create local store for torrents
 const store = {
   servers: {}, // servers instances for torrents
   vttServers: {},
   torrents: {}, // torrents instances
-  handlers: {}, // update handlers
-  collection: {} // parsed torrents collection
+  handlers: {} // update handlers
 }
 
 /**
@@ -46,45 +39,11 @@ const store = {
 const torrentPath = path.join(require('@electron/remote').app.getPath('temp'), app.build.appId)
 
 /**
- * Get torrent data from torrent stream
- *
- * @param torrentId
- * @param blob
- */
-const parseTorrent = ({
-  torrent_id: torrentId,
-  blob
-} = {}) => {
-  try {
-    let data = null
-    if (blob !== null) {
-      // If blob is provided -> try to create buffer with torrent file
-      // Try to parse torrent
-      data = parseTorrentData(new Buffer(blob))
-
-      // Save torrent data to store
-      // Show console
-      store.collection[torrentId] = data
-      console.log('Parse Torrent', { torrent: parse(stringify(data)) })
-    }
-
-    // Send result to main process
-    sendTorrentParsedData(torrentId, data)
-  } catch (error) {
-    _sendError({
-      torrentId: torrentId,
-      message: 'An error occurred while parsing the torrent file',
-      error
-    })
-  }
-}
-
-/**
  * Start torrent from provided source
  *
  * @param torrentSource
  */
-const startTorrent = ({
+const startTorrent = async ({
   torrentId,
   fileIndex = 0
 } = {}) => {
@@ -94,13 +53,18 @@ const startTorrent = ({
     fileIndex
   })
 
-  if (torrentClient && store.collection[torrentId]) {
+  if (torrentClient) {
     // Destroy torrent if it already added
     if (store.torrents[torrentId]) store.torrents[torrentId].destroy()
 
+    const t = await ipcRenderer.invoke('getTorrent', torrentId)
+
+    console.log('Torrent', t)
+
     // Add torrent
-    torrentClient.add(store.collection[torrentId], { path: torrentPath }, async torrent => {
+    torrentClient.add(t.magnet, { path: torrentPath }, async torrent => {
       try {
+        torrent.files.sort((a, b) => a.name.localeCompare(b.name))
         // Get file with provided file index
         const file = torrent.files[fileIndex]
 
@@ -110,7 +74,7 @@ const startTorrent = ({
 
         // Select file with provided index
         if (file) torrent.select(file._startPiece, file._endPiece, false)
-        if (!file) throw 'File with this serial number was not found'
+        if (!file) throw 'Файл с таким порядковым номером не обнаружен'
 
         // Save torrent instance to store
         store.torrents[torrentId] = torrent
@@ -160,7 +124,7 @@ const startTorrent = ({
       } catch (error) {
         _sendError({
           torrentId,
-          message: 'An error occurred while initializing the torrent file',
+          message: 'Произошла ошибка при инициализации торрент-файла',
           error
         })
       }
@@ -168,7 +132,7 @@ const startTorrent = ({
   } else {
     _sendError({
       torrentId,
-      message: 'Torrent not found'
+      message: 'Торрент не найден'
     })
   }
 }
@@ -236,7 +200,7 @@ const destroyTorrent = ({ torrentId }) => {
   } catch (error) {
     _sendError({
       torrentId,
-      message: 'An error occurred while stopping and destroying the torrent file',
+      message: 'Произошла ошибка при остановке и уничтожении торрент-файла',
       error
     })
   }
@@ -339,7 +303,7 @@ const _sendError = ({
 };
 
 (() => {
-  catchTorrentParse(payload => parseTorrent(payload))
+  catchTorrentParse(payload => parseTorrentData(payload))
   catchTorrentStart(payload => startTorrent(payload))
   catchTorrentDestroy(payload => destroyTorrent(payload))
 })()

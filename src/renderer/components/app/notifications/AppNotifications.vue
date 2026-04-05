@@ -6,8 +6,8 @@ import { toVideo } from '@utils/router/views'
 import { mapGetters, mapState } from 'vuex'
 
 // Handlers
-import { sendAppDockNumberEvent } from '@main/handlers/app/appHandlers'
-import { catchReleaseNotification } from '@main/handlers/notifications/notificationsHandler'
+import { sendAppDockNumberEvent } from '@main/handlers/app/app-handlers'
+import { catchReleaseNotification } from '@main/handlers/notifications/notifications-handler'
 
 export default {
   render: () => null,

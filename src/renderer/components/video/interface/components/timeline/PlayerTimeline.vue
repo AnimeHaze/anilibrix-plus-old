@@ -40,6 +40,7 @@ export default {
       is_ready: false,
       duration: 0,
       is_seeking: false,
+      primaryMouseButtonDown: false
     }
   },
 
@@ -52,9 +53,30 @@ export default {
      * @return {number}
      */
     humanTime,
+    setPrimaryButtonState (e) {
+      const flags = e.buttons !== undefined ? e.buttons : e.which;
+      this.primaryMouseButtonDown = (flags & 1) === 1;
+      if (this.is_seeking && this.primaryMouseButtonDown === false) {
+        this.is_seeking = false
+      }
+    }
+  },
+
+  beforeDestroy() {
+    document.removeEventListener("mousedown", this.setPrimaryButtonState);
+    document.removeEventListener("mousemove", this.setPrimaryButtonState);
+    document.removeEventListener("mouseup", this.setPrimaryButtonState);
   },
 
   mounted () {
+    // This code is really shit and stupid, but it works. I’m not sure how to fix it properly,
+    // as patching packages doesn’t seem to be effective. Maybe the patch requires more lines to work.
+    // Related to https://github.com/vuetifyjs/vuetify/pull/11594/commits/63e54c293f286450d646b1c1c112209ed6ee2f8a#diff-a3576734fec1ba8095213b545b818c22f9e0b32fd74a1dcd1d22197ab22336c7
+    // Fixes https://github.com/AnimeHaze/anilibrix-plus/issues/42
+    // Also with last version of Vuetify is not needed, but last version contains bug, see https://github.com/AnimeHaze/anilibrix-plus/issues/22
+    document.addEventListener("mousedown", this.setPrimaryButtonState);
+    document.addEventListener("mousemove", this.setPrimaryButtonState);
+    document.addEventListener("mouseup", this.setPrimaryButtonState);
 
     // Get time
     // Check that user is not seeking

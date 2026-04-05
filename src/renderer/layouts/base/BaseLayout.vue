@@ -1,5 +1,6 @@
 <template>
   <v-layout
+    ref="container"
     column
     fill-height
     id="container"
@@ -9,6 +10,20 @@
     <!-- App Toolbar -->
     <!-- Content -->
     <app-tool-bar/>
+    <v-btn
+      width="30"
+      height="30"
+      v-show="fab"
+      fab
+      dark
+      fixed
+      bottom
+      right
+      color="grey darken-3"
+      @click="toTop"
+    >
+      <v-icon>mdi-chevron-up</v-icon>
+    </v-btn>
     <slot/>
 
   </v-layout>
@@ -22,6 +37,25 @@ export default {
   name: 'Layout.Base',
   components: {
     AppToolBar
+  },
+  data () {
+    return {
+      fab: false
+    }
+  },
+  methods: {
+    onScroll (e) {
+      this.fab = e.target.scrollTop > 20;
+    },
+    toTop () {
+      this.$refs.container.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+  },
+  mounted() {
+    this.$refs.container.addEventListener('scroll', this.onScroll)
+  },
+  beforeDestroy () {
+    this.$refs.container.removeEventListener('scroll', this.onScroll)
   },
   computed: {
 

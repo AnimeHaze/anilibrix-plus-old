@@ -8,9 +8,8 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
-import axiosRetry from 'axios-retry';
-axiosRetry(axios);
-import { showAppError } from '@main/handlers/notifications/notificationsHandler'
+
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
 // Mutations
 const ADD_ITEM = 'ADD_ITEM'
@@ -164,54 +163,63 @@ export default {
       getters
     }) => {
       if (getters.isAuthorized) {
-        try {
-          // Set loading
-          commit(SET_LOADING, true)
+        async function loadFav(errorShow) {
+          try {
+            // Set loading
+            commit(SET_LOADING, true)
 
-          // Cancel previous request if it was stored
-          // Create new request token
-          if (REQUEST_FOR_FAVORITES) REQUEST_FOR_FAVORITES.cancel()
-          REQUEST_FOR_FAVORITES = axios.CancelToken.source()
+            // Cancel previous request if it was stored
+            // Create new request token
+            if (REQUEST_FOR_FAVORITES) REQUEST_FOR_FAVORITES.cancel()
+            REQUEST_FOR_FAVORITES = axios.CancelToken.source()
 
-          // Get releases from server
-          // Transform releases
-          const { items } = await new FavoritesProxy().getFavorites({ cancelToken: REQUEST_FOR_FAVORITES.token })
-          const releases = new ReleaseTransformer().fetchCollection(items)
+            // Get releases from server
+            // Transform releases
+            const { items } = await new FavoritesProxy().getFavorites({ cancelToken: REQUEST_FOR_FAVORITES.token })
+            const releases = new ReleaseTransformer().fetchCollection(items)
 
-          // Load episodes
-          // Filter releases with episodes
-          const processedReleases = (await Promise
-            .allSettled(
-              releases
-                .map(async release => ({
-                  ...release,
-                  episodes: await new EpisodesTransformer(
-                    {
-                      cancelToken: REQUEST_FOR_FAVORITES.token,
-                      skipTorrents: true
-                    }
-                  )
-                    .fetchItem(release.episodes)
-                }))
-            ))
-            .filter(promise => promise.status === 'fulfilled')
-            .map(promise => promise.value)
-            //.filter(release => release.episodes.length > 0)
-            .map(release => ({
-              ...release,
-              poster: new ReleaseProxy().getReleasePosterPath(release.poster)
-            }))
+            // Load episodes
+            // Filter releases with episodes
+            const processedReleases = (await Promise
+              .allSettled(
+                releases
+                  .map(async release => ({
+                    ...release,
+                    episodes: await new EpisodesTransformer(
+                      {
+                        cancelToken: REQUEST_FOR_FAVORITES.token,
+                        skipTorrents: true
+                      }
+                    )
+                      .fetchItem(release.episodes)
+                  }))
+              ))
+              .filter(promise => promise.status === 'fulfilled')
+              .map(promise => promise.value)
+              //.filter(release => release.episodes.length > 0)
+              .map(release => ({
+                ...release,
+                poster: new ReleaseProxy().getReleasePosterPath(release.poster)
+              }))
 
-          // Set releases
-          commit(SET_ITEMS, processedReleases)
-        } catch (error) {
-          if (!axios.isCancel(error)) {
-            // Show error
-            // Throw error
-            showAppError('There was an error loading featured releases')
+            // Set releases
+            commit(SET_ITEMS, processedReleases)
+          } catch (error) {
+            if (!axios.isCancel(error)) {
+              // Show error
+              // Throw error
+              console.error(error)
+              if (errorShow) showAppError('Произошла ошибка при загрузке избранных релизов')
+            }
+          } finally {
+            commit(SET_LOADING, false)
           }
-        } finally {
-          commit(SET_LOADING, false)
+        }
+
+        const success = await loadFav(false).then(() => true).catch(() => false)
+        if (!success) {
+          console.error('Failed to load favorites, retrying...')
+          await loadFav(true)
         }
       }
     },

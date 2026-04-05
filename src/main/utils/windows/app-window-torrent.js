@@ -1,0 +1,34 @@
+import Window from './app-window'
+
+class TorrentWindow extends Window {
+  /**
+   * Get window configuration
+   *
+   * @return Object
+   */
+  getWindowConfiguration () {
+    return {
+      show: false,
+      skipTaskbar: true,
+      webPreferences: {
+        devTools: true,
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: true
+      }
+    }
+  }
+
+  /**
+   * Get window url
+   *
+   * @return {string}
+   */
+  getWindowUrl () {
+    return process.env.NODE_ENV === 'development'
+      ? 'http://localhost:9080/webtorrent.html'
+      : `file://${__dirname}/webtorrent.html`
+  }
+}
+
+export default new TorrentWindow()

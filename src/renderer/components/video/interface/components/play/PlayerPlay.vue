@@ -44,10 +44,11 @@
 </template>
 
 <script>
-import { invokeRichPresense, sendDisableSystemSleepBlockerEvent, sendEnableSystemSleepBlockerEvent } from '@main/handlers/app/appHandlers'
+import { invokeRichPresense, sendDisableSystemSleepBlockerEvent, sendEnableSystemSleepBlockerEvent } from '@main/handlers/app/app-handlers'
 import { toVideo } from '@utils/router/views'
 import { ActivityBuilder } from '@utils/activityBuilder'
 import humanTime from "@utils/strings/human-time";
+import {debounce} from "lodash";
 
 const props = {
   player: {
@@ -102,7 +103,7 @@ export default {
      */
     next () {
       return this.episodes
-        .find(episode => episode.id === (this.$__get(this.episode, 'id') || -1) + 1) || null
+        .find(episode => episode.id === (this.$__get(this.episode, 'id')) + 1) || null
     },
 
     /**
@@ -141,6 +142,8 @@ export default {
     this.activityInterval = setInterval(() => {
       const a = new ActivityBuilder()
       a.setImage(this.release.poster)
+      a.setActivityType(3)
+      a.setLargeImageText('AniLibrix plus t.me/anilibrix_plus')
       a.firstLine(`[${this.episode.id}/${this.episodes.length}] ` + this.title)
 
       a.secondLine(`${humanTime(this.player.currentTime)} / ${humanTime(this.player.duration)}` + (this.player.paused ? ' [ПАУЗА]' : ''))
@@ -177,10 +180,20 @@ export default {
       }
     })
 
+    const noAudio = debounce(() =>
+      this.$toasted.show('Аудио дорожка не поддерживается', { type: 'error' }),
+      1500
+    )
+
     // Update PIP video if PIP exists
     this.player.on('playing', () => {
       if (document.pictureInPictureElement) {
         this.player.pip = true
+      }
+
+      const v = document.querySelector('video')
+      if (v && !v.audioTracks.length) {
+        noAudio()
       }
     })
 
