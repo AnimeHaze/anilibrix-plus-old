@@ -15,12 +15,8 @@ convert build/icons/app/16x16.png \
 
 echo "build/icons/app/icon.ico"
 
-convert build/icons/app/16x16.png \
-        build/icons/app/32x32.png \
-        build/icons/app/128x128.png \
-        build/icons/app/256x256.png \
-        build/icons/app/512x512.png \
-        build/icons/app/icon.icns
+# sudo apt install icnsutils
+png2icns icon.icns 16x16.png 32x32.png 128x128.png 256x256.png 512x512.png
 
 echo "build/icons/app/icon.icns"
 
