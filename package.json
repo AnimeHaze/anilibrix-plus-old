@@ -149,7 +149,7 @@
       ]
     },
     "flatpak": {
-      "finish-args": [
+      "finishArgs": [
         "--share=network",
         "--share=ipc",
         "--socket=x11",
