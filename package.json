@@ -112,7 +112,7 @@
       ]
     },
     "linux": {
-      "icon": "build/icons/app/icon.png",
+      "icon": "build/icons/app/icon.icns",
       "category": "AudioVideo;Video;Player;",
       "target": [
         {
