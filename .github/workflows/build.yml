@@ -225,7 +225,7 @@ jobs:
       CACHE_HASHES_URL: ${{ secrets.CACHE_HASHES_URL }}
       PYTHON: python3.10
       NODE_GYP_FORCE_PYTHON: python3.10
-      OPERA_PROXY_RELEASE_URL: https://github.com/Snawoot/opera-proxy/releases/download/v1.3.1
+      OPERA_PROXY_RELEASE_URL: https://github.com/AnimeHaze/opera-proxy/releases/download/v1.0.0
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
