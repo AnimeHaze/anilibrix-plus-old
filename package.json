@@ -51,6 +51,11 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "build/icons/app",
+        "to": "icons",
+        "filter": ["**/*"]
       }
     ],
     "publish": {
