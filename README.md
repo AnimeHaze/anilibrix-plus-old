@@ -107,6 +107,10 @@ yarn run release:lin
 
 ---
 
+#### Перевод на английский: [TomerGamerTV](https://github.com/TomerGamerTV) 😉
+
+---
+
 <a id="english"></a>
 
 ## 🇺🇸 English
@@ -199,3 +203,7 @@ yarn run release:lin
 ```
 
 </details>
+
+---
+
+#### English translation by: [TomerGamerTV](https://github.com/TomerGamerTV) 😉
