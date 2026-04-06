@@ -185,6 +185,7 @@ if (!gotTheLock) {
       mainWindow
         .once('ready-to-show', () => {
           splash.destroy()
+          global.splash = null
           mainWindow.show()
         })
         .on('close', () => {
