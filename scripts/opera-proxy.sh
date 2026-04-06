@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPERA_PROXY_RELEASE_URL="https://github.com/Snawoot/opera-proxy/releases/download/v1.3.1"
+OPERA_PROXY_RELEASE_URL="https://github.com/AnimeHaze/opera-proxy/releases/download/v1.0.0"
 
 mkdir -p ./build/mac/x64
 mkdir -p ./build/mac/arm64
