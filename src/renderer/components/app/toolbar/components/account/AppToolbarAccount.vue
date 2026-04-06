@@ -7,7 +7,7 @@
       <v-btn icon id="toolbar__login" @click="toLogin">
         <v-icon>mdi-account</v-icon>
       </v-btn>
-      <v-tooltip left key="login" activator="#toolbar__login">Авторизация</v-tooltip>
+      <v-tooltip left key="login" activator="#toolbar__login">{{ $t('toolbar.login') }}</v-tooltip>
     </template>
 
 
@@ -39,7 +39,7 @@
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title v-text="_profile.login"/>
-              <v-list-item-subtitle>ID: {{ _profile.id }}</v-list-item-subtitle>
+            <v-list-item-subtitle>ID: {{ _profile.id }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
           <v-divider/>
@@ -58,7 +58,7 @@
 
           <!-- Logout -->
           <v-list-item @click="logout">
-            <v-list-item-subtitle>Выход</v-list-item-subtitle>
+            <v-list-item-subtitle>{{ $t('common.logout') }}</v-list-item-subtitle>
           </v-list-item>
         </v-list>
 
@@ -128,16 +128,16 @@ export default {
     statistics () {
       return [
         {
-          title: 'В избранном',
-          value: this.favorites ? stringsPluralize(this.favorites, ['релиз', 'релиза', 'релизов']) : 'Нет данных',
+          title: this.$t('toolbar.accountFavorites'),
+          value: this.favorites ? stringsPluralize(this.favorites, this.$t('units.release')) : this.$t('common.noData'),
         },
         {
-          title: 'Просмотрено',
-          value: this.episodes ? stringsPluralize(this.episodes, ['эпизод', 'эпизода', 'эпизодов']) : 'Нет данных',
+          title: this.$t('toolbar.accountWatched'),
+          value: this.episodes ? stringsPluralize(this.episodes, this.$t('units.episode')) : this.$t('common.noData'),
         },
         {
-          title: 'Потрачено на просмотр',
-          value: this.hours > 0 ? stringsPluralize(this.hours, ['час', 'часа', 'часов']) : 'Нет данных',
+          title: this.$t('toolbar.accountSpent'),
+          value: this.hours > 0 ? stringsPluralize(this.hours, this.$t('units.hour')) : this.$t('common.noData'),
         }
       ]
     }

@@ -10,7 +10,7 @@
           v-model="_torrentType"
           true-value="magnet"
           false-value="file"
-          label="Использовать magnet ссылки"
+          :label="$t('release.torrentMagnet')"
         ></v-checkbox>
       </v-list-item>
 
@@ -20,7 +20,7 @@
         <v-list-item two-line @click="download(torrent)">
           <v-list-item-content>
             <v-list-item-title class="d-flex justify-space-between">
-              <span>Серия {{ torrent.series }}</span>
+              <span>{{ $t('release.torrentSeries', { series: torrent.series }) }}</span>
               <span>{{ formatTimestamp(torrent.ctime) }}</span>
             </v-list-item-title>
 
@@ -99,7 +99,6 @@ export default {
   },
   data() {
     return {
-      binaryScale: humanFormat.Scale.create(['б', 'Кб', 'Мб', 'Гб', 'Тб'], 1024),
       torrentsList: [],
       parseLoading: false,
       copiedIndex: null,
@@ -123,7 +122,7 @@ export default {
 
       } catch (err) {
         console.error(err);
-        this.$toasted.error('Не удалось скопировать ссылку');
+        this.$toasted.error(this.$t('release.torrentCopyError'));
       }
     },
     ...mapActions('app/settings/system', {
@@ -136,7 +135,7 @@ export default {
         window.open(torrent.magnet, '_blank')
       } else {
         if (torrent.filename === 'fuckyou') {
-          this.$toasted.show('Невозможно получить файл торрента с сервера, проверьте подключение к интернету или воспользуйтесь Magnet', { type: 'error' })
+          this.$toasted.show(this.$t('release.torrentFetchError'), { type: 'error' })
           return
         }
 
@@ -151,7 +150,11 @@ export default {
     },
 
     formatSize(size) {
-      return humanFormat(size, { scale: this.binaryScale })
+      const units = this.$locale === 'ru'
+        ? ['б', 'Кб', 'Мб', 'Гб', 'Тб']
+        : ['B', 'KB', 'MB', 'GB', 'TB']
+
+      return humanFormat(size, { scale: humanFormat.Scale.create(units, 1024) })
     },
 
     formatTimestamp(time) {

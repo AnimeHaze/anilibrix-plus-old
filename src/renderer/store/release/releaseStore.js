@@ -7,6 +7,7 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
+import { getLocale, translate } from '@/renderer/i18n'
 
 // Handlers
 import { showAppError } from '@main/handlers/notifications/notifications-handler'
@@ -91,7 +92,7 @@ export default {
         if (!axios.isCancel(error)) {
           // Show app error
           // Throw error
-          showAppError('Произошла ошибка при загрузке релиза')
+          showAppError(translate('errors.genericLoadRelease', {}, getLocale()))
         }
       } finally {
         commit(SET_RELEASE_LOADING, false)

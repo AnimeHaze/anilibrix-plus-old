@@ -12,6 +12,7 @@ const SET_PROXY = 'SET_PROXY'
 const SET_TORRENT_TYPE = 'SET_TORRENT_TYPE'
 const SET_DRPC = 'SET_DRPC'
 const SET_IGNORE_CERTS = 'SET_IGNORE_CERTS'
+const SET_LANGUAGE = 'SET_LANGUAGE'
 
 function normalizeEndpoint (endpoint) {
   if (endpoint.endsWith('/')) {
@@ -46,7 +47,8 @@ export default {
     torrentType: 'magnet',
     drpc_enabled: true,
     proxy: '',
-    ignore_certs: false
+    ignore_certs: false,
+    language: null
   },
   getters: {
     apiEndpoint: state => {
@@ -60,6 +62,7 @@ export default {
     [SET_TORRENT_TYPE]: (s, state) => (s.torrentType = state),
     [SET_DRPC]: (s, state) => (s.drpc_enabled = state),
     [SET_IGNORE_CERTS]: (s, state) => (s.ignore_certs = state),
+    [SET_LANGUAGE]: (s, state) => (s.language = state),
     [SET_API_ENDPOINT]: (s, state) => (s.api._endpoint = state),
     [SET_API_STATIC_ENDPOINT]: (s, state) => (s.api._static_endpoint = state),
     [SET_PROXY]: (s, state) => (s.proxy = state),
@@ -218,6 +221,7 @@ export default {
     setFilterNotify: ({ commit }, filter_notify) => commit(SET_FILTER_NOTIFY, filter_notify),
     setTorrentType: ({ commit }, type) => commit(SET_TORRENT_TYPE, type),
     setDRPC: ({ commit }, type) => commit(SET_DRPC, type),
-    setIgnoreCerts: ({ commit }, type) => commit(SET_IGNORE_CERTS, type)
+    setIgnoreCerts: ({ commit }, type) => commit(SET_IGNORE_CERTS, type),
+    setLanguage: ({ commit }, type) => commit(SET_LANGUAGE, type)
   }
 }

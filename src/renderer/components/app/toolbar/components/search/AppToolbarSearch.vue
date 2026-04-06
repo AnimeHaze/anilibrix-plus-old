@@ -11,7 +11,7 @@
     item-value="id"
     item-text="names.ru"
     class="grey darken-2"
-    placeholder="Поиск релиза ..."
+    :placeholder="$t('toolbar.searchPlaceholder')"
     :append-icon="null"
     :search-input.sync="search"
     @blur="_setSearching(false)"

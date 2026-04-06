@@ -18,6 +18,7 @@ module.exports = {
       '@views': resolve('src/renderer/views'),
       '@components': resolve('src/renderer/components'),
       '@assets': resolve('src/renderer/assets'),
+      '@shared': resolve('src/shared'),
       '@transformers': resolve('src/renderer/transformers'),
       '@transformer': resolve('src/renderer/transformers/Transformer'),
       '@layouts': resolve('src/renderer/layouts'),

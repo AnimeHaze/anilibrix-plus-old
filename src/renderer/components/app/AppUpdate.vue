@@ -6,7 +6,7 @@
   >
     <v-card>
       <v-card-title class="text-h5">
-        Доступно обновление
+        {{ $t('update.title') }}
       </v-card-title>
 
       <v-card-text>
@@ -19,15 +19,15 @@
           text
           v-on:click="visible = false"
         >
-          Закрыть
+          {{ $t('common.close') }}
         </v-btn>
 
         <v-btn @click="openLink(repository.url)">
-          Скачать Github
+          {{ $t('update.github') }}
         </v-btn>
 
         <v-btn @click="openLink('https://t.me/anilibrix_plus')" color="blue darken-1">
-          Скачать Telegram
+          {{ $t('update.telegram') }}
         </v-btn>
       </v-card-actions>
     </v-card>

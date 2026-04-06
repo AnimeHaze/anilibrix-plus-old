@@ -40,7 +40,7 @@ export default {
         fhd ? '1080' : null,
         hd ? '720' : null,
         sd ? '480' : null,
-        torrent ? 'Торрент' : null,
+        torrent ? this.$t('common.torrents').slice(0, -1) : null,
       ]
         .filter(type => type)
         .join(' • ')

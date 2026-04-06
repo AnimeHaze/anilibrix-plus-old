@@ -6,10 +6,10 @@
   >
     <v-card>
       <v-card-title className="text-h5">
-        ПРЕДУПРЕЖДЕНИЕ
+        {{ $t('dialogs.warning') }}
       </v-card-title>
       <v-card-text>
-        Вы действительно хотите удалить снапшот?
+        {{ $t('dialogs.removeSnapshotQuestion') }}
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -19,7 +19,7 @@
           text
           v-on:click="deleteSnapshot"
         >
-          Да
+          {{ $t('dialogs.yes') }}
         </v-btn>
         <v-btn
           :loading="loading"
@@ -27,7 +27,7 @@
           text
           v-on:click="visible = false"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>

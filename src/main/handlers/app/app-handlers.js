@@ -7,6 +7,7 @@ import { parse } from 'content-disposition-attachment';
 import FormData from 'form-data'
 import { showAppError } from '@main/handlers/notifications/notifications-handler';
 import { debounce } from 'lodash';
+import { t } from '@main/utils/i18n'
 
 const { shell } = require('electron')
 const path = require('path')
@@ -24,6 +25,8 @@ export const APP_SHOW_CONFIG = 'app:show_config'
 export const APP_RAND = 'app:rand'
 export const APP_TORRENT_PARSE = 'app:torrent_parse'
 export const APP_UPDATE_PROXY = 'app:update_proxy'
+export const APP_GET_SYSTEM_LOCALE = 'app:get_system_locale'
+export const APP_SET_LOCALE = 'app:set_locale'
 
 const trackers = [
   'aHR0cDovL3RyLmxpYnJpYS5mdW46MjcxMC9hbm5vdW5jZQ==',
@@ -271,10 +274,20 @@ export const handleUpdateProxy = (cb) => {
   })
 }
 
+export const invokeGetSystemLocale = () => ipcRenderer.invoke(APP_GET_SYSTEM_LOCALE)
+export const handleGetSystemLocale = (cb) => {
+  ipcMain.handle(APP_GET_SYSTEM_LOCALE, async () => cb())
+}
+
+export const invokeSetAppLocale = (locale) => ipcRenderer.invoke(APP_SET_LOCALE, locale)
+export const handleSetAppLocale = (cb) => {
+  ipcMain.handle(APP_SET_LOCALE, async (event, locale) => cb(locale))
+}
+
 export const invokeTorrentParse = (url) => ipcRenderer.invoke(APP_TORRENT_PARSE, url)
 
 const showTorrentError = debounce(
-  () => showAppError('Ошибка получения файла торрента, ссылка просрочена или торрент не существует'),
+  () => showAppError(t('errors.torrentFileExpired')),
   1000
 )
 

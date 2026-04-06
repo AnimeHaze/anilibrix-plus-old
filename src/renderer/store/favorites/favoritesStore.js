@@ -8,6 +8,7 @@ import EpisodesTransformer from '@transformers/episode'
 
 // Utils
 import axios from 'axios'
+import { getLocale, translate } from '@/renderer/i18n'
 
 import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
@@ -209,7 +210,7 @@ export default {
               // Show error
               // Throw error
               console.error(error)
-              if (errorShow) showAppError('Произошла ошибка при загрузке избранных релизов')
+              if (errorShow) showAppError(translate('errors.genericLoadFavorites', {}, getLocale()))
             }
           } finally {
             commit(SET_LOADING, false)
