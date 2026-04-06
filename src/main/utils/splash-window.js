@@ -1,6 +1,7 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron'
 import fs from 'fs'
 import archiver from 'archiver'
+import * as path from 'path'
 
 import { getFacts, t } from '@main/utils/i18n'
 
@@ -132,6 +133,9 @@ function getSplashHTML () {
 export function createSplash () {
   const splash = new BrowserWindow({
     title: t('main.splashStartTitle'),
+    icon: nativeImage.createFromPath(
+      path.join(process.resourcesPath, 'icons', 'icon.png')
+    ),
     show: false,
     frame: false,
     resizable: false,

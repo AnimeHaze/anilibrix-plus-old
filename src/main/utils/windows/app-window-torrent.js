@@ -1,4 +1,6 @@
 import Window from './app-window'
+import { nativeImage } from 'electron'
+import * as path from 'path'
 
 class TorrentWindow extends Window {
   /**
@@ -10,6 +12,9 @@ class TorrentWindow extends Window {
     return {
       show: false,
       skipTaskbar: true,
+      icon: nativeImage.createFromPath(
+        path.join(process.resourcesPath, 'icons', 'icon.png')
+      ),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,

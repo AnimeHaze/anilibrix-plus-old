@@ -1,5 +1,6 @@
 import Window from './app-window'
 import * as path from 'path'
+import { nativeImage } from 'electron'
 
 class MainWindow extends Window {
   /**
@@ -13,13 +14,6 @@ class MainWindow extends Window {
     const minWidth = 820
     const minHeight = 520
 
-    const iconsPath = path.join(__dirname, '..', '..', ...(process.env.NODE_ENV === 'development' ? ['..', '..'] : []), 'build', 'icons', 'app')
-    const icons = {
-      win32: 'anilibria.ico',
-      darwin: 'anilibria.icns',
-      linux: 'anilibria.png'
-    }
-
     return {
       height,
       width,
@@ -28,7 +22,9 @@ class MainWindow extends Window {
       show: false,
       frame: false,
       darkTheme: true,
-      icon: path.join(iconsPath, icons[process.platform]),
+      icon: nativeImage.createFromPath(
+        path.join(process.resourcesPath, 'icons', 'icon.png')
+      ),
       titleBarStyle: 'hiddenInset',
       useContentSize: true,
       webPreferences: {
