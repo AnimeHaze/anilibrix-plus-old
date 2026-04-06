@@ -30,6 +30,32 @@ async function transformAndProcessReleases(items) {
 
   let releases = transformer.fetchCollection(items);
 
+  /* Start m3u8 rewrite */
+  for (const release of releases) {
+    const { playlist } = release
+
+    for (const ep in playlist) {
+      if (playlist[ep].sources.is_rutube) {
+        playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/rutube/' + playlist[ep].rutube_id + '/main.m3u8'
+      } else {
+        const { sd, hd, fullhd } = playlist[ep]
+
+        if (fullhd) {
+          playlist[ep].fullhd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].fullhd)
+        }
+
+        if (hd) {
+          playlist[ep].hd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].hd)
+        }
+
+        if (sd) {
+          playlist[ep].sd = 'http://localhost:' + global.internalServerPort + '/hls/' + encodeURIComponent(playlist[ep].sd)
+        }
+      }
+    }
+  }
+  /* End m3u8 rewrite */
+
   releases = releases
     .map(release => ({
       ...release,
