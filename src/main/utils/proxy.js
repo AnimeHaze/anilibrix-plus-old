@@ -38,7 +38,7 @@ export async function setProxy (url) {
   }
 
   for (const w of _windows) {
-    console.log('Set renderer proxy', w, currentProxy)
+    console.log('Set renderer proxy', currentProxy)
     w.webContents.session.setProxy({ proxyRules: currentProxy, proxyBypassRules: 'localhost,127.0.0.1,*.local' })
   }
 
