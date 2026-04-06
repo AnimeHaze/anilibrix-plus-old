@@ -20,7 +20,8 @@
     "release:mac": "yarn run proxies-download && yarn build && electron-builder -m -c.compression=store --publish never",
     "release:linux": "yarn run proxies-download && yarn build && electron-builder -l -c.compression=store --publish never",
     "release:windows": "yarn run proxies-download && yarn build && electron-builder -w -c.compression=maximum --publish never",
-    "proxies-download": "./scripts/opera-proxy.sh && ./scripts/forward-proxy.sh"
+    "proxies-download": "./scripts/opera-proxy.sh && ./scripts/forward-proxy.sh",
+    "create-icons": "./scripts/icon-gen.sh"
   },
   "meta": {
     "name": "AniLibrix",
