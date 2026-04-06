@@ -3,12 +3,12 @@
 
     <v-card-text class="caption">
       <v-layout class="with-divider">
-        <div>Not an official build {{ app.version }}</div>
-        <a href="#" @click.prevent="sendAppAboutEvent">About the application</a>
+        <div>{{ $t('settings.credentialsBuild', { version: app.version }) }}</div>
+        <a href="#" @click.prevent="sendAppAboutEvent">{{ $t('settings.about') }}</a>
       </v-layout>
-      <div>All material in the application is presented solely for home viewing.</div>
+      <div>{{ $t('settings.credentialsDisclaimer') }}</div>
       <div>
-        <a href="#" @click.prevent="toggleDevtools">Debugging tools</a>
+        <a href="#" @click.prevent="toggleDevtools">{{ $t('settings.debugTools') }}</a>
       </div>
     </v-card-text>
 

@@ -3,10 +3,10 @@
       <v-btn depressed class="btn">
         <div class="progress" :style="'width: ' + this.progress + '%;'"></div>
         <div class="d-flex justify-center align-center px-4 fill-height full-width" @click="skip">
-          Skip
+          {{ $t('player.skip') }}
         </div>
       </v-btn>
-      <v-btn class="ml-2" text depressed @click="cancel">Look</v-btn>
+      <v-btn class="ml-2" text depressed @click="cancel">{{ $t('player.watch') }}</v-btn>
     </div>
 </template>
 
@@ -83,7 +83,7 @@ export default {
     //  * @return void
     //  */
     showToast() {
-      this.$toasted.show('Marker missing', {
+      this.$toasted.show(this.$t('player.markSkipped'), {
         type: 'info',
         position: 'top-center'
       })

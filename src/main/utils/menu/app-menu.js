@@ -2,32 +2,34 @@ import store from '@store'
 import { meta, repository } from '@package'
 import { Menu, shell } from 'electron'
 
-export const aboutTemplate = [
+import { t } from '@main/utils/i18n'
+
+export const createAboutTemplate = () => [
   {
     role: 'about',
-    label: 'About the application'
+    label: t('main.about')
   },
   {
-    label: 'Telegram Channel',
+    label: t('main.telegram'),
     click: () => shell.openExternal(meta.links.telegram)
   },
   {
-    label: 'Source code on GitHub',
+    label: t('main.sourceCode'),
     click: () => shell.openExternal(repository.url)
   },
   {
     type: 'separator'
   },
   {
-    label: 'Anilibria',
+    label: t('main.anilibria'),
     click: () => shell.openExternal(meta.links.anilibria)
   },
   {
-    label: 'Channel of unofficial releases',
+    label: t('main.unofficial'),
     click: () => shell.openExternal(meta.links.unofficial)
   },
   {
-    label: 'Support the project',
+    label: t('main.donate'),
     click: () => shell.openExternal(meta.links.donate)
   },
   {
@@ -35,11 +37,11 @@ export const aboutTemplate = [
   },
   {
     role: 'minimize',
-    label: 'Minimize application'
+    label: t('main.minimize')
   },
   {
     role: 'quit',
-    label: 'Quit the application'
+    label: t('main.quit')
   }
 ]
 
@@ -50,29 +52,14 @@ export default class AppMenu {
     this._torrentWindow = null
   }
 
-  /**
-   * Init menu
-   *
-   * @return AppMenu
-   */
   init () {
-    // Build from template
     this._menu = Menu.buildFromTemplate(this._getMenuTemplate())
-
-    // Set menu
     this._mainWindow.setMenu(this._menu)
     this._torrentWindow.setMenu(this._menu)
 
     return this
   }
 
-  /**
-   * Set window
-   *
-   * @param main
-   * @param torrent
-   * @return {AppMenu}
-   */
   setWindows (main = null, torrent = null) {
     this._mainWindow = main
     this._torrentWindow = torrent
@@ -80,39 +67,33 @@ export default class AppMenu {
     return this
   }
 
-  /**
-   * Get menu template
-   *
-   * @return Array
-   * @private
-   */
   _getMenuTemplate () {
     return [
       {
         label: meta.name,
-        submenu: aboutTemplate
+        submenu: createAboutTemplate()
       },
       {
-        label: 'Debugging',
+        label: t('main.debug'),
         submenu: [
           {
             role: 'toggledevtools',
-            label: 'Application console',
+            label: t('main.appConsole'),
             click: () => this._mainWindow.showDevTools()
           },
           {
-            label: 'Console torrent server',
+            label: t('main.torrentConsole'),
             click: () => this._torrentWindow.showDevTools()
           },
           {
             type: 'separator'
           },
           {
-            label: 'Add notification to storage',
+            label: t('main.addNotification'),
             click: () => store.dispatch('notifications/setRelease', store.state.releases.data[0])
           },
           {
-            label: 'Show storage data in console',
+            label: t('main.logStore'),
             click: () => console.log(store.state)
           },
           {
@@ -120,12 +101,12 @@ export default class AppMenu {
           },
           {
             role: 'forcereload',
-            label: 'Restart the application'
+            label: t('main.forceReload')
           }
         ]
       },
       {
-        label: 'Window',
+        label: t('main.window'),
         submenu: [
           { role: 'cut' },
           { role: 'copy' },
@@ -135,4 +116,4 @@ export default class AppMenu {
       }
     ]
   }
-};
+}

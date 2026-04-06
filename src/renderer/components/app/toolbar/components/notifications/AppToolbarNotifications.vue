@@ -23,7 +23,7 @@
       <v-card v-if="_items && _items.length > 0" elevation="12">
 
         <v-layout align-center class="px-4 py-2">
-          <h5 class="grey--text">Latest notifications for the week</h5>
+          <h5 class="grey--text">{{ $t('toolbar.notificationsWeek') }}</h5>
           <v-spacer/>
           <v-btn icon color="grey" @click.stop="() => _clearNotifications()">
             <v-icon>mdi-close</v-icon>
@@ -47,8 +47,8 @@
             <v-icon color="grey">mdi-bell</v-icon>
           </div>
           <div>
-            <div>There are no notifications here yet.</div>
-            <div>Maybe something interesting will come out soon ...</div>
+            <div>{{ $t('toolbar.notificationsEmptyTitle') }}</div>
+            <div>{{ $t('toolbar.notificationsEmptySubtitle') }}</div>
           </div>
         </v-layout>
       </v-card>

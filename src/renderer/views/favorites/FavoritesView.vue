@@ -5,8 +5,8 @@
 
     <!-- Header -->
     <v-card flat color="transparent">
-      <v-card-title>Featured Releases</v-card-title>
-      <v-card-subtitle>List of your favorite releases</v-card-subtitle>
+      <v-card-title>{{ $t('favorites.title') }}</v-card-title>
+      <v-card-subtitle>{{ $t('favorites.subtitle') }}</v-card-subtitle>
     </v-card>
 
 
@@ -54,7 +54,9 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'Favorites.View',
-  meta: { title: 'Featured' },
+  meta () {
+    return { title: this.$t('favorites.pageTitle') }
+  },
   components: {
     Loader,
     Toolbar,

@@ -20,7 +20,7 @@
             class="mx-4 my-2 font-weight-black"
             style="width: 230px;"
           >
-            Начать смотреть
+            {{ $t('release.startWatching') }}
           </v-btn>
 
           <v-btn
@@ -31,7 +31,7 @@
             class="mx-4 my-2 font-weight-black"
             style="width: 230px;"
           >
-            Смотреть с {{ lastWatchedEpisode.next.id }} серии
+            {{ $t('release.continueWatching', { episode: lastWatchedEpisode.next.id }) }}
           </v-btn>
         </div>
 
@@ -99,8 +99,8 @@ export default {
   data () {
     return {
       teamProps: {
-        voice: 'Озвучили',
-        other: 'Перевод, оформление, субтитры, тайминг',
+        voice: this.$t('release.voicedBy'),
+        other: this.$t('release.creditsOther'),
       }
     }
   },

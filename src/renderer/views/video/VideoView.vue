@@ -297,7 +297,7 @@ export default {
 
           // Go to blank screen if no source provided
           this.toBlank({
-            message: 'There is no data to play the source',
+            message: this.$t('player.noSourceData'),
             referer: 'source'
           })
 

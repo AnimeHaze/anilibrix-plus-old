@@ -8,13 +8,13 @@
 
       <v-col cols="12" sm="6" align-self="center">
         <v-card flat color="transparent">
-          <v-card-title>Error loading releases</v-card-title>
+          <v-card-title>{{ $t('releasesView.errorTitle') }}</v-card-title>
           <v-card-text>
-            <div>There may be a problem with your connection or the server API.</div>
-            <div>Please try changing your connection settings or try again later.</div>
+            <div>{{ $t('releasesView.errorSubtitlePrimary') }}</div>
+            <div>{{ $t('releasesView.errorSubtitleSecondary') }}</div>
           </v-card-text>
           <v-layout>
-            <v-btn @click="reload">Reload</v-btn>
+            <v-btn @click="reload">{{ $t('releasesView.retry') }}</v-btn>
           </v-layout>
         </v-card>
       </v-col>

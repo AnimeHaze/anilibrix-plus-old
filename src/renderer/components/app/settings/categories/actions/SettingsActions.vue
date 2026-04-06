@@ -2,8 +2,8 @@
   <div ref="settings">
 
     <div class="pa-4 caption grey--text">
-      <div class="body-1">System commands</div>
-      <div>Some useful commands to control the application</div>
+      <div class="body-1">{{ $t('settings.actionsTitle') }}</div>
+      <div>{{ $t('settings.actionsDescription') }}</div>
     </div>
 
     <v-card>
@@ -60,28 +60,27 @@ export default {
     settings () {
       return [
         {
-          title: 'Reload
-           the application',
+          title: this.$t('settings.reloadApp'),
           value: this.shortcuts['reload'],
           action: () => require('@electron/remote').getCurrentWindow().reload(),
         },
         {
-          title: 'Show config file location',
+          title: this.$t('settings.showConfig'),
           value: '',
           action: () => invokeShowConfig(),
         },
         {
-          title: 'Minimize application',
+          title: this.$t('settings.minimizeApp'),
           value: this.shortcuts['minimize'],
           action: () => require('@electron/remote').getCurrentWindow().minimize(),
         },
         {
-          title: 'Close the application',
+          title: this.$t('settings.closeApp'),
           value: this.shortcuts['close'],
           action: () => this.$refs.exit[0].showDialog(),
         },
         {
-          title: 'Reset cache and app settings',
+          title: this.$t('settings.resetCache'),
           action: () => this.$refs.cache[0].showDialog(),
         }
       ]

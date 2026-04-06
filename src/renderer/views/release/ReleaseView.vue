@@ -26,7 +26,7 @@
                     dense
                     outlined
                     hide-details
-                    label="Домен для ссылки"
+                    :label="$t('catalog.releaseDomain')"
                     @change="updateShareLinks"
                     @click.stop
                   ></v-select>
@@ -61,7 +61,7 @@
       </v-card>
 
       <v-card v-if="franchises.length" flat color="transparent" class="mb-6">
-        <v-card-title>Связанное</v-card-title>
+        <v-card-title>{{ $t('common.linked') }}</v-card-title>
         <v-list three-line>
           <template v-for="(item, index) in franchises">
             <v-list-item :link="true" @click="router().push('/release/' + release.id + '/' + encodeURIComponent(release.names.en))"
@@ -96,9 +96,9 @@
 
       <!-- Release Tabs -->
       <v-tabs v-if="!loading" v-model="tab" class="shrink mb-4" background-color="transparent">
-        <v-tab>Эпизоды</v-tab>
-        <v-tab>Комментарии</v-tab>
-        <v-tab v-if="torrents.length > 0">Торренты</v-tab>
+        <v-tab>{{ $t('common.episodes') }}</v-tab>
+        <v-tab>{{ $t('common.comments') }}</v-tab>
+        <v-tab v-if="torrents.length > 0">{{ $t('common.torrents') }}</v-tab>
       </v-tabs>
 
       <!-- Release Components -->
@@ -124,18 +124,18 @@
               >
                 <div class="text-body-1 mb-2">
                   <v-icon small class="mr-2">mdi-help-circle</v-icon>
-                  <strong>Что произошло?</strong>
+                  <strong>{{ $t('release.whatHappened') }}</strong>
                 </div>
                 <div class="text-caption">
-                  <h3>Релиз не найден</h3>
-                  <p>Данный контент недоступен в локальном хранилище приложения.</p>
+                  <h3>{{ $t('release.missingTitle') }}</h3>
+                  <p>{{ $t('release.missingBody') }}</p>
 
                   <div class="error-details">
-                    <strong>Возможные причины:</strong>
+                    <strong>{{ $t('release.missingReasons') }}</strong>
                     <ul>
-                      <li>Устаревший кеш приложения</li>
-                      <li>Проблемы синхронизации с сервером</li>
-                      <li>Временная недоступность данных</li>
+                      <li>{{ $t('release.missingReasonCache') }}</li>
+                      <li>{{ $t('release.missingReasonSync') }}</li>
+                      <li>{{ $t('release.missingReasonTemporary') }}</li>
                     </ul>
                   </div>
                 </div>
@@ -149,7 +149,7 @@
                     to="/"
                   >
                     <v-icon left small>mdi-home</v-icon>
-                    На главную
+                    {{ $t('common.home') }}
                   </v-btn>
                 </div>
               </v-card>
@@ -191,7 +191,7 @@ export default {
   props,
   name: 'Release.View',
   meta () {
-    return { title: `Релиз [${this.releaseId}]: ${this.releaseName}` }
+    return { title: `${this.$t('common.release')} [${this.releaseId}]: ${this.releaseName}` }
   },
   components: {
     Card,
@@ -212,28 +212,28 @@ export default {
       ],
       shareLinks: [
         {
-          title: 'Ссылка на релиз',
+          title: this.$t('common.releaseLink'),
           icon: 'mdi-link',
           link: '',
           copied: false,
           isExternal: false
         },
         {
-          title: 'Поделиться в VK',
+          title: this.$t('common.shareVk'),
           icon: 'mdi-vk',
           link: '',
           copied: false,
           isExternal: true
         },
         {
-          title: 'Поделиться в Telegram',
+          title: this.$t('common.shareTelegram'),
           icon: 'mdi-telegram',
           link: '',
           copied: false,
           isExternal: true
         },
         {
-          title: 'Поделиться в Twitter',
+          title: this.$t('common.shareTwitter'),
           icon: 'mdi-twitter',
           link: '',
           copied: false,
@@ -375,7 +375,7 @@ export default {
     getShareText() {
       const { ru, en } = this._release?.names || {};
       const domain = this.selectedDomain.split('/')[0];
-      return `Смотри "${ru || en || 'этот релиз'}" на ${domain}`;
+      return this.$t('release.shareText', { title: ru || en || this.$t('generated.shareThisRelease'), domain });
     },
 
     /**
@@ -388,12 +388,12 @@ export default {
       const shareText = this.getShareText();
 
       this.shareLinks = [
-        this.createShareLink('Ссылка на релиз', 'mdi-link', shareUrl),
-        this.createShareLink('Поделиться в VK', 'mdi-vk',
+        this.createShareLink(this.$t('common.releaseLink'), 'mdi-link', shareUrl),
+        this.createShareLink(this.$t('common.shareVk'), 'mdi-vk',
           this.generateSocialShareUrl('vk', shareUrl, shareText), true),
-        this.createShareLink('Поделиться в Telegram', 'mdi-telegram',
+        this.createShareLink(this.$t('common.shareTelegram'), 'mdi-telegram',
           this.generateSocialShareUrl('telegram', shareUrl, shareText), true),
-        this.createShareLink('Поделиться в Twitter', 'mdi-twitter',
+        this.createShareLink(this.$t('common.shareTwitter'), 'mdi-twitter',
           this.generateSocialShareUrl('twitter', shareUrl, shareText), true)
       ];
     },
@@ -441,10 +441,10 @@ export default {
           });
         }, 2000);
 
-        this.$toasted.success('Ссылка скопирована в буфер');
+        this.$toasted.success(this.$t('release.copySuccess'));
       } catch (err) {
         console.error(err);
-        this.$toasted.error('Не удалось скопировать ссылку');
+        this.$toasted.error(this.$t('release.copyError'));
       }
     },
   },

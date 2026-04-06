@@ -104,7 +104,7 @@ export default {
           this.$emit('error', {
             source,
             referer: 'getPayload',
-            message: 'Unable to determine playback source',
+            message: this.$t('errors.torrentNoSource'),
           })
         }
       })
@@ -156,7 +156,7 @@ export default {
         this.$emit('error', {
           payload,
           referer: 'processPayload',
-          message: 'Failed to connect to playback source',
+          message: this.$t('errors.torrentConnectFailed'),
         })
 
       }

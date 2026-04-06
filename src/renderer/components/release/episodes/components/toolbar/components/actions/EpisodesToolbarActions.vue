@@ -52,12 +52,12 @@ export default {
       return [
         {
           icon: 'mdi-check',
-          title: 'Mark all episodes as watched',
+          title: this.$t('release.markAllSeen'),
           action: this.setWatched,
         },
         {
           icon: 'mdi-close',
-          title: 'Remove all viewing marks',
+          title: this.$t('release.unmarkAllSeen'),
           action: this.removeWatched,
         }
       ]

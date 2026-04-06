@@ -8,7 +8,7 @@
     hide-no-data
     deletable-chips
     class="filter"
-    placeholder="Select genres"
+    :placeholder="$t('catalog.genresPlaceholder')"
     :value="_value"
     :items="_items"
     :loading="_loading"

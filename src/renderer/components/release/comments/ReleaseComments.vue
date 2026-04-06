@@ -125,11 +125,11 @@ export default {
     },
 
     didFailLoad () {
-      this.$toasted.error('There was an error loading comments.')
+      this.$toasted.error(this.$t('notifications.commentsLoadError'))
     },
 
     certError () {
-      this.$toasted.error('There was an error loading comments. Certificate error')
+      this.$toasted.error(this.$t('notifications.commentsLoadCertError'))
     }
   },
 

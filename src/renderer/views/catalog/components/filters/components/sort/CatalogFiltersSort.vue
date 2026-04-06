@@ -5,7 +5,7 @@
     hide-details
     item-text="title"
     item-value="value"
-    placeholder="Sorting"
+    :placeholder="$t('catalog.sort')"
     :value="_value"
     @input="_setFilterValue({filter: 'sort', value: $event})">
   </v-select>
@@ -20,11 +20,11 @@ export default {
     return {
       items: [
         {
-          title: 'By newest',
+          title: this.$t('catalog.sortNew'),
           value: 1
         },
         {
-          title: 'By popularity',
+          title: this.$t('catalog.sortPopular'),
           value: 2
         },
       ]

@@ -2,8 +2,8 @@
   <div ref="settings">
 
     <div class="pa-4 caption grey--text">
-      <div class="body-1">Debugging tools</div>
-      <div>List of tools for debugging the application. Intended mainly for developers</div>
+      <div class="body-1">{{ $t('settings.debugTitle') }}</div>
+      <div>{{ $t('settings.debugDescription') }}</div>
     </div>
 
     <v-card>
@@ -45,19 +45,19 @@ export default {
     settings () {
       return [
         {
-          title: 'Application console',
+          title: this.$t('settings.appConsole'),
           action: sendAppDevtoolsMainEvent,
         },
         {
-          title: 'Torrent server console',
+          title: this.$t('settings.torrentConsole'),
           action: sendAppDevtoolsTorrentEvent,
         },
         {
-          title: 'Add notification to storage',
+          title: this.$t('settings.addNotification'),
           action: () => this._setRelease(this._releases[0])
         },
         {
-          title: 'Show storage data in console',
+          title: this.$t('settings.logStore'),
           action: () => console.log(this.$store.state),
         }
       ]

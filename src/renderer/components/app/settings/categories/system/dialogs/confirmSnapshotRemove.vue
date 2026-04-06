@@ -6,10 +6,10 @@
   >
     <v-card>
       <v-card-title className="text-h5">
-        WARNING
+        {{ $t('dialogs.warning') }}
       </v-card-title>
       <v-card-text>
-        Do you really want to remove the snapshot?
+        {{ $t('dialogs.removeSnapshotQuestion') }}
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -19,7 +19,7 @@
           text
           v-on:click="deleteSnapshot"
         >
-          Yes
+          {{ $t('dialogs.yes') }}
         </v-btn>
         <v-btn
           :loading="loading"
@@ -27,7 +27,7 @@
           text
           v-on:click="visible = false"
         >
-          Cancel
+          {{ $t('common.cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>

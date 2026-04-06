@@ -32,18 +32,18 @@ export default {
       return [
         {
           is: Genres,
-          title: 'Genres',
-          subtitle: 'You can filter the list of releases by the specified genres'
+          title: this.$t('catalog.genres'),
+          subtitle: this.$t('catalog.genresSubtitle')
         },
         {
           is: Years,
-          title: 'Years',
-          subtitle: 'You can filter the list of releases by year of release.'
+          title: this.$t('catalog.years'),
+          subtitle: this.$t('catalog.yearsSubtitle')
         },
         {
           is: Sort,
-          title: 'Sorting',
-          subtitle: 'You can sort the list of releases by popularity or newness'
+          title: this.$t('catalog.sort'),
+          subtitle: this.$t('catalog.sortSubtitle')
         },
       ]
     }

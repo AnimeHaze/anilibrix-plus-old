@@ -2,13 +2,13 @@
   <v-overlay v-if="visible" absolute opacity=".85">
     <v-dialog v-bind="{attach}" v-model="visible" hide-overlay>
       <v-card>
-        <v-card-title>Application cache</v-card-title>
-        <v-card-subtitle class="pt-2 pb-0">Are you sure you want to reset the app cache and settings?
+        <v-card-title>{{ $t('dialogs.cacheTitle') }}</v-card-title>
+        <v-card-subtitle class="pt-2 pb-0">{{ $t('dialogs.cacheSubtitle') }}
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn v-bind="{loading}" text color="red" @click="resetCache">Reset</v-btn>
-          <v-btn v-bind="{loading}" text @click="visible = false">Cancel</v-btn>
+          <v-btn v-bind="{loading}" text color="red" @click="resetCache">{{ $t('dialogs.cacheConfirm') }}</v-btn>
+          <v-btn v-bind="{loading}" text @click="visible = false">{{ $t('common.cancel') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

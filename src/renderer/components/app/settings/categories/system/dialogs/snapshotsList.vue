@@ -6,7 +6,7 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h5">List of snapshots</span>
+          <span class="text-h5">{{ $t('dialogs.snapshotsListTitle') }}</span>
         </v-card-title>
         <v-card-text>
           <v-data-table
@@ -29,7 +29,7 @@
                   class="mb-2"
                   @click="createSnapshot"
                 >
-                  New snapshot
+                  {{ $t('dialogs.newSnapshot') }}
                 </v-btn>
               </v-toolbar>
             </template>
@@ -68,7 +68,7 @@
             text
             @click="visible = false"
           >
-            Close
+            {{ $t('common.close') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -112,11 +112,11 @@ export default {
           value: 'id',
         },
         {
-          text: 'Date and time of creation',
+          text: this.$t('dialogs.createdAt'),
           value: 'date'
         },
         {
-          text: 'Actions',
+          text: this.$t('dialogs.actions'),
           sortable: false,
           value: 'actions'
         },

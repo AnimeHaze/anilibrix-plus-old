@@ -11,8 +11,8 @@
 
     <!-- Episodes -->
     <v-card :class="{'mt-9': !this.isMacOnFullscreen}">
-      <v-card-title>Episodes</v-card-title>
-      <v-card-subtitle>List of all episodes of the release</v-card-subtitle>
+      <v-card-title>{{ $t('common.episodes') }}</v-card-title>
+      <v-card-subtitle>{{ $t('player.toEpisodes') }}</v-card-subtitle>
       <episodes
         v-bind="{release, episodes}"
         class="pa-4"

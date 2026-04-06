@@ -4,6 +4,7 @@ import BaseProxy from '@proxies/BaseProxy'
 // Utils
 import __get from 'lodash/get'
 import cookieParser from 'set-cookie-parser'
+import { getLocale, translate } from '@/renderer/i18n'
 
 export default class AccountProxy extends BaseProxy {
   /**
@@ -45,10 +46,10 @@ export default class AccountProxy extends BaseProxy {
         if (session && session.length > 0) {
           return session
         } else {
-          throw new Error('Сессия не определена')
+          throw new Error(translate('errors.sessionUndefined', {}, getLocale()))
         }
       } else {
-        throw new Error(__get(response, 'data.mes', 'Ошибка сервера'))
+        throw new Error(__get(response, 'data.mes', translate('errors.serverError', {}, getLocale())))
       }
     } catch (e) {
       // Re throw non http errors
@@ -57,7 +58,7 @@ export default class AccountProxy extends BaseProxy {
       }
 
       // System errors line ENOTFOUND
-      throw new Error('Произошла ошибка при авторизации: ' + e.message)
+      throw new Error(`${translate('errors.authFailed', {}, getLocale())}: ${e.message}`)
     }
   }
 

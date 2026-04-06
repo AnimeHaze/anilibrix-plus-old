@@ -8,9 +8,9 @@
 
       <v-col cols="12" sm="6" align-self="center">
         <v-card flat color="transparent">
-          <v-card-title>Registration</v-card-title>
+          <v-card-title>{{ $t('login.title') }}</v-card-title>
           <v-card-text>
-            <div>Please provide the details you used to register on the Anilibria website</div>
+            <div>{{ $t('login.subtitle') }}</div>
           </v-card-text>
           <!-- Login / Email -->
           <!-- Password -->
@@ -21,7 +21,7 @@
               hide-details
               class="mr-1"
               color="grey"
-              placeholder="Email or SSO"
+              :placeholder="$t('login.emailPlaceholder')"
               prepend-inner-icon="mdi-account">
             </v-text-field>
             <v-text-field
@@ -30,21 +30,21 @@
               hide-details
               class="ml-1"
               type="password"
-              placeholder="Password"
+              :placeholder="$t('login.passwordPlaceholder')"
               prepend-inner-icon="mdi-lock">
             </v-text-field>
           </v-layout>
 
           <!-- Actions -->
           <v-layout>
-            <v-btn v-bind="{loading}" class="mr-1" :disabled="$v.$invalid" @click="authorize">Authorization</v-btn>
-            <v-btn v-bind="{loading}" text @click="toBack">Back</v-btn>
+            <v-btn v-bind="{loading}" class="mr-1" :disabled="$v.$invalid" @click="authorize">{{ $t('login.title') }}</v-btn>
+            <v-btn v-bind="{loading}" text @click="toBack">{{ $t('common.back') }}</v-btn>
           </v-layout>
 
           <v-divider class="my-6" />
 
           <v-layout justify-center>
-            <v-btn :color="'blue darken-1'" @click="authorizeWithVK">Login via VK</v-btn>
+            <v-btn :color="'blue darken-1'" @click="authorizeWithVK">{{ $t('login.vkLogin') }}</v-btn>
           </v-layout>
 
         </v-card>
@@ -99,7 +99,7 @@ export default {
         console.error(e)
 
         if (e.response.status === 401) {
-          this.$toasted.error('User is not registered')
+          this.$toasted.error(this.$t('login.userNotRegistered'))
         }
         this.loading = false
       }

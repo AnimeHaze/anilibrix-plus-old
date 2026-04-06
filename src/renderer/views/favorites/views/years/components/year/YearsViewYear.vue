@@ -80,7 +80,7 @@ export default {
      * @return {string}
      */
     items () {
-      return pluralize((this.releases || []).length, ['release', 'release', 'releases'])
+      return pluralize((this.releases || []).length, this.$t('units.release'))
     },
 
     /**
@@ -92,7 +92,7 @@ export default {
       const episodes = (this.releases || [])
         .reduce((storage, release) => storage + (this.$__get(release, 'episodes') || []).length, 0)
 
-      return pluralize(episodes, ['episode', 'episode', 'episodes'])
+      return pluralize(episodes, this.$t('units.episode'))
 
     },
 

@@ -32,26 +32,26 @@ export default {
     settings () {
       return [
         {
-          title: 'Anilibria',
+          title: this.$t('main.anilibria'),
           value: meta.links.anilibria,
           action: () => require('@electron/remote').shell.openExternal(meta.links.anilibria),
         },
         {
-          title: 'Support the project',
-          value: 'Yandex.Money, QIWI, PayPal',
+          title: this.$t('main.donate'),
+          value: 'YooMoney, QIWI, PayPal',
           action: () => require('@electron/remote').shell.openExternal(meta.links.donate)
         },
         {
-          title: 'Telegram channel for unofficial releases',
+          title: this.$t('main.unofficial'),
           action: () => require('@electron/remote').shell.openExternal(meta.links.unofficial)
         },
         {
-          title: 'Telegram channal',
+          title: this.$t('main.telegram'),
           value: '@anilibrix',
           action: () => require('@electron/remote').shell.openExternal(meta.links.telegram)
         },
         {
-          title: 'Source code',
+          title: this.$t('main.sourceCode'),
           value: '/anilibrix',
           action: () => require('@electron/remote').shell.openExternal(repository.url)
         },

@@ -6,11 +6,11 @@
   >
     <v-card>
       <v-card-title className="text-h5">
-        WARNING
+        {{ $t('dialogs.warning') }}
       </v-card-title>
       <v-card-text>
-        Do you really want to restore data from the snapshot?
-        This action cannot be canceled, the current data will be replaced by data from the snapshot
+        {{ $t('dialogs.restoreSnapshotQuestion') }}
+        {{ $t('dialogs.restoreSnapshotWarning') }}
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -20,7 +20,7 @@
           text
           v-on:click="restoreSnapshot"
         >
-          Yes
+          {{ $t('dialogs.yes') }}
         </v-btn>
         <v-btn
           :loading="loading"
@@ -28,7 +28,7 @@
           text
           v-on:click="visible = false"
         >
-          Cancel
+          {{ $t('common.cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -137,7 +137,7 @@ export default {
             if (autoUpdateReleases !== undefined) this._setUpdates(autoUpdateReleases)
             if (autoUpdateInterval !== undefined) this._setUpdatesTimeout(autoUpdateInterval)
 
-            this.$toasted.show("Данные из снапшота применены", {
+            this.$toasted.show(this.$t('dialogs.snapshotApplied'), {
               type: 'success',
               position: "top-center",
               duration : 2000

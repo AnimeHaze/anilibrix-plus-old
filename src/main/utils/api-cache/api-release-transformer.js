@@ -1,3 +1,5 @@
+import { t } from '@main/utils/i18n'
+
 export class APIResponseTransformer {
   static transformRelease(release, episodes, franchises, torrents) {
     return {
@@ -61,7 +63,7 @@ export class APIResponseTransformer {
       rutube_id: null,
       skips: { ending: [episode.ending?.start, episode.ending?.stop].filter(Boolean), opening: [episode.opening?.start, episode.opening?.stop].filter(Boolean) },
       sources: { is_anilibria: true, is_rutube: false, is_youtube: false },
-      title: `Серия ${episode.ordinal}`,
+      title: t('generated.episode', { number: episode.ordinal }),
       updated_at: new Date(episode.updatedAt) / 1000,
       uuid: episode.id,
       youtube_id: null

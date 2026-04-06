@@ -279,12 +279,12 @@ export default {
 
           if (this._auto_opening_skip_key !== '' && this._auto_opening_skip_key === this.keysDown.join('+')) {
             if (this._auto_opening_skip) {
-              this.$toasted.show('Auto skip opening disabled', {
+              this.$toasted.show(this.$t('player.autoSkipOff'), {
                 type: 'default',
                 position: 'top-center'
               })
             } else {
-              this.$toasted.show('Auto skip opening enabled', {
+              this.$toasted.show(this.$t('player.autoSkipOn'), {
                 type: 'success',
                 position: 'top-center'
               })
