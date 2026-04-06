@@ -79,7 +79,7 @@
     },
     "mac": {
       "category": "public.app-category.video",
-      "icon": "build/icons/app/anilibria.icns",
+      "icon": "build/icons/app/icon.icns",
       "target": [
         {
           "target": "default",
@@ -91,7 +91,7 @@
       ]
     },
     "win": {
-      "icon": "build/icons/app/anilibria.ico",
+      "icon": "build/icons/app/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -112,7 +112,7 @@
       ]
     },
     "linux": {
-      "icon": "build/icons/app/anilibria.icns",
+      "icon": "build/icons/app/icon.png",
       "category": "AudioVideo;Video;Player;",
       "target": [
         {
