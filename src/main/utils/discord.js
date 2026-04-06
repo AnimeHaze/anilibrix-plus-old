@@ -11,7 +11,7 @@ export function discordActivity () {
 
   const assembleClient = (timeout = 5000, old = true) => {
     if (old && client !== null && client.transport.socket !== null) client.destroy()
-    client = new RPC.Client({ transport: 'ipc' })
+    client = new RPC.Client({ transport: 'websocket' })
     client.on('error', (err) => logger(err))
     client.on('ready', () => {
       logger('Discord rich presence ready')
