@@ -39,7 +39,7 @@ const trackers = [
 console.log(trackers)
 
 const m2t = new Magnet2torrent({
-  timeout: 8,
+  timeout: 30,
   addTrackersToTorrent: true,
   trackers: trackers
 });
