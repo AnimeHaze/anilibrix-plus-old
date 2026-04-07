@@ -1,78 +1,125 @@
-import store from "@store";
-
-const RPC = require('discord-rpc')
+import store from '@store'
 
 const logs = !!process.env.DISCORD_RICH_PRESENCE_DEBUG
 const logger = logs ? console.log : () => {}
 
-export function discordActivity () {
-  let client
-  let closed = false
+const RECONNECT_DELAY = 1000
+const UPDATE_INTERVAL = 1000
 
-  const assembleClient = (timeout = 5000, old = true) => {
-    if (old && client !== null && client.transport.socket !== null) client.destroy()
-    client = new RPC.Client({ transport: 'websocket' })
-    client.on('error', (err) => logger(err))
-    client.on('ready', () => {
-      logger('Discord rich presence ready')
+export function discordActivity() {
+  let client = null
+  let activity = null
+  let destroyed = false
+  let reconnectTimeout = null
+  let RPCClient = null
 
-      client.transport.socket.on('close', () => {
-        if (closed) return
-        logger('Discord rich presence reconnect')
-        assembleClient()
-      })
-    })
-
-    setTimeout(async () => {
-      try {
-        await client.login({ clientId: process.env.DISCORD_CLIENT_ID })
-      } catch (e) {
-        logger(e)
-        setTimeout(() => {
-          logger('Discord rich presence reconnect')
-          assembleClient()
-        }, 5000)
-      }
-    }, timeout)
+  const ensureReadableStream = () => {
+    if (!global.ReadableStream) {
+      const { ReadableStream } = require('readable-stream-polyfill')
+      global.ReadableStream = ReadableStream
+    }
+  }
+  
+  const getDRPCClient = () => {
+    if (!RPCClient) {
+      const RPC = require('@xhayper/discord-rpc')
+      RPCClient = RPC.Client
+    } else {
+      return RPCClient
+    }
   }
 
-  assembleClient(1000, false)
+  const scheduleReconnect = () => {
+    if (destroyed || reconnectTimeout) return
 
-  process.on('unhandledRejection', (e) => {
-    if (e.message === 'Could not connect') {
-      logger('Discord rich presence: Could not connect ! Retrying...')
-      assembleClient()
-    } else {
-      throw e
+    reconnectTimeout = setTimeout(() => {
+      reconnectTimeout = null
+      connect()
+    }, RECONNECT_DELAY)
+  }
+
+  const connect = async () => {
+    if (destroyed) return
+
+    try {
+      ensureReadableStream()
+
+      const Client = getDRPCClient()
+
+      client = new Client({
+        clientId: process.env.DISCORD_CLIENT_ID
+      })
+
+      client.on('disconnected', async () => {
+        logger('Discord rich presence disconnected')
+
+        try {
+          await client.destroy()
+        } catch {}
+
+        client = null
+        scheduleReconnect()
+      })
+
+      client.on('error', logger)
+
+      client.on('ready', () => {
+        logger('Discord rich presence ready')
+      })
+
+      await client.login()
+    } catch (error) {
+      logger('Discord login failed', error)
+      scheduleReconnect()
     }
-  })
+  }
 
-  let activity = {}
+  const syncActivity = async () => {
+    if (
+      destroyed ||
+      !client ||
+      !client.isConnected
+    ) {
+      return
+    }
 
-  const interval = setInterval(() => {
-    if (store.state.app.settings.system.drpc_enabled) {
-      if (client && client.transport.socket) {
-        if (Object.keys(activity).length > 0) {
-          client.setActivity(activity)
-            .then(() => logger('Discord set activity', activity))
-            .catch(err => logger('Discord set activity error', err))
-        } else {
-          client.clearActivity().catch(() => {})
-        }
+    const enabled = store.state.app.settings.system.drpc_enabled
+
+    try {
+      if (!enabled || !activity) {
+        await client.user.clearActivity()
+        return
       }
-    } else {
-      client.clearActivity().catch(() => {})
+
+      await client.user.setActivity(activity)
+      logger('Discord set activity', activity)
+    } catch (error) {
+      logger('Discord activity sync error', error)
     }
-  }, 1000)
+  }
+
+  connect()
+
+  const interval = setInterval(syncActivity, UPDATE_INTERVAL)
 
   return {
-    setActivity: function (discordPresence) {
+    setActivity(discordPresence) {
       activity = discordPresence
     },
-    destroy: () => {
-      closed = true
+
+    destroy() {
+      destroyed = true
       clearInterval(interval)
-      if (client && client.transport.socket) client.destroy()
+
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout)
+      }
+
+      logger('Discord rich presence destroyed')
+
+      if (client) {
+        client.destroy().catch(logger)
+      }
     }
   }
 }

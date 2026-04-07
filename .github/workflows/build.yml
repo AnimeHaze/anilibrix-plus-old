@@ -16,6 +16,7 @@ jobs:
       API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
       DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      DISCORD_STATIC_DOMAIN: ${{ secrets.DISCORD_STATIC_DOMAIN }}
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
       CACHE_HASHES_URL: ${{ secrets.CACHE_HASHES_URL }}
       API_ID: ${{ secrets.API_ID }}
@@ -141,6 +142,7 @@ jobs:
       API_ENDPOINT_URL: ${{ secrets.API_ENDPOINT_URL }}
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
       DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      DISCORD_STATIC_DOMAIN: ${{ secrets.DISCORD_STATIC_DOMAIN }}
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
       CACHE_HASHES_URL: ${{ secrets.CACHE_HASHES_URL }}
       API_ID: ${{ secrets.API_ID }}
@@ -221,6 +223,7 @@ jobs:
       YANDEX_TRACKING_ID: ${{ secrets.YANDEX_TRACKING_ID }}
       STATIC_ENDPOINT_URL: ${{ secrets.STATIC_ENDPOINT_URL }}
       DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+      DISCORD_STATIC_DOMAIN: ${{ secrets.DISCORD_STATIC_DOMAIN }}
       EXT_API_SERVER: ${{ secrets.EXT_API_SERVER }}
       CACHE_HASHES_URL: ${{ secrets.CACHE_HASHES_URL }}
       PYTHON: python3.10

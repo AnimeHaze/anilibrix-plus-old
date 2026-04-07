@@ -49,6 +49,7 @@ import { toVideo } from '@utils/router/views'
 import { ActivityBuilder } from '@utils/activityBuilder'
 import humanTime from "@utils/strings/human-time";
 import {debounce} from "lodash";
+import store from "@store";
 
 const props = {
   player: {
@@ -141,7 +142,16 @@ export default {
   created () {
     this.activityInterval = setInterval(() => {
       const a = new ActivityBuilder()
-      a.setImage(this.release.poster)
+
+      try {
+        const u = new URL(this.release.poster)
+
+        // store.getters['app/settings/system/staticEndpoint']
+        const un = new URL(u.searchParams.get('url'), process.env.DISCORD_STATIC_DOMAIN)
+        a.setImage(un.toString())
+      } catch (e) {
+        console.log(e)
+      }
       a.setActivityType(3)
       a.setLargeImageText('AniLibrix plus t.me/anilibrix_plus')
       a.firstLine(`[${this.episode.id}/${this.episodes.length}] ` + this.title)
