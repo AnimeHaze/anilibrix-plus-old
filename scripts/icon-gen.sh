@@ -1,5 +1,5 @@
-for size in 16 24 32 48 64 128 256 512; do
-    rsvg-convert -w $size -h $size build/icons/app/icon.svg -o build/icons/app/${size}x${size}.png
+for size in 16 24 32 48 64 128 256; do
+    convert build/icons/app/512x512.png -resize ${size}x${size} build/icons/app/${size}x${size}.png
     echo "build/icons/app/${size}x${size}.png"
 done
 
@@ -16,7 +16,12 @@ convert build/icons/app/16x16.png \
 echo "build/icons/app/icon.ico"
 
 # sudo apt install icnsutils
-png2icns icon.icns 16x16.png 32x32.png 128x128.png 256x256.png 512x512.png
+png2icns build/icons/app/icon.icns \
+         build/icons/app/16x16.png \
+         build/icons/app/32x32.png \
+         build/icons/app/128x128.png \
+         build/icons/app/256x256.png \
+         build/icons/app/512x512.png
 
 echo "build/icons/app/icon.icns"
 
