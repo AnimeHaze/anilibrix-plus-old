@@ -1340,6 +1340,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@discordjs/collection@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@discordjs/collection@npm:2.1.1"
+  checksum: 8c4cd75061b378a35dfa50c4403828b8e6d5d32934047d1d26e5a4fcc2c1b8135ebf74a6dd9ec61afcb4ec030d596b85da5463dc28cad084635cd184eb69c453
+  languageName: node
+  linkType: hard
+
+"@discordjs/rest@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "@discordjs/rest@npm:2.6.1"
+  dependencies:
+    "@discordjs/collection": ^2.1.1
+    "@discordjs/util": ^1.2.0
+    "@sapphire/async-queue": ^1.5.3
+    "@sapphire/snowflake": ^3.5.5
+    "@vladfrangu/async_event_emitter": ^2.4.6
+    discord-api-types: ^0.38.40
+    magic-bytes.js: ^1.13.0
+    tslib: ^2.6.3
+    undici: 6.24.1
+  checksum: 159e0460812000e7caaaf28e81c888b3413c4e5bf483ea92c3c2d25ce51971b7ae735d3f58daee6449961a4da489dcaa65a15af25d741aeabfced7b27e9ef5ea
+  languageName: node
+  linkType: hard
+
+"@discordjs/util@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@discordjs/util@npm:1.2.0"
+  dependencies:
+    discord-api-types: ^0.38.33
+  checksum: 4a79f1de01dc5b21fc55484fed8d144e0092381d258d21fe8b7163a0b79f9e94b776023a41f7d0aed4bfc7be748198d351ab56a1cb632c4d38e04a7e27021151
+  languageName: node
+  linkType: hard
+
 "@electron/get@npm:^1.13.0":
   version: 1.14.1
   resolution: "@electron/get@npm:1.14.1"
@@ -1513,6 +1546,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sapphire/async-queue@npm:^1.5.3":
+  version: 1.5.5
+  resolution: "@sapphire/async-queue@npm:1.5.5"
+  checksum: 87218b46599728ce83f3829d246f939e6f5857aa002b55ac9c416864b9af16d242e09d069eaf96547596c5e7b042705038cbc9c5eebb07d490ba17271a688e67
+  languageName: node
+  linkType: hard
+
+"@sapphire/snowflake@npm:^3.5.5":
+  version: 3.5.5
+  resolution: "@sapphire/snowflake@npm:3.5.5"
+  checksum: 8f18a99fa2a9bcd7369851dd12abb337e4beaadeb294de50d638466690fe8d037a6e82628021ad5a971c75b6543501b20c72a859f9686ccabd0fd229fe45daed
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^0.14.0":
   version: 0.14.0
   resolution: "@sindresorhus/is@npm:0.14.0"
@@ -1672,6 +1719,13 @@ __metadata:
   dependencies:
     "@types/yargs-parser": "*"
   checksum: f78c5e5c29903933c0557b4ffcd1d0b8564d66859c8ca4aa51da3714e49109ed7c2644334a1918d033df19028f4cecc91fd2e502651bb8e8451f246c371da847
+  languageName: node
+  linkType: hard
+
+"@vladfrangu/async_event_emitter@npm:^2.4.6, @vladfrangu/async_event_emitter@npm:^2.4.7":
+  version: 2.4.7
+  resolution: "@vladfrangu/async_event_emitter@npm:2.4.7"
+  checksum: 1918394d15a8f7e3a348f35206a74d8ba926ef773cfe87ccd635b18ad55ae3cfd4b278c574dd826b58d0a3610b082d44a23c564ce76314cec02418bd9b8100f9
   languageName: node
   linkType: hard
 
@@ -1897,6 +1951,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@xhayper/discord-rpc@npm:^1.3.3":
+  version: 1.3.3
+  resolution: "@xhayper/discord-rpc@npm:1.3.3"
+  dependencies:
+    "@discordjs/rest": ^2.6.1
+    "@vladfrangu/async_event_emitter": ^2.4.7
+    discord-api-types: ^0.38.42
+    ws: ^8.20.0
+  checksum: 8289cd2639fddd58a1e7e7357a4f8627ea8fad9d67bff9e1e3d698ba2a3c976dbb6781996b053db23ded1a4e9488fbe270ec06626906b019cedcb3e9ab465324
+  languageName: node
+  linkType: hard
+
 "@xmldom/xmldom@npm:^0.8.8":
   version: 0.8.10
   resolution: "@xmldom/xmldom@npm:0.8.10"
@@ -2114,6 +2180,7 @@ __metadata:
     "@electron/remote": ^2.0.1
     "@mdi/font": ^4.8.95
     "@types/discord-rpc": ^4.0.8
+    "@xhayper/discord-rpc": ^1.3.3
     adm-zip: ^0.5.16
     ajv: ^6.5.0
     archiver: ^7.0.1
@@ -2136,7 +2203,6 @@ __metadata:
     debug: ^4.3.6
     deepmerge: ^4.2.2
     del: ^5.1.0
-    discord-rpc: ^4.0.1
     dmg-license: ^1.0.11
     dotenv-webpack: ^1.7.0
     electron: ^15.1.0
@@ -2180,6 +2246,7 @@ __metadata:
     plyr: 3.6.9
     pretty-bytes: ^5.3.0
     raw-loader: ^4.0.1
+    readable-stream-polyfill: ^0.0.0
     rimraf: ^3.0.2
     sass: 1.25.0
     sass-loader: 10.2.1
@@ -4080,7 +4147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bindings@npm:^1.3.0, bindings@npm:^1.5.0":
+"bindings@npm:^1.5.0":
   version: 1.5.0
   resolution: "bindings@npm:1.5.0"
   dependencies:
@@ -6191,31 +6258,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-rpc@npm:4.0.1":
-  version: 4.0.1
-  resolution: "discord-rpc@npm:4.0.1"
-  dependencies:
-    node-fetch: ^2.6.1
-    register-scheme: "github:devsnek/node-register-scheme"
-    ws: ^7.3.1
-  dependenciesMeta:
-    register-scheme:
-      optional: true
-  checksum: f96e4e32751402c9a689b24eccfa319315995f8906bb86e167c6a94bc6466f3641b41f8a082ac5b4e92baa7cefdb3456e7c4d86ccd2d9373281c9a93b7335c56
-  languageName: node
-  linkType: hard
-
-"discord-rpc@patch:discord-rpc@npm:4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch::locator=anilibrix%40workspace%3A.":
-  version: 4.0.1
-  resolution: "discord-rpc@patch:discord-rpc@npm%3A4.0.1#./.yarn/patches/discord-rpc-npm-4.0.1-47d3cb5664.patch::version=4.0.1&hash=1a087c&locator=anilibrix%40workspace%3A."
-  dependencies:
-    node-fetch: ^2.6.1
-    register-scheme: "github:devsnek/node-register-scheme"
-    ws: ^7.3.1
-  dependenciesMeta:
-    register-scheme:
-      optional: true
-  checksum: 9e16782344dd65815916c0b5508d745aff64322054a07347fcc163173ee2da12670d4df012a7908037c6a43bf092aa6f029c8e0edcc274e1b4ca049838212b07
+"discord-api-types@npm:^0.38.33, discord-api-types@npm:^0.38.40, discord-api-types@npm:^0.38.42":
+  version: 0.38.44
+  resolution: "discord-api-types@npm:0.38.44"
+  checksum: 99802dfaf55ac02f25a023a424a8dcfb0ce145d6145c828bb7e3edd9de486755ad3aeebcffb9d8d8af1323d0e98bccf81de061c9e1d7b0ed6b64ded18181362e
   languageName: node
   linkType: hard
 
@@ -10411,6 +10457,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"magic-bytes.js@npm:^1.13.0":
+  version: 1.13.0
+  resolution: "magic-bytes.js@npm:1.13.0"
+  checksum: 3b5a96ff9027155bf8fcf842511d014e1f065341d1b6d8376503ac9f887435cfd0dbd468cd1b37e28eb90077bc5bc757a34c251b3baf22f50066a486740404d7
+  languageName: node
+  linkType: hard
+
 "magnet-uri@npm:^5.1.3":
   version: 5.4.0
   resolution: "magnet-uri@npm:5.4.0"
@@ -11189,7 +11242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^1.3.0, node-addon-api@npm:^1.6.3":
+"node-addon-api@npm:^1.6.3":
   version: 1.7.2
   resolution: "node-addon-api@npm:1.7.2"
   dependencies:
@@ -11637,6 +11690,13 @@ __metadata:
   version: 1.0.2
   resolution: "os-tmpdir@npm:1.0.2"
   checksum: 5666560f7b9f10182548bf7013883265be33620b1c1b4a4d405c25be2636f970c5488ff3e6c48de75b55d02bde037249fe5dbfbb4c0fb7714953d56aed062e6d
+  languageName: node
+  linkType: hard
+
+"outvariant@npm:^1.3.0":
+  version: 1.4.3
+  resolution: "outvariant@npm:1.4.3"
+  checksum: 4a3551fb2b45309e585eebf88bad094dbe56ac6d3a28d59dd2e4050b431aa2beb6097a0763fce3cd82ca0f077026f380a9b60fffc306aaf430141421e7a7b6ed
   languageName: node
   linkType: hard
 
@@ -12686,6 +12746,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"readable-stream-polyfill@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "readable-stream-polyfill@npm:0.0.0"
+  dependencies:
+    outvariant: ^1.3.0
+  checksum: 172582d0a1c80a0280f2241ee716a05dede0df736cac5774e07bfec9e0219e17ac12dac9c9cc7a59354bf23d8474578093230efcd942e489f70cf5c031e34bd1
+  languageName: node
+  linkType: hard
+
 "readable-stream@npm:1 || 2, readable-stream@npm:^2.0.0, readable-stream@npm:^2.0.1, readable-stream@npm:^2.0.2, readable-stream@npm:^2.0.5, readable-stream@npm:^2.1.5, readable-stream@npm:^2.2.2, readable-stream@npm:^2.3.3, readable-stream@npm:^2.3.6, readable-stream@npm:~2.3.6":
   version: 2.3.8
   resolution: "readable-stream@npm:2.3.8"
@@ -12894,16 +12963,6 @@ __metadata:
     unicode-match-property-ecmascript: ^2.0.0
     unicode-match-property-value-ecmascript: ^2.1.0
   checksum: 95bb97088419f5396e07769b7de96f995f58137ad75fac5811fb5fe53737766dfff35d66a0ee66babb1eb55386ef981feaef392f9df6d671f3c124812ba24da2
-  languageName: node
-  linkType: hard
-
-"register-scheme@github:devsnek/node-register-scheme":
-  version: 0.0.2
-  resolution: "register-scheme@https://github.com/devsnek/node-register-scheme.git#commit=e7cc9a63a1f512565da44cb57316d9fb10750e17"
-  dependencies:
-    bindings: ^1.3.0
-    node-addon-api: ^1.3.0
-  checksum: e3281b9b81f5718ebc05c27988f6ef33bcd452048a414ad5862f29348d14513b988ec117cc73ef46955c40f78185aaec1430361dc1d1fe0a662eec864a2bf058
   languageName: node
   linkType: hard
 
@@ -14820,7 +14879,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.4.0":
+"tslib@npm:^2.4.0, tslib@npm:^2.6.3":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a
@@ -15007,6 +15066,13 @@ __metadata:
   version: 5.25.3
   resolution: "undici-types@npm:5.25.3"
   checksum: ec9d2cc36520cbd9fbe3b3b6c682a87fe5be214699e1f57d1e3d9a2cb5be422e62735f06e0067dc325fd3dd7404c697e4d479f9147dc8a804e049e29f357f2ff
+  languageName: node
+  linkType: hard
+
+"undici@npm:6.24.1":
+  version: 6.24.1
+  resolution: "undici@npm:6.24.1"
+  checksum: 0baa81ede2b0deb9002692c4d614cdffb2c8c27bb41e4ce7380f95b4468ebb6fd9745b7a6da32b0cdf05b1554bd5e5a47a80babb0e5ca9d59401efe372d975ed
   languageName: node
   linkType: hard
 
@@ -16061,7 +16127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^7.3.1, ws@npm:^7.4.2, ws@npm:^7.4.5":
+"ws@npm:^7.4.2, ws@npm:^7.4.5":
   version: 7.5.9
   resolution: "ws@npm:7.5.9"
   peerDependencies:
@@ -16073,6 +16139,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: c3c100a181b731f40b7f2fddf004aa023f79d64f489706a28bc23ff88e87f6a64b3c6651fbec3a84a53960b75159574d7a7385709847a62ddb7ad6af76f49138
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.20.0":
+  version: 8.20.0
+  resolution: "ws@npm:8.20.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 2b31d24a53690770564a033c21ea48390f84d23fbc5abc14b2bbec4e112846f2f3ca66caee769a73fb8bc89ba16b452a6911a553e9742bbc75bccb79e203953e
   languageName: node
   linkType: hard
 
