@@ -8,7 +8,7 @@
 
 <div>
     <a href="https://anilibria.tv/">
-        <img align="right" alt="" src="https://avatars.githubusercontent.com/u/43943370?s=200&v=4" width="200" height="200" />
+        <img align="right" alt="" src="https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/lord/build/icons/app/512x512.png" width="200" height="200" />
     </a>
 </div>
 
