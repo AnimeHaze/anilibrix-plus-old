@@ -55,7 +55,17 @@ const startTorrent = async ({
 
   if (torrentClient) {
     // Destroy torrent if it already added
-    if (store.torrents[torrentId]) store.torrents[torrentId].destroy()
+    console.log('Torrents list:', store.torrents, store.torrents[torrentId])
+    
+    
+    if (store.torrents[torrentId]) {
+      console.log('destroy', store.torrents[torrentId], torrentId)
+      store.torrents[torrentId].destroy()
+    }
+    
+    torrentClient.torrents.forEach(x => x.destroy())
+    Object.keys(store.torrents).forEach((v, i) => (store.torrents[v] = null))
+    
 
     const t = await ipcRenderer.invoke('getTorrent', torrentId)
 
@@ -77,6 +87,7 @@ const startTorrent = async ({
         if (!file) throw 'Requested torrent file index was not found'
 
         // Save torrent instance to store
+        console.log('Add to store')
         store.torrents[torrentId] = torrent
 
         // Start http server for this torrent's instance
