@@ -51,6 +51,7 @@ import Authorization from './components/authorization'
 import Fuse from 'fuse.js'
 import { toLogin, toRelease } from '@utils/router/views'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { resolveReleaseTitle } from '@utils/release/display'
 
 export default {
   name: 'Favorites.View',
@@ -99,7 +100,7 @@ export default {
     releasesSearchable () {
 
       const options = {
-        keys: ['names.ru', 'names.original'],
+        keys: ['displayTitle', 'displaySubtitle', 'names.ru', 'names.original', 'names.en', 'searchAliases'],
         threshold: .2,
       }
 
@@ -128,7 +129,7 @@ export default {
       // Sort by title if sort type is 'title'
       // Sort by release update datetime if sort type is 'updates'
       // Sort by rating if sort type is 'rating'
-      if (sort === 'title') releases = releases.sort((a, b) => a.names.ru.localeCompare(b.names.ru))
+      if (sort === 'title') releases = releases.sort((a, b) => resolveReleaseTitle(a, this.$locale).localeCompare(resolveReleaseTitle(b, this.$locale)))
       if (sort === 'updates') releases = releases.sort((a, b) => b.datetime.system - a.datetime.system)
       if (sort === 'rating') releases = releases.sort((a, b) => b.favoriteRating.count - a.favoriteRating.count)
 

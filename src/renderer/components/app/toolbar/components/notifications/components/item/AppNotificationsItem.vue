@@ -8,7 +8,7 @@
     <!-- Content -->
     <v-list-item-content>
       <v-list-item-title v-text="name"/>
-      <v-list-item-subtitle>{{ $t('toolbar.notificationEpisode', { episodeNumber }) }}</v-list-item-subtitle>
+      <v-list-item-subtitle>{{ episodeTitle }}</v-list-item-subtitle>
       <v-list-item-subtitle v-text="datetime" class="grey--text text--darken-2"/>
     </v-list-item-content>
 
@@ -18,6 +18,10 @@
 <script>
 
 import { toVideo } from '@utils/router/views'
+import {
+  resolveEpisodeTitle,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 const props = {
   notification: {
@@ -69,7 +73,7 @@ export default {
      * @return {*}
      */
     name () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -79,6 +83,10 @@ export default {
      */
     episodeNumber () {
       return this.$__get(this.episode, 'id')
+    },
+
+    episodeTitle () {
+      return resolveEpisodeTitle(this.episode, this.$locale)
     },
 
     /**

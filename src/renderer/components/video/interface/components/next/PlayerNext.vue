@@ -39,6 +39,10 @@
 
 import { toVideo } from '@utils/router/views'
 import { mapState } from 'vuex'
+import {
+  resolveEpisodeTitle,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 const props = {
   player: {
@@ -96,7 +100,7 @@ export default {
      * @return {string}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -105,7 +109,7 @@ export default {
      * @return {string|null}
      */
     nextEpisodeTitle () {
-      return this.$__get(this.next, 'title')
+      return this.next ? resolveEpisodeTitle(this.next, this.$locale) : null
     }
 
   },

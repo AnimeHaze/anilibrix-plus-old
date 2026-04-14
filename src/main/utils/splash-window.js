@@ -238,6 +238,10 @@ export function createSplash () {
   }
 
   splash.reloadLocale = () => {
+    if (splash.isDestroyed() || splash.webContents.isDestroyed()) {
+      return
+    }
+
     splash.setTitle(t('main.splashStartTitle'))
     splash.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(getSplashHTML())}`)
       .catch(error => console.error('Error reloading splash window locale:', error))

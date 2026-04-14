@@ -95,7 +95,7 @@ export default {
      * @return Object
      */
     playlistSearchable () {
-      return new Fuse(this.playlist, { keys: ['title'] })
+      return new Fuse(this.playlist, { keys: ['title', 'nameLocalized', 'name'] })
     },
 
     /**

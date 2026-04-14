@@ -35,6 +35,10 @@ import { ServerHandler, TorrentHandler, UpscaleHandler } from '@components/video
 
 import { mapActions, mapState } from 'vuex'
 import { toBlank } from '@utils/router/views'
+import {
+  resolveEpisodeName,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 const props = {
   release: {
@@ -88,8 +92,8 @@ export default {
       // return release_id ? `Эпизод [${release_id} / ${episode_id}]: ${release_name}` : null
 
       const episode_title = this.$__get(this.episode, 'title')
-      const episode_name = this.$__get(this.episode, 'name')
-      const release_title = this.$__get(this.release, 'names.ru')
+      const episode_name = resolveEpisodeName(this.episode, this.$locale)
+      const release_title = resolveReleaseTitle(this.release, this.$locale)
 
       return `${release_title} / ${episode_title}` + (episode_name ? ' — ' + episode_name : '')
     },

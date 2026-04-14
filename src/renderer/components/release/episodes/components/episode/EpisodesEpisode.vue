@@ -34,6 +34,7 @@ import Watched from './components/watched'
 import Playing from './components/playing'
 import Actions from './components/actions'
 import moment from 'moment/moment';
+import { resolveEpisodeName } from '@utils/release/display'
 
 const props = {
   release: {
@@ -76,7 +77,8 @@ export default {
 
   computed: {
     title() {
-      return this.episode.title + (this.episode.sources.find(x => x.payload.playlist?.includes('/rutube/')) ? ' [RUTUBE] ' : '') + (this.episode.name ? ' — ' + this.episode.name : '')
+      const name = resolveEpisodeName(this.episode, this.$locale)
+      return this.episode.title + (this.episode.sources.find(x => x.payload.playlist?.includes('/rutube/')) ? ' [RUTUBE] ' : '') + (name ? ' — ' + name : '')
     },
 
     time() {

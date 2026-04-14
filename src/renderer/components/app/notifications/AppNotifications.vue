@@ -4,6 +4,10 @@
 import { meta } from '@package'
 import { toVideo } from '@utils/router/views'
 import { mapGetters, mapState } from 'vuex'
+import {
+  resolveEpisodeTitle,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 // Handlers
 import { sendAppDockNumberEvent } from '@main/handlers/app/app-handlers'
@@ -40,9 +44,9 @@ export default {
 
         // Show notification
         const episode = release.episodes[0]
-        const title = episode ? episode.title : null
-        const poster = release.poster.image
-        const name = release.names.ru
+        const title = episode ? resolveEpisodeTitle(episode, this.$locale) : null
+        const poster = release.poster?.image || release.poster
+        const name = resolveReleaseTitle(release, this.$locale)
 
         if (title && name) {
 

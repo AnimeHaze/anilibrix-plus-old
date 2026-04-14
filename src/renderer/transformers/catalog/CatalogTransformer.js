@@ -10,20 +10,35 @@ export default class CatalogTransformer extends BaseTransformer {
    * @returns {{}}
    */
   fetch (release) {
+    const names = {
+      ru: this._stripHtml(this.get(release, 'names.ru')) || this._stripHtml(this.get(release, 'names.0')),
+      original: this._stripHtml(this.get(release, 'names.original')) || this._stripHtml(this.get(release, 'names.1')),
+      en: this._stripHtml(this.get(release, 'names.en'))
+    }
+    const genres = this.get(release, 'genres') || []
+    const genresLocalized = this.get(release, 'genresLocalized') || genres
+    const description = this._stripHtml(this.get(release, 'description'))
+    const descriptionLocalized = this._stripHtml(this.get(release, 'descriptionLocalized')) || description
+
     return {
       id: this.get(release, 'id'),
       year: this.get(release, 'year'),
       type: this.get(release, 'type'),
-      names: {
-        ru: this._stripHtml(this.get(release, 'names.0')),
-        original: this._stripHtml(this.get(release, 'names.1'))
-      },
+      names,
+      displayTitle: this._stripHtml(this.get(release, 'displayTitle')) || names.en || names.ru || names.original,
+      displaySubtitle: this._stripHtml(this.get(release, 'displaySubtitle')) || names.original || names.ru || names.en,
+      displayDescription: this._stripHtml(this.get(release, 'displayDescription')) || descriptionLocalized || description,
       poster: this.get(release, 'poster'),
-      genres: this.get(release, 'genres') || [],
-      description: this._stripHtml(this.get(release, 'description')),
+      genres,
+      genresLocalized,
+      description,
+      descriptionLocalized,
 
       status: this.get(release, 'status'),
+      statusLocalized: this._stripHtml(this.get(release, 'statusLocalized')) || this.get(release, 'status'),
       statusCode: this.get(release, 'statusCode'),
+      typeLocalized: this._stripHtml(this.get(release, 'typeLocalized')) || this.get(release, 'type'),
+      searchAliases: this.get(release, 'searchAliases') || [],
       favoriteRating: this._getFavoriteRating(release),
       episodes: this.get(release, 'playlist') || []
     }

@@ -9,7 +9,7 @@
     return-object
     ref="search"
     item-value="id"
-    item-text="names.ru"
+    :item-text="releaseText"
     class="grey darken-2"
     :placeholder="$t('toolbar.searchPlaceholder')"
     :append-icon="null"
@@ -23,8 +23,8 @@
         <v-img :transition="false" :src="item.poster"/>
       </v-list-item-avatar>
       <v-list-item-content :style="{maxWidth: $refs.search.$el.clientWidth + 'px'}">
-        <v-list-item-title v-text="item.names.ru"/>
-        <v-list-item-subtitle v-text="item.names.original"/>
+        <v-list-item-title v-text="releaseTitle(item)"/>
+        <v-list-item-subtitle v-text="releaseSubtitle(item)"/>
       </v-list-item-content>
     </template>
 
@@ -36,6 +36,10 @@
 import __debounce from 'lodash/debounce'
 import { toRelease } from '@utils/router/views'
 import { mapActions, mapState } from 'vuex'
+import {
+  resolveReleaseSubtitle,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 export default {
   data () {
@@ -53,6 +57,18 @@ export default {
 
   methods: {
     ...mapActions('app', { _setSearching: 'setSearching' }),
+
+    releaseText (release) {
+      return resolveReleaseTitle(release, this.$locale)
+    },
+
+    releaseTitle (release) {
+      return resolveReleaseTitle(release, this.$locale)
+    },
+
+    releaseSubtitle (release) {
+      return resolveReleaseSubtitle(release, this.$locale)
+    },
 
     /**
      * Get releases
