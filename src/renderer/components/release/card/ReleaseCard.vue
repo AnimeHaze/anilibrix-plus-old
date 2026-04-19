@@ -39,8 +39,115 @@
         <!-- Original Name + Genres -->
         <!-- Meta -->
         <div>
-          <v-card-title v-text="title" class="allow-select display-1 mb-2 font-weight-black" :style="{wordBreak: 'break-word'}"/>
-          <v-card-subtitle v-text="original" class="allow-select pb-0"/>
+
+          <div class="d-flex align-center">
+            <v-card-title
+              v-text="title"
+              class="allow-select display-1 font-weight-black"
+              :style="{wordBreak: 'break-word'}"
+            />
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="copyToClipboard(title, 'title')"
+                  :class="{ 'copy-animation': copiedIndex === 'title' }"
+                >
+                  <v-icon small v-if="copiedIndex !== 'title'">mdi-content-copy</v-icon>
+                  <v-icon small v-else color="success">mdi-check</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ copiedIndex === 'title' ? $t('release.titleCopiedSuccess') : $t('release.titleCopy') }}</span>
+            </v-tooltip>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.stop="openLink(title, 'shikimori')"
+                >
+                  <v-icon small>mdi-open-in-new</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t('release.searchShikimori') }}</span>
+            </v-tooltip>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.stop="openLink(title, 'mal')"
+                >
+                  <v-icon small>mdi-open-in-new</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t('release.searchMAL') }}</span>
+            </v-tooltip>
+          </div>
+
+
+          <div class="d-flex align-center">
+            <v-card-subtitle v-text="original" class="allow-select"/>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="copyToClipboard(original, 'original')"
+                  :class="{ 'copy-animation': copiedIndex === 'original' }"
+                >
+                  <v-icon small v-if="copiedIndex !== 'original'">mdi-content-copy</v-icon>
+                  <v-icon small v-else color="success">mdi-check</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ copiedIndex === 'original' ? $t('release.titleCopiedSuccess') : $t('release.titleCopy') }}</span>
+            </v-tooltip>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.stop="openLink(original, 'shikimori')"
+                >
+                  <v-icon small>mdi-open-in-new</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t('release.searchShikimori') }}</span>
+            </v-tooltip>
+
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  small
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.stop="openLink(original, 'mal')"
+                >
+                  <v-icon small>mdi-open-in-new</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t('release.searchMAL') }}</span>
+            </v-tooltip>
+          </div>
+
+
           <v-card-subtitle v-text="genres" class="allow-select pt-1"/>
 
           <div style="margin-bottom: -10px;" v-for="(type, prop) in team" :key="prop" class="pl-4" v-if="type.length">
@@ -101,7 +208,9 @@ export default {
       teamProps: {
         voice: this.$t('release.voicedBy'),
         other: this.$t('release.creditsOther'),
-      }
+      },
+      copiedIndex: null,
+      copyTimeout: null
     }
   },
   computed: {
@@ -211,7 +320,68 @@ export default {
     },
   },
   methods: {
-    toVideo
+    toVideo,
+
+    async copyToClipboard(text, index) {
+      if (!text) return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+
+        if (this.copyTimeout) {
+          clearTimeout(this.copyTimeout);
+        }
+
+        this.copiedIndex = index;
+
+        this.copyTimeout = setTimeout(() => {
+          this.copiedIndex = null;
+        }, 2000);
+
+      } catch (err) {
+        console.error(err);
+        if (this.$toasted) {
+          this.$toasted.error(this.$t('release.copyError') || 'Ошибка копирования');
+        }
+      }
+    },
+
+    openLink(text, platform) {
+      if (!text) return;
+
+      let searchUrl = '';
+
+      if (platform === 'shikimori') {
+        searchUrl = `https://shikimori.one/animes?search=${encodeURIComponent(text)}`;
+      } else if (platform === 'mal') {
+        searchUrl = `https://myanimelist.net/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
+      }
+
+      window.open(searchUrl, '_blank');
+    }
+  },
+  beforeDestroy() {
+    if (this.copyTimeout) {
+      clearTimeout(this.copyTimeout);
+    }
   }
 }
 </script>
+
+<style scoped>
+.copy-animation {
+  animation: copyPulse 0.4s ease-in-out;
+}
+
+@keyframes copyPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+</style>

@@ -194,7 +194,12 @@ export default {
     markEpisodeSeen: 'Отметить серию как просмотренную',
     unmarkEpisodeSeen: 'Снять отметку о просмотре',
     markAllSeen: 'Отметить все серии как просмотренные',
-    unmarkAllSeen: 'Снять все отметки о просмотре'
+    unmarkAllSeen: 'Снять все отметки о просмотре',
+    searchShikimori: 'Искать на Shikimori',
+    searchMAL: 'Искать на MyAnimeList',
+    titleCopy: 'Скопировать название',
+    titleCopiedSuccess: 'Успешно скопировано',
+    titleCopyError: 'Не удалось скопировать название'
   },
   player: {
     noSourceData: 'Нет данных для воспроизведения',

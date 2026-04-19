@@ -194,7 +194,12 @@ export default {
     markEpisodeSeen: 'Mark episode as watched',
     unmarkEpisodeSeen: 'Remove watched mark',
     markAllSeen: 'Mark all episodes as watched',
-    unmarkAllSeen: 'Remove all watched marks'
+    unmarkAllSeen: 'Remove all watched marks',
+    searchShikimori: 'Search on Shikimori',
+    searchMAL: 'Search on MyAnimeList',
+    titleCopy: 'Copy title',
+    titleCopiedSuccess: 'Successfully copied',
+    titleCopyError: 'Failed to copy title'
   },
   player: {
     noSourceData: 'No playback data available',
