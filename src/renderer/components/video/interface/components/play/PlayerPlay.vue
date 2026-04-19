@@ -74,6 +74,7 @@ export default {
       is_mounted: false,
       is_playing: false,
       is_buffering: true,
+      audioUnsupportedAlert: false
     }
   },
 
@@ -190,10 +191,12 @@ export default {
       }
     })
 
-    const noAudio = debounce(() =>
-      this.$toasted.show(this.$t('player.unsupportedAudioTrack'), { type: 'error' }),
-      1500
-    )
+    const noAudio = debounce(() => {
+      if (!this.audioUnsupportedAlert) {
+        this.$toasted.show(this.$t('player.unsupportedAudioTrack'), {type: 'error'})
+        this.audioUnsupportedAlert = true
+      }
+    }, 1500)
 
     // Update PIP video if PIP exists
     this.player.on('playing', () => {
