@@ -105,6 +105,7 @@ export default {
     snapshots: 'Снапшоты',
     snapshotsHint: 'Вы можете создавать резервные копии данных приложения, привязанные к вашему аккаунту',
     snapshotsList: 'Список снапшотов',
+    network: 'Настройки сети',
     credentialsBuild: 'Не официальная сборка {version}',
     about: 'О приложении',
     debugTools: 'Инструменты отладки',
@@ -121,7 +122,10 @@ export default {
     appConsole: 'Консоль приложения',
     torrentConsole: 'Консоль торрент-сервера',
     addNotification: 'Добавить уведомление в хранилище',
-    logStore: 'Показать данные хранилища в консоли'
+    logStore: 'Показать данные хранилища в консоли',
+    cacheServer: 'Сервер кеша',
+    hashFileUrl: 'URL файла хэшей',
+    cacheServerHint: 'Сервер для кеширования данных и файл с хэшами для проверки целостности',
   },
   releases: {
     pageTitle: 'Последние релизы',
@@ -269,7 +273,9 @@ export default {
     newSnapshot: 'Новый снапшот',
     createdAt: 'Дата и время создания',
     actions: 'Действия',
-    snapshotApplied: 'Данные из снапшота применены'
+    snapshotApplied: 'Данные из снапшота применены',
+    networkSettingsTitle: 'Настройки сети',
+    offOperaProxyForCustom: 'Выключите Opera Proxy, для того чтобы указать свой прокси сервер'
   },
   releasesView: {
     errorTitle: 'Ошибка при загрузке релизов',

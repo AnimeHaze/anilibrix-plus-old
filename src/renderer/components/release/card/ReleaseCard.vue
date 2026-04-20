@@ -185,6 +185,7 @@ import Loader from './components/loader'
 import Favorite from './../favorite'
 import __orderBy from "lodash/orderBy";
 import {toVideo} from "@utils/router/views";
+import {mapState} from "vuex";
 
 const props = {
   loading: {
@@ -214,6 +215,10 @@ export default {
     }
   },
   computed: {
+    ...mapState('app/settings/system', {
+      _shikimori_url: state => state.shikimori_url,
+      _myanimelist_url: state => state.myanimelist_url
+    }),
     /**
      * Get watch data
      *
@@ -345,16 +350,23 @@ export default {
         }
       }
     },
+    normalizeEndpoint (endpoint) {
+      if (endpoint.endsWith('/')) {
+        return endpoint.slice(0, -1).trim()
+      }
 
+      return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
+    },
     openLink(text, platform) {
       if (!text) return;
 
       let searchUrl = '';
 
       if (platform === 'shikimori') {
-        searchUrl = `https://shikimori.one/animes?search=${encodeURIComponent(text)}`;
+
+        searchUrl = `${this.normalizeEndpoint(this._shikimori_url.split(';')[0])}/animes?search=${encodeURIComponent(text)}`;
       } else if (platform === 'mal') {
-        searchUrl = `https://myanimelist.net/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
+        searchUrl = `${this.normalizeEndpoint(this._myanimelist_url.split(';')[0])}/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
       }
 
       window.open(searchUrl, '_blank');

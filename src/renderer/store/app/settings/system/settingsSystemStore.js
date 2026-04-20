@@ -13,6 +13,8 @@ const SET_TORRENT_TYPE = 'SET_TORRENT_TYPE'
 const SET_DRPC = 'SET_DRPC'
 const SET_IGNORE_CERTS = 'SET_IGNORE_CERTS'
 const SET_LANGUAGE = 'SET_LANGUAGE'
+const SET_SHIKIMORI = 'SET_SHIKIMORI'
+const SET_MYANIMELIST = 'SET_MYANIMELIST'
 
 function normalizeEndpoint (endpoint) {
   if (endpoint.endsWith('/')) {
@@ -47,6 +49,8 @@ export default {
     torrentType: 'magnet',
     drpc_enabled: true,
     proxy: '',
+    shikimori_url: '',
+    myanimelist_url: '',
     ignore_certs: false,
     language: null
   },
@@ -66,6 +70,8 @@ export default {
     [SET_API_ENDPOINT]: (s, state) => (s.api._endpoint = state),
     [SET_API_STATIC_ENDPOINT]: (s, state) => (s.api._static_endpoint = state),
     [SET_PROXY]: (s, state) => (s.proxy = state),
+    [SET_SHIKIMORI]: (s, state) => (s.shikimori_url = state),
+    [SET_MYANIMELIST]: (s, state) => (s.myanimelist_url = state),
     /**
      * Set updates state
      *
@@ -158,6 +164,8 @@ export default {
     setAPIEndpoint: ({ commit }, state) => commit(SET_API_ENDPOINT, state),
     setAPIStaticEndpoint: ({ commit }, state) => commit(SET_API_STATIC_ENDPOINT, state),
     setProxy: ({ commit }, state) => commit(SET_PROXY, state),
+    setShikimoriUrl: ({ commit }, state) => commit(SET_SHIKIMORI, state),
+    setMyAnimeListUrl: ({ commit }, state) => commit(SET_MYANIMELIST, state),
     /**
      * Set updates timeout
      *
