@@ -2,6 +2,7 @@ import { APIResponseTransformer } from './api-release-transformer'
 import store from '@store';
 import FormData from 'form-data'
 import {catGirlFetch} from "@utils/fetch";
+import { getMainLocale } from '@main/utils/i18n';
 
 export class APIController {
   constructor(cacheService) {
@@ -174,14 +175,7 @@ export class APIController {
     );
 
     return {
-      items: items.map(
-        x => APIResponseTransformer.transformRelease(
-          x,
-          this.findEpisodes(x.id),
-          this.cacheService.franchiseByReleaseId.get(x.id),
-          this.cacheService.torrents.get(x.id)
-        )
-      ),
+      items: await Promise.all(items.map(x => this.transformReleaseResponse(x, { fetchLiveLocalization: false }))),
       pagination: this.createPagination(validatedPerPage.value, page, sortedReleases.length)
     };
   }
@@ -191,12 +185,7 @@ export class APIController {
       this.cacheService.releases.get(Number(id));
     if (!release) throw new Error('Release not found');
 
-    return APIResponseTransformer.transformRelease(
-      release,
-      this.findEpisodes(release.id),
-      this.cacheService.franchiseByReleaseId.get(release.id),
-      this.cacheService.torrents.get(release.id)
-    );
+    return this.transformReleaseResponse(release, { includeFranchises: true });
   }
 
   async handleTorrentRequest({ id }) {
@@ -209,14 +198,7 @@ export class APIController {
   async handleSearchRequest({ search }) {
     const sortedReleases = await this.cacheService.searchByQuery(search)
 
-    return sortedReleases.map(
-      x => APIResponseTransformer.transformRelease(
-        x,
-        this.findEpisodes(x.id),
-        this.cacheService.franchiseByReleaseId.get(x.id),
-        this.cacheService.torrents.get(x.id)
-      )
-    )
+    return await Promise.all(sortedReleases.map(x => this.transformReleaseResponse(x, { fetchLiveLocalization: false })))
   }
 
   async handleCatalogRequest({ perPage = 10, page = 1, search, sort }) {
@@ -266,16 +248,53 @@ export class APIController {
     );
 
     return {
-      items: items.map(
-        x => APIResponseTransformer.transformRelease(
-          x,
-          this.findEpisodes(x.id),
-          this.cacheService.franchiseByReleaseId.get(x.id),
-          this.cacheService.torrents.get(x.id)
-        )
-      ),
+      items: await Promise.all(items.map(x => this.transformReleaseResponse(x, { fetchLiveLocalization: false }))),
       pagination: this.createPagination(validatedPerPage.value, page, uniqueReleasesFiltered.length)
     };
+  }
+
+  async transformReleaseResponse (release, { includeFranchises = false, fetchLiveLocalization = true } = {}) {
+    const episodes = this.findEpisodes(release.id)
+    const locale = getMainLocale()
+    const localized = await this.cacheService.localizeRelease(release, episodes, locale, {
+      fetchLive: fetchLiveLocalization
+    })
+    const rawFranchises = this.cacheService.franchiseByReleaseId.get(release.id) || []
+    const franchises = includeFranchises
+      ? await Promise.all(rawFranchises.map(item => this.transformFranchiseItem(item, locale)))
+      : rawFranchises
+
+    return APIResponseTransformer.transformRelease(
+      release,
+      episodes,
+      franchises,
+      this.cacheService.torrents.get(release.id),
+      localized
+    )
+  }
+
+  async transformFranchiseItem (item, locale) {
+    const release = this.cacheService.releases.get(item.id)
+    if (!release) {
+      return item
+    }
+
+    const episodes = this.findEpisodes(item.id)
+    const localized = await this.cacheService.localizeRelease(release, episodes, locale, {
+      fetchLive: false
+    })
+
+    return {
+      ...item,
+      names: {
+        ...item.names,
+        en: localized?.names?.en || item.names?.en || null
+      },
+      displayTitle: localized?.displayTitle || item.names?.en || item.names?.ru,
+      displaySubtitle: localized?.displaySubtitle || item.names?.original || item.names?.ru,
+      statusLocalized: localized?.statusLocalized || item.status,
+      typeLocalized: localized?.typeLocalized || item.type
+    }
   }
 
   validatePerPage(perPage) {

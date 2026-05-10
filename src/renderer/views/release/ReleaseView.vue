@@ -64,7 +64,7 @@
         <v-card-title>{{ $t('common.linked') }}</v-card-title>
         <v-list three-line>
           <template v-for="(item, index) in franchises">
-            <v-list-item :link="true" @click="router().push('/release/' + release.id + '/' + encodeURIComponent(release.names.en))"
+            <v-list-item :link="true" @click="router().push('/release/' + release.id + '/' + encodeURIComponent(releaseTitle(release)))"
                          :disabled="release.id == releaseId"
                          v-for="(release, index) in item.releases"
                          :key="release.id"
@@ -75,18 +75,18 @@
 
               <v-list-item-content>
                 <v-list-item-title>
-                  <span>{{ release.names.ru }}</span>
+                  <span>{{ releaseTitle(release) }}</span>
 
                   <v-chip
                     class="ma-2"
-                    v-if="release.status"
+                    v-if="releaseStatus(release)"
                     color="secondary"
                     text-color="white"
                   >
-                    {{ release.status }}
+                    {{ releaseStatus(release) }}
                   </v-chip>
                 </v-list-item-title>
-                <v-list-item-subtitle v-if="release.type && release.type !== 'null'" v-text="release.type">
+                <v-list-item-subtitle v-if="releaseType(release) && releaseType(release) !== 'null'" v-text="releaseType(release)">
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -175,6 +175,11 @@ import router from '@router'
 import ReleaseProxy from '@proxies/release'
 import store from "@store";
 import LibriaTyan01 from "@assets/images/libria-tyan/LibriaTyan01.svg";
+import {
+  resolveReleaseStatus,
+  resolveReleaseTitle,
+  resolveReleaseType
+} from '@utils/release/display'
 
 const props = {
   releaseId: {
@@ -373,9 +378,11 @@ export default {
      * @returns {string}
      */
     getShareText() {
-      const { ru, en } = this._release?.names || {};
       const domain = this.selectedDomain.split('/')[0];
-      return this.$t('release.shareText', { title: ru || en || this.$t('generated.shareThisRelease'), domain });
+      return this.$t('release.shareText', {
+        title: resolveReleaseTitle(this._release, this.$locale) || this.$t('generated.shareThisRelease'),
+        domain
+      });
     },
 
     /**
@@ -420,6 +427,18 @@ export default {
       item.isExternal
         ? window.open(item.link, '_blank')
         : this.copyToClipboard(item.link);
+    },
+
+    releaseTitle (release) {
+      return resolveReleaseTitle(release, this.$locale)
+    },
+
+    releaseStatus (release) {
+      return resolveReleaseStatus(release, this.$locale)
+    },
+
+    releaseType (release) {
+      return resolveReleaseType(release, this.$locale)
     },
 
     async copyToClipboard(link) {

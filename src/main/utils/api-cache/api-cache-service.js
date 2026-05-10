@@ -8,6 +8,10 @@ import AdmZip from 'adm-zip';
 import { Mutex } from 'async-mutex';
 import crypto from 'crypto';
 import { catGirlFetch } from '@utils/fetch';
+import { getMainLocale } from '@main/utils/i18n';
+import { ReleaseLocalizationService } from './release-localization-service';
+
+const SEARCH_RESULT_SCORE_THRESHOLD = 0.42
 
 export class APICacheService {
   constructor(cachePath) {
@@ -21,6 +25,7 @@ export class APICacheService {
     this.initializationPromise = null;
     this.initializationResolve = null;
     this.initializationReject = null;
+    this.localizationService = new ReleaseLocalizationService();
     this.createInitializationPromise();
   }
 
@@ -232,6 +237,7 @@ export class APICacheService {
   async processCache() {
     const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8')
     const { countEpisodes, countReleases } = await this.loadCacheMetadata();
+    await this.localizationService.ensureLoaded()
 
     const [releasesData, episodesData, franchisesData, torrentsData] = await Promise.all([
       this.loadJsonFiles(activeCachePrefix + '_' + 'releases', countReleases),
@@ -266,12 +272,18 @@ export class APICacheService {
       this.torrents.get(torrent.releaseId).push(torrentNew);
     }
 
+    const episodesByReleaseId = new Map(episodesData.map(episode => [episode.releaseId, episode.items || []]))
+
     this.years = new Set();
     this.genres = new Set();
     this.releases = new Map();
     releasesData.forEach(release => {
       release.year && this.years.add(release.year.toString());
       if (release.genres) release.genres.split(',').forEach(v => v && this.genres.add(v.trim()))
+      this.localizationService.applyCachedMetadataToRelease(
+        release,
+        episodesByReleaseId.get(release.id) || []
+      );
       return this.releases.set(release.id, release)
     });
 
@@ -291,7 +303,7 @@ export class APICacheService {
     console.log('Initializing API cache...');
 
     try {
-      await fs.mkdir(this.cachePath).catch(console.error);
+      await fs.mkdir(this.cachePath, { recursive: true });
 
       await this.downloadCache();
       await this.processCache();
@@ -314,7 +326,17 @@ export class APICacheService {
 
   buildSearchCache() {
     const releases = Array.from(this.releases.values())
-    const fusejs = new Fuse(releases, { keys: ['title', 'description', 'originalName'], includeScore: true })
+    const fusejs = new Fuse(releases, {
+      includeScore: true,
+      ignoreLocation: true,
+      threshold: SEARCH_RESULT_SCORE_THRESHOLD,
+      keys: [
+        { name: 'searchAliases', weight: 0.5 },
+        { name: 'localizedTitle', weight: 0.22 },
+        { name: 'originalName', weight: 0.16 },
+        { name: 'title', weight: 0.12 }
+      ]
+    })
     this.search = fusejs
   }
 
@@ -356,7 +378,8 @@ export class APICacheService {
                 id: release.id,
                 names: {
                   ru: release.title,
-                  en: release.originalName
+                  original: release.originalName,
+                  en: release.localizedTitle || null
                 },
                 poster: release.poster,
                 type: release.type + (release.series && release.series !== '(0)' ? ` (${release.series.replace(/[\(\)]/g, '')} эп.)` : ''),
@@ -378,8 +401,41 @@ export class APICacheService {
 
   async searchByQuery (query) {
     return await this.mutex.runExclusive(async () => {
-      return this.search?.search(query).sort((a, b) => a.score - b.score).map(x => x.item) || []
+      const localResults = this.search?.search(query)
+        .filter(item => (item.score ?? 1) <= SEARCH_RESULT_SCORE_THRESHOLD)
+        .sort((a, b) => a.score - b.score)
+        .map(item => item.item) || []
+
+      if (getMainLocale() !== 'en') {
+        return localResults
+      }
+
+      const releases = Array.from(this.releases.values())
+      const cachedResults = await this.localizationService.searchCachedTitles(query, releases)
+      const mergedLocalResults = [...new Map(
+        [...localResults, ...cachedResults].map(item => [item.id, item])
+      ).values()]
+
+      if (mergedLocalResults.length >= 5) {
+        return mergedLocalResults
+      }
+
+      const externalResults = await this.localizationService.searchExternalQuery(query, releases)
+
+      return [...new Map(
+        [...externalResults, ...mergedLocalResults].map(item => [item.id, item])
+      ).values()]
     })
+  }
+
+  async localizeRelease (release, episodes = [], locale = getMainLocale(), options = {}) {
+    const localized = await this.localizationService.localizeRelease(release, episodes, locale, options)
+
+    if (localized) {
+      this.localizationService.applyCachedMetadataToRelease(release, episodes)
+    }
+
+    return localized
   }
 
   async getList () {

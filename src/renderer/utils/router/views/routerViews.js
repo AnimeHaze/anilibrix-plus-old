@@ -1,5 +1,6 @@
 import __get from 'lodash/get'
 import router from '@router'
+import { resolveReleaseTitle } from '@utils/release/display'
 
 const VIDEO_VIEW = 'video'
 const BLANK_VIEW = 'blank'
@@ -40,7 +41,7 @@ export const toFavorites = () => {
 export const toRelease = (release = null) => {
   if (release) {
     const releaseId = __get(release, 'id')
-    const releaseName = __get(release, 'names.original')
+    const releaseName = resolveReleaseTitle(release)
 
     return router.push({
       name: RELEASE_VIEW,
@@ -72,7 +73,7 @@ export const toReleases = () => {
 export const toVideo = (release = null, episode = null, params = {}) => {
   if (release && episode) {
     const key = `${release.id}:${episode.id}`
-    const releaseName = __get(release, 'names.original')
+    const releaseName = resolveReleaseTitle(release)
 
     return router.push({
       name: VIDEO_VIEW,

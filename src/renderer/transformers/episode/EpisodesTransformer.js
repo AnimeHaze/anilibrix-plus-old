@@ -162,6 +162,8 @@ export default class EpisodesTransformer extends BaseTransformer {
       episodes[episode].id = episode
       episodes[episode].title = this.get(item, 'title')
       episodes[episode].name = this.get(item, 'name')
+      episodes[episode].nameLocalized = this.get(item, 'nameLocalized') || this.get(item, 'name')
+      episodes[episode].displayName = episodes[episode].nameLocalized || episodes[episode].name
       episodes[episode].updated_at = this.get(item, 'updated_at')
       episodes[episode].skips = this.get(item, 'skips')
 

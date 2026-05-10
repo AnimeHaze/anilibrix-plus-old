@@ -256,8 +256,8 @@ export const handleRand = () => {
 
       const releaseData = await releaseResponse.json();
 
-      const { id, names } = releaseData.data;
-      const name = names.pop();
+      const { id, names, displayTitle } = releaseData.data;
+      const name = displayTitle || names?.en || names?.original || names?.ru || null;
 
       return { id, name };
     } catch (error) {

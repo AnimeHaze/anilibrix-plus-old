@@ -35,6 +35,7 @@ import Release from './../../../../components/release'
 
 import pluralize from '@utils/strings/pluralize'
 import { mapActions, mapState } from 'vuex'
+import { resolveReleaseGenres } from '@utils/release/display'
 
 const props = {
   year: {
@@ -103,7 +104,7 @@ export default {
      */
     genres () {
       const genres = (this.releases || [])
-        .reduce((storage, release) => [...storage, ...(this.$__get(release, 'genres') || [])], [])
+        .reduce((storage, release) => [...storage, ...resolveReleaseGenres(release, this.$locale)], [])
 
       return [...new Set(genres)]
         .sort((a, b) => a.localeCompare(b))

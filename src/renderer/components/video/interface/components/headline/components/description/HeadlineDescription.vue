@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { resolveEpisodeTitle, resolveReleaseTitle } from '@utils/release/display'
 
 const props = {
   release: {
@@ -28,7 +29,7 @@ export default {
      * @return {*}
      */
     caption () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -37,8 +38,7 @@ export default {
      * @return {*}
      */
     title () {
-      const name = this.$__get(this.episode, 'name')
-      return this.$__get(this.episode, 'title') + (name ? ' — ' + name : '')
+      return resolveEpisodeTitle(this.episode, this.$locale)
     },
 
   }

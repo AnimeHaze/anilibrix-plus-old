@@ -28,6 +28,13 @@
 import VClamp from 'vue-clamp'
 import Loader from './components/loader'
 import Favorite from '@components/release/favorite'
+import {
+  resolveReleaseDescription,
+  resolveReleaseGenresText,
+  resolveReleaseSubtitle,
+  resolveReleaseTitle,
+  resolveReleaseType
+} from '@utils/release/display'
 
 const props = {
   release: {
@@ -59,7 +66,7 @@ export default {
      * @return {string|null}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -68,7 +75,7 @@ export default {
      * @return {string|null}
      */
     subtitle () {
-      return this.$__get(this.release, 'names.original')
+      return resolveReleaseSubtitle(this.release, this.$locale)
     },
 
     /**
@@ -77,7 +84,7 @@ export default {
      * @return {string|null}
      */
     genres () {
-      return (this.$__get(this.release, 'genres') || []).join(' | ')
+      return resolveReleaseGenresText(this.release, this.$locale)
     },
 
     /**
@@ -86,7 +93,7 @@ export default {
      * @return {string|null}
      */
     description () {
-      return this.$__get(this.release, 'description')
+      return resolveReleaseDescription(this.release, this.$locale)
     },
 
     /**
@@ -95,7 +102,7 @@ export default {
     * @return {*}
     */
     type () {
-      return this.$__get(this.release, 'type')
+      return resolveReleaseType(this.release, this.$locale)
     }
 
   }

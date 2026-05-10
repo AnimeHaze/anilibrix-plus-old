@@ -11,7 +11,7 @@
         </template>
         <div v-if="previous" class="play__tooltip py-2">
           <div class="caption pb-1">{{ title }}</div>
-          <div class="font-weight-bold">{{ previous.title }}</div>
+          <div class="font-weight-bold">{{ previousTitle }}</div>
         </div>
       </v-tooltip>
 
@@ -35,7 +35,7 @@
         </template>
         <div v-if="next" class="play__tooltip py-2">
           <div class="caption pb-1">{{ title }}</div>
-          <div class="font-weight-bold">{{ next.title }}</div>
+          <div class="font-weight-bold">{{ nextTitle }}</div>
         </div>
       </v-tooltip>
 
@@ -49,7 +49,7 @@ import { toVideo } from '@utils/router/views'
 import { ActivityBuilder } from '@utils/activityBuilder'
 import humanTime from "@utils/strings/human-time";
 import {debounce} from "lodash";
-import store from "@store";
+import { resolveEpisodeTitle, resolveReleaseTitle } from '@utils/release/display'
 
 const props = {
   player: {
@@ -86,7 +86,11 @@ export default {
      * @return {string}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
+    },
+
+    episodeTitle () {
+      return resolveEpisodeTitle(this.episode, this.$locale)
     },
 
     /**
@@ -116,6 +120,14 @@ export default {
     previous () {
       return this.episodes
         .find(episode => episode.id === (this.$__get(this.episode, 'id') || -1) - 1) || null
+    },
+
+    previousTitle () {
+      return this.previous ? resolveEpisodeTitle(this.previous, this.$locale) : null
+    },
+
+    nextTitle () {
+      return this.next ? resolveEpisodeTitle(this.next, this.$locale) : null
     }
 
   },
@@ -155,9 +167,9 @@ export default {
       }
       a.setActivityType(3)
       a.setLargeImageText('AniLibrix plus t.me/anilibrix_plus')
-      a.firstLine(`[${this.episode.id}/${this.episodes.length}] ` + this.title)
+      a.firstLine(`[${this.episode.id}/${this.episodes.length}] ${this.title}` + (this.episodeTitle ? ` — ${this.episodeTitle}` : ''))
 
-      a.secondLine(`${humanTime(this.player.currentTime)} / ${humanTime(this.player.duration)}` + (this.player.paused ? ' [PAUSE]' : ''))
+      a.secondLine(`${humanTime(this.player.currentTime)} / ${humanTime(this.player.duration)}` + (this.player.paused ? ' [PAUSED]' : ''))
       a.firstButton('Anilibria.TV', 'https://anilibria.tv')
       // a.start(new Date())
       // const d = new Date()

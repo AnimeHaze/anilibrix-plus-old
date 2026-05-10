@@ -114,6 +114,11 @@
 import VClamp from 'vue-clamp'
 import ReleaseProgress from '@components/release/progress'
 import {mapActions} from "vuex";
+import {
+  resolveReleaseDescription,
+  resolveReleaseStatus,
+  resolveReleaseTitle
+} from '@utils/release/display'
 
 const props = {
   release: {
@@ -306,9 +311,11 @@ export default {
      * @returns {string}
      */
     getShareText() {
-      const { ru, en } = this.release?.names || {};
       const domain = this.selectedDomain.split('/')[0];
-      return this.$t('release.shareText', { title: ru || en || this.$t('generated.shareThisRelease'), domain });
+      return this.$t('release.shareText', {
+        title: resolveReleaseTitle(this.release, this.$locale) || this.$t('generated.shareThisRelease'),
+        domain
+      });
     },
 
     /**
@@ -397,7 +404,7 @@ export default {
      * @return {string}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -415,7 +422,7 @@ export default {
      * @return {string}
      */
     description () {
-      return this.$__get(this.release, 'description')
+      return resolveReleaseDescription(this.release, this.$locale)
     },
 
     /**
@@ -424,7 +431,7 @@ export default {
      * @return {string}
      */
     status () {
-      return this.$__get(this.release, 'status')
+      return resolveReleaseStatus(this.release, this.$locale)
     },
 
     /**

@@ -87,6 +87,7 @@
 import { mapState } from 'vuex'
 import { toFavorites, toRelease, toReleases } from '@utils/router/views'
 import screenfull from 'screenfull'
+import { resolveReleaseTitle } from '@utils/release/display'
 
 const props = {
   player: {
@@ -143,7 +144,7 @@ export default {
      * @return {string}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     }
 
   },

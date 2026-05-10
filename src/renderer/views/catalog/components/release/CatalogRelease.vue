@@ -92,6 +92,14 @@ import VClamp from 'vue-clamp'
 import Favorite from '@components/release/favorite'
 import RProgress from '@components/release/progress'
 import {mapActions} from "vuex";
+import {
+  resolveReleaseDescription,
+  resolveReleaseGenresText,
+  resolveReleaseStatus,
+  resolveReleaseSubtitle,
+  resolveReleaseTitle,
+  resolveReleaseType
+} from '@utils/release/display'
 
 const props = {
   release: {
@@ -242,9 +250,11 @@ export default {
      * @returns {string}
      */
     getShareText() {
-      const { ru, en } = this.release?.names || {};
       const domain = this.selectedDomain.split('/')[0];
-      return this.$t('release.shareText', { title: ru || en || this.$t('generated.shareThisRelease'), domain });
+      return this.$t('release.shareText', {
+        title: resolveReleaseTitle(this.release, this.$locale) || this.$t('generated.shareThisRelease'),
+        domain
+      });
     },
 
     /**
@@ -412,7 +422,7 @@ export default {
      * @return {string}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -421,7 +431,7 @@ export default {
      * @return {string}
      */
     subtitle () {
-      return this.$__get(this.release, 'names.original')
+      return resolveReleaseSubtitle(this.release, this.$locale)
     },
 
     /**
@@ -430,7 +440,7 @@ export default {
      * @return {string}
      */
     genres () {
-      return (this.$__get(this.release, 'genres') || []).join(' | ')
+      return resolveReleaseGenresText(this.release, this.$locale)
     },
 
     /**
@@ -448,7 +458,7 @@ export default {
      * @return {*}
      */
     type () {
-      return this.$__get(this.release, 'type')
+      return resolveReleaseType(this.release, this.$locale)
     },
 
     /**
@@ -457,7 +467,7 @@ export default {
      * @return {*}
      */
     description () {
-      return this.$__get(this.release, 'description')
+      return resolveReleaseDescription(this.release, this.$locale)
     },
 
     /**
@@ -475,7 +485,7 @@ export default {
      * @return {*}
      */
     status () {
-      return this.$__get(this.release, 'status')
+      return resolveReleaseStatus(this.release, this.$locale)
     }
 
   }

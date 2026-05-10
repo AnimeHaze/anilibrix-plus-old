@@ -185,6 +185,14 @@ import Loader from './components/loader'
 import Favorite from './../favorite'
 import __orderBy from "lodash/orderBy";
 import {toVideo} from "@utils/router/views";
+import {
+  resolveReleaseDescription,
+  resolveReleaseGenresText,
+  resolveReleaseStatus,
+  resolveReleaseSubtitle,
+  resolveReleaseTitle,
+  resolveReleaseType
+} from '@utils/release/display'
 import {mapState} from "vuex";
 
 const props = {
@@ -252,7 +260,7 @@ export default {
      * @return {string|null}
      */
     title () {
-      return this.$__get(this.release, 'names.ru')
+      return resolveReleaseTitle(this.release, this.$locale)
     },
 
     /**
@@ -261,7 +269,7 @@ export default {
      * @return {string|null}
      */
     original () {
-      return this.$__get(this.release, 'names.original')
+      return resolveReleaseSubtitle(this.release, this.$locale)
     },
 
     /**
@@ -270,7 +278,7 @@ export default {
      * @return {string}
      */
     genres () {
-      return (this.$__get(this.release, 'genres') || []).join(' | ')
+      return resolveReleaseGenresText(this.release, this.$locale)
     },
 
     /**
@@ -288,7 +296,7 @@ export default {
      * @return {string|null}
      */
     type () {
-      return this.$__get(this.release, 'type')
+      return resolveReleaseType(this.release, this.$locale)
     },
 
     /**
@@ -297,7 +305,7 @@ export default {
      * @return {*}
      */
     description () {
-      return this.$__get(this.release, 'description')
+      return resolveReleaseDescription(this.release, this.$locale)
     },
 
     /**
@@ -315,7 +323,7 @@ export default {
      * @return {*}
      */
     status () {
-      return this.$__get(this.release, 'status')
+      return resolveReleaseStatus(this.release, this.$locale)
     },
     team () {
       return {

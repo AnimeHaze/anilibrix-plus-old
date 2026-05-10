@@ -13,32 +13,47 @@ export default class ReleaseTransformer extends BaseTransformer {
    * @returns {{}}
    */
   fetch (release) {
+    const names = {
+      ru: this._stripHtml(this.get(release, 'names.ru')) || this._stripHtml(this.get(release, 'names.0')),
+      original: this._stripHtml(this.get(release, 'names.original')) || this._stripHtml(this.get(release, 'names.1')),
+      en: this._stripHtml(this.get(release, 'names.en'))
+    }
+    const genres = this.get(release, 'genres') || []
+    const genresLocalized = this.get(release, 'genresLocalized') || genres
+    const description = this._stripHtml(this.get(release, 'description'))?.split(/Порядок\s+просмотра/)[0]
+    const descriptionLocalized = this._stripHtml(this.get(release, 'descriptionLocalized'))?.split(/Порядок\s+просмотра/)[0] || description
+
     return {
       id: this.get(release, 'id'),
       year: this.get(release, 'year'),
       type: this.get(release, 'type'),
       code: this.get(release, 'code'),
-      names: {
-        ru: this._stripHtml(this.get(release, 'names.0')),
-        original: this._stripHtml(this.get(release, 'names.1'))
-      },
+      names,
+      displayTitle: this._stripHtml(this.get(release, 'displayTitle')) || names.en || names.ru || names.original,
+      displaySubtitle: this._stripHtml(this.get(release, 'displaySubtitle')) || names.original || names.ru || names.en,
+      displayDescription: this._stripHtml(this.get(release, 'displayDescription')) || descriptionLocalized || description,
       team: this.get(release, 'team') || [],
       franchises: this.get(release, 'franchises') || [],
       series: this.get(release, 'series'),
       total_series: this.get(release, 'total_series'),
       voices: this.get(release, 'voices') || [],
-      genres: this.get(release, 'genres') || [],
+      genres,
+      genresLocalized,
       poster: this.get(release, 'poster'),
       torrents: this.get(release, 'torrents') || [],
       status: this.get(release, 'status'),
+      statusLocalized: this._stripHtml(this.get(release, 'statusLocalized')) || this.get(release, 'status'),
       statusCode: this.get(release, 'statusCode'),
+      typeLocalized: this._stripHtml(this.get(release, 'typeLocalized')) || this.get(release, 'type'),
+      searchAliases: this.get(release, 'searchAliases') || [],
       favoriteRating: this._getFavoriteRating(release),
       datetime: this._getReleaseDatetime(release),
       episodes: {
         playlist: this.get(release, 'playlist'),
         torrents: this.get(release, 'torrents')
       },
-      description: this._stripHtml(this.get(release, 'description'))?.split(/Порядок\s+просмотра/)[0]
+      description,
+      descriptionLocalized
     }
   }
 
