@@ -8,7 +8,10 @@
 
     <!-- Torrents -->
     <v-card>
-      <v-card-subtitle class="pb-0 font-weight-bold">{{ $t('settings.torrentsTitle') }}</v-card-subtitle>
+      <v-card-subtitle class="pb-0 font-weight-bold">
+        <v-icon left color="primary">mdi-download-multiple</v-icon>
+        {{ $t('settings.torrentsTitle') }}
+      </v-card-subtitle>
       <v-card-text class="mt-2 caption">
         <div class="pb-2">
           {{ $t('settings.torrentsDescriptionPrimary') }}
@@ -18,6 +21,9 @@
         </div>
       </v-card-text>
       <v-list-item dense @click="_setTorrentsProcess(!_torrents_process)">
+        <v-list-item-action class="mr-2">
+          <v-icon left color="primary">mdi-cloud-download</v-icon>
+        </v-list-item-action>
         <v-list-item-title>{{ $t('settings.torrentsEnabled') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_torrents_process" @change="_setTorrentsProcess"/>
@@ -31,6 +37,9 @@
     <!-- Autoplay -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setAutoplayNext(!_autoplay_next)">
+        <v-list-item-action class="mr-2">
+          <v-icon left color="primary">mdi-play-circle</v-icon>
+        </v-list-item-action>
         <v-list-item-title>{{ $t('settings.autoplayNext') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_autoplay_next" @change="_setAutoplayNext"/>
@@ -41,13 +50,14 @@
       </v-card-text>
     </v-card>
 
-
     <!-- Buffer -->
     <v-card class="mt-2">
-      <v-card-text class="pb-2 caption">
-        <div>{{ $t('settings.bufferTitle') }}</div>
-        <div>{{ $t('settings.bufferHint') }}</div>
+      <v-card-text class="caption">
+        <v-icon color="primary" class="mr-1">mdi-speedometer</v-icon>
+        {{ $t('settings.bufferTitle') }}
+        {{ $t('settings.bufferHint') }}
       </v-card-text>
+
       <v-card-text>
         <v-text-field
           outlined
@@ -59,6 +69,9 @@
           :suffix="$t('common.secondsShort')"
           :value="_video_buffer"
           @input="_setVideoBuffer(parseInt($event) > 0 ? parseInt($event) : 60)">
+          <template v-slot:prepend-inner>
+            <v-icon color="primary">mdi-timer-sand</v-icon>
+          </template>
         </v-text-field>
       </v-card-text>
       <v-card-text class="pt-0 caption">
@@ -66,10 +79,12 @@
       </v-card-text>
     </v-card>
 
-
     <!-- Opening Skip Button -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setAutoSkip(!_auto_opening_skip)">
+        <v-list-item-action class="mr-2">
+          <v-icon left color="primary">mdi-fast-forward</v-icon>
+        </v-list-item-action>
         <v-list-item-title>{{ $t('settings.autoSkip') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_auto_opening_skip" @change="_setAutoSkip"/>
@@ -83,7 +98,10 @@
     </v-card>
 
     <v-card>
-      <v-card-text class="caption">{{ $t('settings.autoSkipHotkey') }}</v-card-text>
+      <v-card-text class="caption">
+        <v-icon color="primary" class="mr-1">mdi-keyboard</v-icon>
+        {{ $t('settings.autoSkipHotkey') }}
+      </v-card-text>
       <v-card-text>
         <v-text-field
           outlined
@@ -96,16 +114,20 @@
           @click:clear="_setAutoSkipKey('')"
           @keyup.prevent="bindAutoSkip('keyup', $event)"
           @keydown.prevent="bindAutoSkip('keydown', $event)">
+          <template v-slot:prepend-inner>
+            <v-icon color="primary">mdi-keyboard-settings</v-icon>
+          </template>
         </v-text-field>
       </v-card-text>
     </v-card>
     <v-divider/>
 
-    <v-divider/>
-
     <!-- Opening Skip Button -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setOpeningSkipButton(!_opening_skip_button)">
+        <v-list-item-action class="mr-2">
+          <v-icon left color="primary">mdi-skip-next-circle</v-icon>
+        </v-list-item-action>
         <v-list-item-title>{{ $t('settings.openingSkipButton') }}</v-list-item-title>
         <v-list-item-action class="mr-2">
           <v-switch :input-value="_opening_skip_button" @change="_setOpeningSkipButton"/>
@@ -121,7 +143,10 @@
     <v-divider/>
 
     <v-card>
-      <v-card-text class="caption">{{ $t('settings.openingSkipButtonHotkey') }}</v-card-text>
+      <v-card-text class="caption">
+        <v-icon color="primary" class="mr-1">mdi-keyboard</v-icon>
+        {{ $t('settings.openingSkipButtonHotkey') }}
+      </v-card-text>
       <v-card-text>
         <v-text-field
           outlined
@@ -134,6 +159,9 @@
           @click:clear="_setOpeningSkipButtonKey('')"
           @keyup.prevent="bindSkip('keyup', $event)"
           @keydown.prevent="bindSkip('keydown', $event)">
+          <template v-slot:prepend-inner>
+            <v-icon color="primary">mdi-keyboard-settings</v-icon>
+          </template>
         </v-text-field>
       </v-card-text>
     </v-card>
@@ -141,7 +169,10 @@
 
     <!-- Opening Skip Time -->
     <v-card>
-      <v-card-text class="pb-2 caption">{{ $t('settings.openingSkipTimeHint') }}</v-card-text>
+      <v-card-text class="pb-2 caption">
+        <v-icon color="primary" class="mr-1">mdi-timer</v-icon>
+        {{ $t('settings.openingSkipTimeHint') }}
+      </v-card-text>
       <v-card-text>
         <v-text-field
           outlined
@@ -152,6 +183,9 @@
           :suffix="$t('common.secondsShort')"
           :value="_opening_skip_time"
           @input="_setOpeningSkipTime($event ? parseInt($event) : 0)">
+          <template v-slot:prepend-inner>
+            <v-icon color="primary">mdi-timer-settings</v-icon>
+          </template>
         </v-text-field>
       </v-card-text>
     </v-card>
@@ -231,3 +265,15 @@ export default {
 
 }
 </script>
+
+<style scoped>
+.v-list-item__action:first-child {
+  margin-right: 16px;
+  min-width: 32px;
+}
+
+.v-card__subtitle {
+  display: flex;
+  align-items: center;
+}
+</style>

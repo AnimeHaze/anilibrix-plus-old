@@ -105,6 +105,7 @@ export default {
     snapshots: 'Snapshots',
     snapshotsHint: 'You can create backups of app data linked to your account.',
     snapshotsList: 'Snapshots list',
+    network: 'Network settings',
     credentialsBuild: 'Unofficial build {version}',
     about: 'About',
     debugTools: 'Debug tools',
@@ -121,7 +122,11 @@ export default {
     appConsole: 'Application console',
     torrentConsole: 'Torrent server console',
     addNotification: 'Add notification to store',
-    logStore: 'Print store data to console'
+    logStore: 'Print store data to console',
+    cacheServer: 'Cache Server',
+    hashFileUrl: 'Hash File URL',
+    cacheServerHint: 'Server for caching data and hash file for integrity verification',
+    offOperaProxyForCustom: 'Disable Opera Proxy to set your own proxy server'
   },
   releases: {
     pageTitle: 'Latest releases',
@@ -194,7 +199,12 @@ export default {
     markEpisodeSeen: 'Mark episode as watched',
     unmarkEpisodeSeen: 'Remove watched mark',
     markAllSeen: 'Mark all episodes as watched',
-    unmarkAllSeen: 'Remove all watched marks'
+    unmarkAllSeen: 'Remove all watched marks',
+    searchShikimori: 'Search on Shikimori',
+    searchMAL: 'Search on MyAnimeList',
+    titleCopy: 'Copy title',
+    titleCopiedSuccess: 'Successfully copied',
+    titleCopyError: 'Failed to copy title'
   },
   player: {
     noSourceData: 'No playback data available',
@@ -264,7 +274,8 @@ export default {
     newSnapshot: 'New snapshot',
     createdAt: 'Created at',
     actions: 'Actions',
-    snapshotApplied: 'Snapshot data applied'
+    snapshotApplied: 'Snapshot data applied',
+    networkSettingsTitle: 'Network settings'
   },
   releasesView: {
     errorTitle: 'Failed to load releases',

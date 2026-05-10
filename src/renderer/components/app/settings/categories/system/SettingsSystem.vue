@@ -1,6 +1,5 @@
 <template>
   <div ref="settings">
-
     <div class="pa-4 caption grey--text">
       <div class="body-1">{{ $t('settings.systemTitle') }}</div>
       <div>{{ $t('settings.systemDescription') }}</div>
@@ -10,15 +9,18 @@
     <template v-if="!this.isMac">
       <v-card class="mt-2">
         <v-list-item dense @click="_setAppbarRight(!_appbar_right)">
-          <v-list-item-title>
-            {{ $t('settings.moveWindowButtons') }}
-          </v-list-item-title>
-
-          <v-list-item-action class="mr-2">
+          <v-list-item-icon class="mr-3 my-auto">
+            <v-icon>mdi-window-maximize</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $t('settings.moveWindowButtons') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action class="mr-2 my-auto">
             <v-switch :input-value="_appbar_right" @change="_setAppbarRight"/>
           </v-list-item-action>
         </v-list-item>
-
         <v-card-text class="pt-2">
           <div class="caption">
             {{ $t('settings.moveWindowButtonsHint') }}
@@ -27,18 +29,21 @@
       </v-card>
     </template>
 
-    <!-- Appbar inverse -->
+    <!-- Favorite Notifications -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setFilterNotify(!_filter_notify)">
-        <v-list-item-title>
-          {{ $t('settings.favoriteNotifications') }}
-        </v-list-item-title>
-
-        <v-list-item-action class="mr-2">
+        <v-list-item-icon class="mr-3 my-auto">
+          <v-icon>mdi-star</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('settings.favoriteNotifications') }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="mr-2 my-auto">
           <v-switch :input-value="_filter_notify" @change="_setFilterNotify"/>
         </v-list-item-action>
       </v-list-item>
-
       <v-card-text class="pt-2">
         <div class="caption">
           {{ $t('settings.favoriteNotificationsHint') }}
@@ -46,83 +51,30 @@
       </v-card-text>
     </v-card>
 
+    <!-- Network -->
     <v-card class="mt-2">
-      <v-list-item dense @click="_setIgnoreCerts(!_ignore_certs)">
-        <v-list-item-title>{{ $t('settings.ignoreCerts') }}</v-list-item-title>
-        <v-list-item-action class="mr-2">
-          <v-switch :input-value="_ignore_certs" @change="_setIgnoreCerts"/>
-        </v-list-item-action>
-      </v-list-item>
-      <v-card-text class="pt-2 caption">
-        {{ $t('settings.ignoreCertsHint') }}
-      </v-card-text>
+      <v-list dense>
+        <v-list-item @click="network">
+          <v-list-item-icon class="mr-3 my-auto">
+            <v-icon>mdi-network</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ $t('settings.network') }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
     </v-card>
 
-    <v-card class="mt-2">
-      <v-list-item dense @click="toggleOperaProxy">
-        <v-list-item-title>{{ $t('settings.operaProxy') }}</v-list-item-title>
-        <v-list-item-action class="mr-2">
-          <v-switch :input-value="_proxy === 'http://opera'" @click="toggleOperaProxy"/>
-        </v-list-item-action>
-      </v-list-item>
-    </v-card>
-
-    <v-card>
-      <v-card-text class="mt-2">
-        <v-text-field
-          v-if="_proxy !== 'http://opera'"
-          outlined
-          class="mb-2"
-          :value="_proxy"
-          @input="setProxyServer($event)"
-          :label="$t('settings.proxyServer')"
-          persistent-hint
-        />
-
-        <div class="caption">
-          <div>
-            {{ $t('settings.proxyHint') }}
-          </div>
-          <div>
-            <b>{{ $t('settings.restartAfterServerChange') }}</b>
-          </div>
-        </div>
-      </v-card-text>
-    </v-card>
-
-    <!-- API Endpoint -->
-    <v-card>
-      <v-card-text class="mt-2">
-        <v-combobox
-          outlined
-          :value="_api_endpoint"
-          @input="_setAPIEndpoint($event ? $event : process.env.API_ENDPOINT_URL)"
-          :items="['https://anilibria.tv/', 'https://wwnd.space/']"
-          :label="$t('settings.apiEndpoint')"
-          persistent-hint
-        />
-
-        <v-combobox
-          outlined
-          class="mb-2"
-          :value="_static_endpoint"
-          @input="_setAPIStaticEndpoint($event ? $event : process.env.STATIC_ENDPOINT_URL)"
-          :items="['https://static-libria.weekstorm.one/', 'https://anilibria.tv/', 'https://static.wwnd.space/']"
-          :label="$t('settings.staticEndpoint')"
-          persistent-hint
-        />
-
-        <div class="caption">
-          {{ $t('settings.apiDescription') }}
-          <b>{{ $t('settings.restartAfterServerChange') }}</b>
-        </div>
-      </v-card-text>
-    </v-card>
-
+    <!-- Discord Rich Presence -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setDRPC(!_drpc_enabled)">
-        <v-list-item-title>Discord Rich Presence</v-list-item-title>
-        <v-list-item-action class="mr-2">
+        <v-list-item-icon class="mr-3 my-auto">
+          <v-icon>mdi-discord</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Discord Rich Presence</v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="mr-2 my-auto">
           <v-switch :input-value="_drpc_enabled" @change="_setDRPC"/>
         </v-list-item-action>
       </v-list-item>
@@ -130,13 +82,17 @@
         {{ $t('settings.richPresenceHint') }}
       </v-card-text>
     </v-card>
-    <v-divider/>
 
     <!-- System Notifications -->
-    <v-card>
+    <v-card class="mt-2">
       <v-list-item dense @click="_setSystemNotifications(!_notifications_system)">
-        <v-list-item-title>{{ $t('settings.systemNotifications') }}</v-list-item-title>
-        <v-list-item-action class="mr-2">
+        <v-list-item-icon class="mr-3 my-auto">
+          <v-icon>mdi-bell</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ $t('settings.systemNotifications') }}</v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="mr-2 my-auto">
           <v-switch :input-value="_notifications_system" @change="_setSystemNotifications"/>
         </v-list-item-action>
       </v-list-item>
@@ -147,12 +103,16 @@
       </v-card-text>
     </v-card>
 
-
     <!-- Auto update -->
     <v-card class="mt-2">
       <v-list-item dense @click="_setUpdates(!_updates_enabled)">
-        <v-list-item-title>{{ $t('settings.autoUpdates') }}</v-list-item-title>
-        <v-list-item-action class="mr-2">
+        <v-list-item-icon class="mr-3 my-auto">
+          <v-icon>mdi-update</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>{{ $t('settings.autoUpdates') }}</v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="mr-2 my-auto">
           <v-switch :input-value="_updates_enabled" @change="_setUpdates"/>
         </v-list-item-action>
       </v-list-item>
@@ -160,10 +120,9 @@
         {{ $t('settings.autoUpdatesHint') }}
       </v-card-text>
     </v-card>
-    <v-divider/>
 
     <!-- Update Timeouts -->
-    <v-card>
+    <v-card class="mt-2">
       <v-card-text class="pb-2">
         <div class="caption">
           {{ $t('settings.updatesTimeoutHint') }}
@@ -179,59 +138,33 @@
           :suffix="$t('common.minutesShort')"
           :value="_updates_timeout"
           @input="_setUpdatesTimeout($event ? parseInt($event) : 1)">
+          <template v-slot:prepend-inner>
+            <v-icon>mdi-clock-outline</v-icon>
+          </template>
         </v-text-field>
       </v-card-text>
     </v-card>
 
+    <!-- Snapshots -->
+    <template v-if="_isAuthorized">
+      <div class="pa-4 caption grey--text">
+        <div class="body-1">{{ $t('settings.snapshots') }}</div>
+        <div>{{ $t('settings.snapshotsHint') }}</div>
+      </div>
 
-    <!-- Ads -->
-<!--    <v-card class="mt-2">-->
-<!--      <v-list-item dense @click="_setAds(!_ads)">-->
-<!--        <v-list-item-title>Показывать рекламу</v-list-item-title>-->
-<!--        <v-list-item-action class="mr-2">-->
-<!--          <v-switch :input-value="_ads" @change="_setAds"/>-->
-<!--        </v-list-item-action>-->
-<!--      </v-list-item>-->
-<!--      <v-card-text class="pt-2 caption">-->
-<!--        <div>Спасибо, что выбрали <b>Анилибрию!</b></div>-->
-<!--        <div>-->
-<!--          Мы понимаем, что реклама никому не нравится, но это бесплатный способ поддержать проект.-->
-<!--          Отключение рекламы - абсолютно бесплатно, но, если вы хотите поддержать нас, то оставьте рекламу включенной.-->
-<!--          Обещаем, что не будем сильно навязчивыми (✿◠‿◠)-->
-<!--        </div>-->
-<!--      </v-card-text>-->
-<!--    </v-card>-->
-
-    <!-- Ads Maximum -->
-<!--    <v-card class="mt-2">
-      <v-list-item dense @click="_setAdsMaximum(!_ads_maximum)">
-        <v-list-item-title>Показывать рекламу перед каждым эпизодом</v-list-item-title>
-        <v-list-item-action class="mr-2">
-          <v-switch :input-value="_ads_maximum" @change="_setAdsMaximum"/>
-        </v-list-item-action>
-      </v-list-item>
-      <v-card-text class="pt-2 caption">
-        <div>Максимальная поддержка проекта!</div>
-        <div>Реклама будет показываться перед каждым просмотром любого эпизода</div>
-      </v-card-text>
-    </v-card>-->
-
-    <div v-show="_isAuthorized" class="pa-4 caption grey--text">
-      <div class="body-1">{{ $t('settings.snapshots') }}</div>
-      <div>{{ $t('settings.snapshotsHint') }}</div>
-    </div>
-
-    <v-card v-show="_isAuthorized">
-      <v-list dense>
-        <template>
+      <v-card>
+        <v-list dense>
           <v-list-item @click="snapshots">
+            <v-list-item-icon class="mr-3 my-auto">
+              <v-icon>mdi-camera</v-icon>
+            </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title>{{ $t('settings.snapshotsList') }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-        </template>
-      </v-list>
-    </v-card>
+        </v-list>
+      </v-card>
+    </template>
 
     <template v-if="isMounted">
       <component
@@ -242,6 +175,10 @@
       <component
         :is="snapshotsList"
         ref="snapshotsList"></component>
+
+      <component
+        :is="networkSettings"
+        ref="network"></component>
     </template>
   </div>
 </template>
@@ -252,8 +189,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import Confirm from '@components/app/settings/categories/system/dialogs/confirm.vue'
 import snapshotsList from '@components/app/settings/categories/system/dialogs/snapshotsList.vue'
 import { AppPlatformMixin } from '@mixins/app'
-import {debounce} from "lodash";
-import {invokeUpdateProxy} from "@main/handlers/app/app-handlers";
+import networkSettings from "@components/app/settings/categories/system/dialogs/NetworkSettings.vue";
 
 export default {
   mixins: [AppPlatformMixin],
@@ -261,42 +197,27 @@ export default {
     return {
       isMounted: false,
       Confirm,
-      snapshotsList
+      snapshotsList,
+      searchQuery: ''
     }
   },
 
   computed: {
+    networkSettings() {
+      return networkSettings
+    },
     ...mapGetters('app/account', { _isAuthorized: 'isAuthorized' }),
     ...mapState('app/settings/system', {
-      _ads: s => s.ads.enabled,
-      _ads_maximum: s => s.ads.maximum,
       _updates_enabled: s => s.updates.enabled,
       _updates_timeout: s => s.updates.timeout,
-      _api_endpoint: s => s.api._endpoint,
-      _static_endpoint: s => s.api._static_endpoint,
       _notifications_system: s => s.notifications.system,
       _appbar_right: s => s.appbar_right,
       _filter_notify: s => s.filter_notify,
-      _drpc_enabled: s => s.drpc_enabled,
-      _proxy: s => s.proxy,
-      _ignore_certs: s => s.ignore_certs
+      _drpc_enabled: s => s.drpc_enabled
     }),
   },
 
   methods: {
-    toggleOperaProxy: function () {
-      if (this._proxy === 'http://opera') {
-        this.setProxyServer('')
-        console.log('opera proxy disabled')
-      } else {
-        this.setProxyServer('http://opera')
-        console.log('opera proxy enabled')
-      }
-    },
-    setProxyServer: function ($event) {
-      this._setProxy($event)
-      invokeUpdateProxy($event)
-    },
     showSnapshotsList: function () {
       this.$refs.confirm.hideDialog()
       this.$refs.snapshotsList.showDialog()
@@ -305,19 +226,17 @@ export default {
     snapshots: function () {
       this.$refs.confirm.showDialog()
     },
+    network: function () {
+      this.$refs.network.showDialog()
+    },
     ...mapActions('app/settings/system', {
       _setAds: 'setAds',
       _setUpdates: 'setUpdates',
-      _setAdsMaximum: 'setAdsMaximum',
       _setUpdatesTimeout: 'setUpdatesTimeout',
       _setSystemNotifications: 'setSystemNotifications',
-      _setAPIEndpoint: 'setAPIEndpoint',
-      _setAPIStaticEndpoint: 'setAPIStaticEndpoint',
       _setAppbarRight: 'setAppbarRight',
       _setFilterNotify: 'setFilterNotify',
-      _setDRPC: 'setDRPC',
-      _setProxy: 'setProxy',
-      _setIgnoreCerts: 'setIgnoreCerts'
+      _setDRPC: 'setDRPC'
     })
   },
 
@@ -326,3 +245,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.my-auto {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+</style>
