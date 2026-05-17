@@ -166,30 +166,47 @@ export default {
       this.parseLoading = true
       const torrents = this.torrents
 
-      const waitForTorrentFileResolved = (magnet) => {
-        return new Promise((resolve) => {
+      const waitForTorrentFileResolved = (magnet, timeout = 10000) => {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => {
+            reject(new Error(`Torrent resolve timeout: ${magnet}`))
+          }, timeout)
+
           global.TorrentFileResolved = (fileData) => {
             if (magnet !== fileData.magnet) return
+
+            clearTimeout(timer)
             resolve(fileData)
           }
         })
-      };
+      }
 
       for (let torrent of torrents) {
-        const { magnet } = await invokeTorrentParse(torrent.url)
-        const waitForFileResolved = waitForTorrentFileResolved(torrent.magnet)
-        console.log('Sending request for', magnet)
-        sendTorrentFileResolveRequest(magnet);
+        try {
+          const { magnet } = await invokeTorrentParse(torrent.url)
+          const waitForFileResolved = waitForTorrentFileResolved(magnet)
+          console.log('Sending request for', magnet)
+          sendTorrentFileResolveRequest(magnet)
 
-        const { buffer, name } = await waitForFileResolved
-        console.log('File resolved', name, buffer)
+          const { buffer, name } = await waitForFileResolved
+          console.log('File resolved', name, buffer)
 
-        this.torrentsList.push({
-          ...torrent,
-          magnet,
-          file: buffer,
-          filename: name
-        })
+          this.torrentsList.push({
+            ...torrent,
+            magnet,
+            file: buffer,
+            filename: name
+          })
+        } catch (e) {
+          console.error(e)
+
+          this.torrentsList.push({
+            ...torrent,
+            magnet: torrent.magnet,
+            file: null,
+            filename: 'fuckyou'
+          })
+        }
       }
       this.parseLoading = false
     }
