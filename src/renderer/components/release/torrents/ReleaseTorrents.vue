@@ -67,6 +67,7 @@ import humanFormat from 'human-format'
 import moment from 'moment'
 import { invokeTorrentParse } from '@main/handlers/app/app-handlers';
 import { mapActions, mapState } from 'vuex';
+import {sendTorrentFileResolveRequest} from "@main/handlers/torrents/torrents-handler";
 
 const props = {
   loading: {
@@ -165,14 +166,28 @@ export default {
       this.parseLoading = true
       const torrents = this.torrents
 
+      const waitForTorrentFileResolved = (magnet) => {
+        return new Promise((resolve) => {
+          global.TorrentFileResolved = (fileData) => {
+            if (magnet !== fileData.magnet) return
+            resolve(fileData)
+          }
+        })
+      };
+
       for (let torrent of torrents) {
-        const { file, name, magnet, url } = await invokeTorrentParse(torrent.url)
+        const { magnet } = await invokeTorrentParse(torrent.url)
+        const waitForFileResolved = waitForTorrentFileResolved(torrent.magnet)
+        console.log('Sending request for', magnet)
+        sendTorrentFileResolveRequest(magnet);
+
+        const { buffer, name } = await waitForFileResolved
+        console.log('File resolved', name, buffer)
 
         this.torrentsList.push({
           ...torrent,
-          url,
           magnet,
-          file,
+          file: buffer,
           filename: name
         })
       }

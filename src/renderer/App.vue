@@ -31,6 +31,9 @@ import { setMomentLocale } from '@plugins/moment'
 import { invokeSetAppLocale } from '@main/handlers/app/app-handlers'
 
 import { mapActions, mapState } from 'vuex'
+import {
+  catchTorrentFileResolved, sendTorrentFileResolveRequest,
+} from "@main/handlers/torrents/torrents-handler";
 
 export default {
   name: 'AniLibrix',
@@ -153,6 +156,11 @@ export default {
   },
 
   async created() {
+    catchTorrentFileResolved((fileData) => {
+      console.log('File resolved', fileData)
+      if (global.TorrentFileResolved) global.TorrentFileResolved(fileData)
+    })
+
     const last_page_release = localStorage.getItem('last_page_release')
     // Initial loading
     this.loading = true

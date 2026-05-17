@@ -4,12 +4,16 @@
 import app from '@/../package'
 
 // Torrent handlers
-import { catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError, sendTorrentServer } from '@main/handlers/torrents/torrents-handler'
+import {
+  catchRequestTorrentFileResolve,
+  catchTorrentDestroy, catchTorrentParse, catchTorrentStart, sendTorrentClear, sendTorrentDownload, sendTorrentError,
+  sendTorrentFileResolved,
+  sendTorrentServer
+} from '@main/handlers/torrents/torrents-handler'
 
 // Utils
 import { parse, stringify } from 'flatted'
-import {ipcRenderer} from "electron";
-import parseTorrent from "parse-torrent";
+import { ipcRenderer } from 'electron';
 
 const http = require('http')
 const path = require('path')
@@ -38,6 +42,47 @@ const store = {
  */
 const torrentPath = path.join(require('@electron/remote').app.getPath('temp'), app.build.appId)
 
+export const resolveTorrentFile = async (magnet) => {
+  return new Promise((resolve, reject) => {
+    if (!torrentClient) {
+      reject(new Error('WebTorrent client is not initialized'))
+    }
+
+    const t = torrentClient.add(magnet, { path: torrentPath }, async torrent => {
+      clearTimeout(timeoutId)
+      resolve({
+        name: torrent.name,
+        magnet,
+        buffer: torrent.torrentFile
+      })
+
+      torrent.files.forEach(file => file.deselect())
+      torrent.deselect(0, torrent.pieces.length - 1, false)
+
+      torrent.destroy()
+
+      rimraf(torrent.path, () => {})
+    })
+
+    const timeoutId = setTimeout(() => {
+      t.destroy()
+      reject(new Error('Timeout: torrent not ready after 10000ms'))
+    }, 30000)
+  })
+    .then(x => {
+      sendTorrentFileResolved({
+        error: false,
+        ...x
+      })
+    })
+    .catch(() => {
+      sendTorrentFileResolved({
+        error: true,
+        message: 'Timeout: torrent not ready after 10000ms'
+      })
+    })
+}
+
 /**
  * Start torrent from provided source
  *
@@ -56,16 +101,14 @@ const startTorrent = async ({
   if (torrentClient) {
     // Destroy torrent if it already added
     console.log('Torrents list:', store.torrents, store.torrents[torrentId])
-    
-    
+
     if (store.torrents[torrentId]) {
       console.log('destroy', store.torrents[torrentId], torrentId)
       store.torrents[torrentId].destroy()
     }
-    
+
     torrentClient.torrents.forEach(x => x.destroy())
     Object.keys(store.torrents).forEach((v, i) => (store.torrents[v] = null))
-    
 
     const t = await ipcRenderer.invoke('getTorrent', torrentId)
 
@@ -314,6 +357,9 @@ const _sendError = ({
 };
 
 (() => {
+  catchRequestTorrentFileResolve((magnet) => {
+    resolveTorrentFile(magnet)
+  })
   catchTorrentParse(payload => parseTorrentData(payload))
   catchTorrentStart(payload => startTorrent(payload))
   catchTorrentDestroy(payload => destroyTorrent(payload))

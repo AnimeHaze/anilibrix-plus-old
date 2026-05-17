@@ -9,7 +9,8 @@ export const TORRENT_SERVER = 'torrent:server'
 export const TORRENT_DESTROY = 'torrent:destroy'
 export const TORRENT_DOWNLOAD = 'torrent:download'
 export const TORRENT_PARSED_DATA = 'torrent:data'
-
+export const TORRENT_FILE_RESOLVED = 'torrent:file_resolved'
+export const TORRENT_FILE_REQUEST = 'torrent:file_request'
 /**
  * Broadcast torrent events
  *
@@ -23,6 +24,14 @@ export const broadcastTorrentEvents = () => {
     },
     {
       channel: TORRENT_ERROR,
+      window: () => Main
+    },
+    {
+      channel: TORRENT_FILE_REQUEST,
+      window: () => Torrent
+    },
+    {
+      channel: TORRENT_FILE_RESOLVED,
       window: () => Main
     },
     {
@@ -188,3 +197,27 @@ export const sendTorrentDestroy = (payload) => ipcRenderer.send(TORRENT_DESTROY,
  * @param callback
  */
 export const catchTorrentDestroy = (callback) => ipcRenderer.on(TORRENT_DESTROY, (e, payload) => callback(JSON.parse(payload)))
+
+/**
+ * Send torrent error
+ * Used in webtorrent process
+ *
+ * @param port
+ */
+export const sendTorrentFileResolved = (data) => {
+  ipcRenderer.send(TORRENT_FILE_RESOLVED, data)
+}
+
+/**
+ * Catch torrent clear
+ *
+ * @param callback
+ * @return {Electron.IpcRenderer}
+ */
+export const catchTorrentFileResolved = (callback) => ipcRenderer.on(TORRENT_FILE_RESOLVED, (e, data) => callback(data))
+
+export const catchRequestTorrentFileResolve = (callback) => ipcRenderer.on(TORRENT_FILE_REQUEST, (e, magnet) => callback(magnet))
+
+export const sendTorrentFileResolveRequest = (magnet) => {
+  ipcRenderer.send(TORRENT_FILE_REQUEST, magnet)
+}

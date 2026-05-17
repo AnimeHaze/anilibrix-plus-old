@@ -295,50 +295,9 @@ export const handleTorrentParse = () => {
   ipcMain.handle(APP_TORRENT_PARSE, async (event, url) => {
     url = new URL('https://' + global.upstreamDomainV1Tv + url)
 
-    const abortCtrl = new AbortController()
-
-    console.log('Downloading torrent file', url.toString())
-
-    const timer = setTimeout(() => {
-      abortCtrl.abort()
-    }, 5000)
-
-    const torrent = await catGirlFetch(url, { signal: abortCtrl.signal })
-      .then(async x => {
-        clearTimeout(timer)
-        return {
-          name: parse(x.headers.get('content-disposition')).filename || 'unknown.torrent',
-          file: Buffer.from(await x.arrayBuffer()),
-          url
-        }
-      })
-      .catch(() => {
-        clearTimeout(timer)
-      })
-
     const magnet = global.apiCacheService.torrentsRaw.get(+url.searchParams.get('id'))?.magnet
 
-    if (!torrent?.name || torrent?.name === 'unknown.torrent') {
-      try {
-        console.log('Resolve magnet via torrent net', magnet)
-        const t = await m2t.getTorrent(magnet)
-        console.log('Resolved successfully via torrent net', t.name, t.infoHash)
-
-        const file = t.toTorrentFile()
-
-        return {
-          file: file.toString('base64'),
-          name: t.name,
-          magnet: magnet
-        }
-      } catch (e) {
-        showTorrentError()
-      }
-    }
-
     return {
-      file: torrent?.file ? torrent.file.toString('base64') : '',
-      name: torrent?.name || 'fuckyou',
       magnet: magnet
     }
   })
