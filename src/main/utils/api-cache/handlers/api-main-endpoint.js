@@ -1,3 +1,5 @@
+import { APIResponseTransformer } from '@main/utils/api-cache/api-release-transformer';
+
 export default function (apiController, cacheService) {
   return async (req, res, next) => {
     try {
@@ -18,6 +20,15 @@ export default function (apiController, cacheService) {
           await cacheService.ensureInitialized()
           response.data.items.forEach((v, i) => {
             v.total_series = cacheService.releases.get(v.id)?.series || '(0)'
+
+            if (!v.playlist || !v.playlist.length) {
+              v.playlist = apiController.findEpisodes(v.id)
+                .map(x => {
+                  return APIResponseTransformer.createPlaylistItem(v, x, null)
+                })
+
+              console.log(v.id, v.playlist.length)
+            }
           })
         }
 
