@@ -139,14 +139,16 @@ export default {
           this.$toasted.show(this.$t('release.torrentFetchError'), { type: 'error' })
           return
         }
-
-        let downloadLink = document.createElement("a");
-        downloadLink.href = 'data:application/x-bittorrent;base64,' + torrent.file;
-        downloadLink.download = torrent.filename;
-
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        
+        const blob = new Blob([ torrent.file], { type: 'application/x-bittorrent' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = torrent.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       }
     },
 
@@ -166,7 +168,7 @@ export default {
       this.parseLoading = true
       const torrents = this.torrents
 
-      const waitForTorrentFileResolved = (magnet, timeout = 10000) => {
+      const waitForTorrentFileResolved = (magnet, timeout = 20000) => {
         return new Promise((resolve, reject) => {
           const timer = setTimeout(() => {
             reject(new Error(`Torrent resolve timeout: ${magnet}`))
@@ -195,7 +197,7 @@ export default {
             ...torrent,
             magnet,
             file: buffer,
-            filename: name
+            filename: name + '.torrent'
           })
         } catch (e) {
           console.error(e)
