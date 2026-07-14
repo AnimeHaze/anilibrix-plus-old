@@ -208,6 +208,7 @@ export default {
   },
   player: {
     noSourceData: 'No playback data available',
+    alwaysOnTop: 'Always on top',
     autoSkipOff: 'Auto-skip opening disabled',
     autoSkipOn: 'Auto-skip opening enabled',
     unsupportedAudioTrack: 'Audio track is not supported',

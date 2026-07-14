@@ -28,10 +28,12 @@
           <v-col align-self="center">
             <player-controls
               v-bind="{episode, source, player}"
+              :is-always-on-top="is_always_on_top"
               @set:speed="setSpeed"
               @set:source="setSource"
               @set:volume="setVolume"
               @toggle:pip="togglePIP"
+              @toggle:always-on-top="toggleAlwaysOnTop"
               @toggle:fullscreen="toggleFullscreen">
             </player-controls>
           </v-col>
@@ -130,7 +132,8 @@ export default {
       visible: true,
       visible_handler: null,
       keysDown: [],
-      skips: []
+      skips: [],
+      is_always_on_top: false
     }
   },
 
@@ -140,6 +143,9 @@ export default {
       _opening_skip_button_key: s => s.opening.skip_button_key,
       _auto_opening_skip_key: s => s.opening.autoSkipKey,
       _opening_skip_time: s => s.opening.skip_time
+    }),
+    ...mapState('app/settings/system', {
+      _always_on_top: s => s.always_on_top
     })
   },
 
@@ -215,6 +221,20 @@ export default {
      */
     togglePIP () {
       this.player.pip = !this.player.pip
+    },
+
+    /**
+     * Toggle window always-on-top state
+     *
+     * @return {void}
+     */
+    toggleAlwaysOnTop () {
+      const window = require('@electron/remote').getCurrentWindow()
+      const nextState = !window.isAlwaysOnTop()
+
+      window.setAlwaysOnTop(nextState)
+      this.is_always_on_top = window.isAlwaysOnTop()
+      this._setAlwaysOnTop(this.is_always_on_top)
     },
 
     /**
@@ -303,6 +323,9 @@ export default {
     ...mapActions('app/settings/player', {
       _setAutoSkip: 'setAutoSkip'
     }),
+    ...mapActions('app/settings/system', {
+      _setAlwaysOnTop: 'setAlwaysOnTop'
+    }),
     handleKeyUp (e) {
       this.handleKeys('keyup', e)
     },
@@ -319,6 +342,10 @@ export default {
 
     if (ending) this.skips.push({ start: ending[0], end: ending[1] })
     if (opening) this.skips.push({ start: opening[0], end: opening[1] })
+
+    const window = require('@electron/remote').getCurrentWindow()
+    window.setAlwaysOnTop(Boolean(this._always_on_top))
+    this.is_always_on_top = window.isAlwaysOnTop()
 
     // Hide / Show controls
     this.showInterface()

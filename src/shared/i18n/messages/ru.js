@@ -207,6 +207,7 @@ export default {
   },
   player: {
     noSourceData: 'Нет данных для воспроизведения',
+    alwaysOnTop: 'Поверх всех окон',
     autoSkipOff: 'Авто пропуск опенинга выключен',
     autoSkipOn: 'Авто пропуск опенинга включен',
     unsupportedAudioTrack: 'Аудио дорожка не поддерживается',
