@@ -1,179 +1,37 @@
-import { app, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeImage } from 'electron'
 import fs from 'fs'
 import archiver from 'archiver'
 import * as path from 'path'
 
 import { getFacts, t } from '@main/utils/i18n'
+import ejs from 'ejs'
+import store from '@store'
+import { resolveAppLocale } from '@shared/i18n/resolveLocale';
 
-function getSplashHTML () {
-  return `<body>
-  <div class="container">
-    <div>
-      <svg style="animation: pulse 2s ease-in-out infinite; filter: drop-shadow(0 0 20px #ff001e); margin-top: 25px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210" width="210" height="210">
-        <g transform="matrix(0.402797,0,0,0.402797,1.383987,89.883987)">
-          <path class="animated-line" id="logo-stroke" d="M116.609,211.244C114.442,209.686 112.424,208.304 110.843,206.881C103.657,200.411 106.405,197.366 114.789,183.031C123.617,167.936 127.721,176.626 135.349,181.873L135.8,182.183C169.566,206.722 211.105,221.201 256,221.201C319.71,221.201 376.664,192.043 414.233,146.355C415.566,144.438 417.73,140.43 415.788,138.058C414.752,136.792 412.919,136.332 411.306,136.059C407.743,135.457 379.917,137.503 374.379,134.124C371.249,132.215 369.189,127.845 347.311,90.027C302.065,11.814 301.901,11.721 301.324,7.517C300.734,3.222 301.643,-90.54 300.89,-116.332C300.438,-131.786 312.625,-123.931 329.214,-116.67C376.692,-95.89 377.064,-94.529 378.238,-90.23C379.221,-86.633 378.772,-21.65 378.622,-15.128C378.562,-12.1 378.565,65.192 378.813,67.095C380.023,76.404 386.326,73.265 426.457,73.858C427.056,73.866 427.012,73.858 433.939,73.862C483.193,73.498 486.289,72.976 487.052,78.377C487.728,83.17 474.426,126.703 441.903,167.482C397.96,221.481 330.979,256 256,256C204.022,256 155.889,239.411 116.609,211.244ZM59.61,153.209C58.737,152.003 54.798,146.56 49.422,137.63C44.861,130.054 42.585,128.136 53.52,109.281C87.571,50.568 87.369,50.52 90.419,45.473C101.072,27.848 124.487,-13.376 127.407,-18.517C129.795,-22.72 147.925,-54.64 157.547,-70.886C174.82,-100.051 187.144,-123.922 189.956,-124.723C196.256,-126.516 197.377,-122.848 209.563,-101.607C312.604,77.99 313.214,77.538 322.064,93.209C342,128.514 344.762,130.817 340.157,134.531C338.527,135.845 326.506,135.778 325.314,135.771C284.037,135.54 274.229,138.557 268.301,131.625C266.113,129.066 255.52,110.168 254.458,108.273C248.742,98.076 245.647,101.124 175.423,100.739C168.042,100.698 165.325,100.418 166.852,93.221C167.023,92.417 188.127,55.86 190.352,52.239C196.556,42.145 214.774,51.235 214.804,41.16C214.814,37.847 199.754,13.127 198.315,10.764C192.257,0.822 186.921,10.085 186.447,10.908C156.307,63.233 156.736,63.428 153.882,67.831C146.563,79.123 130.845,107.521 127.62,112.766C124.792,117.364 98.128,164.145 97.495,165.152C91.73,174.31 89.518,183.122 81.533,180.059C80.387,179.62 70.226,169.12 59.61,153.209ZM17.787,42.096C16.887,33.662 16.425,25.097 16.425,16.425C16.425,-115.8 123.775,-223.15 256,-223.15C388.225,-223.15 495.575,-115.8 495.575,16.425C495.575,18.457 495.549,20.483 495.499,22.503C495.284,32.411 494.584,41.227 493.535,44.649C492.636,47.583 492.801,51.227 467.583,50.097C457.805,49.659 459.161,43.944 460.071,33.517C460.422,29.493 460.503,26.289 460.651,23.627C460.734,21.237 460.775,18.836 460.775,16.425C460.775,-96.593 369.019,-188.35 256,-188.35C142.981,-188.35 51.225,-96.593 51.225,16.425C51.225,24.614 51.706,32.691 52.643,40.63C53.643,50.202 55.244,56.136 54.379,59.479C53.061,64.569 36.926,91.568 36.01,92.387C33.11,94.977 30.284,93.011 29.881,92.73C28.628,91.858 23.189,76.88 19.051,52.102C18.803,49.875 18.253,46.471 17.787,42.096Z"
-            fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path class="fill-animation" id="logo-fill" d="M116.609,211.244C114.442,209.686 112.424,208.304 110.843,206.881C103.657,200.411 106.405,197.366 114.789,183.031C123.617,167.936 127.721,176.626 135.349,181.873L135.8,182.183C169.566,206.722 211.105,221.201 256,221.201C319.71,221.201 376.664,192.043 414.233,146.355C415.566,144.438 417.73,140.43 415.788,138.058C414.752,136.792 412.919,136.332 411.306,136.059C407.743,135.457 379.917,137.503 374.379,134.124C371.249,132.215 369.189,127.845 347.311,90.027C302.065,11.814 301.901,11.721 301.324,7.517C300.734,3.222 301.643,-90.54 300.89,-116.332C300.438,-131.786 312.625,-123.931 329.214,-116.67C376.692,-95.89 377.064,-94.529 378.238,-90.23C379.221,-86.633 378.772,-21.65 378.622,-15.128C378.562,-12.1 378.565,65.192 378.813,67.095C380.023,76.404 386.326,73.265 426.457,73.858C427.056,73.866 427.012,73.858 433.939,73.862C483.193,73.498 486.289,72.976 487.052,78.377C487.728,83.17 474.426,126.703 441.903,167.482C397.96,221.481 330.979,256 256,256C204.022,256 155.889,239.411 116.609,211.244ZM59.61,153.209C58.737,152.003 54.798,146.56 49.422,137.63C44.861,130.054 42.585,128.136 53.52,109.281C87.571,50.568 87.369,50.52 90.419,45.473C101.072,27.848 124.487,-13.376 127.407,-18.517C129.795,-22.72 147.925,-54.64 157.547,-70.886C174.82,-100.051 187.144,-123.922 189.956,-124.723C196.256,-126.516 197.377,-122.848 209.563,-101.607C312.604,77.99 313.214,77.538 322.064,93.209C342,128.514 344.762,130.817 340.157,134.531C338.527,135.845 326.506,135.778 325.314,135.771C284.037,135.54 274.229,138.557 268.301,131.625C266.113,129.066 255.52,110.168 254.458,108.273C248.742,98.076 245.647,101.124 175.423,100.739C168.042,100.698 165.325,100.418 166.852,93.221C167.023,92.417 188.127,55.86 190.352,52.239C196.556,42.145 214.774,51.235 214.804,41.16C214.814,37.847 199.754,13.127 198.315,10.764C192.257,0.822 186.921,10.085 186.447,10.908C156.307,63.233 156.736,63.428 153.882,67.831C146.563,79.123 130.845,107.521 127.62,112.766C124.792,117.364 98.128,164.145 97.495,165.152C91.73,174.31 89.518,183.122 81.533,180.059C80.387,179.62 70.226,169.12 59.61,153.209ZM17.787,42.096C16.887,33.662 16.425,25.097 16.425,16.425C16.425,-115.8 123.775,-223.15 256,-223.15C388.225,-223.15 495.575,-115.8 495.575,16.425C495.575,18.457 495.549,20.483 495.499,22.503C495.284,32.411 494.584,41.227 493.535,44.649C492.636,47.583 492.801,51.227 467.583,50.097C457.805,49.659 459.161,43.944 460.071,33.517C460.422,29.493 460.503,26.289 460.651,23.627C460.734,21.237 460.775,18.836 460.775,16.425C460.775,-96.593 369.019,-188.35 256,-188.35C142.981,-188.35 51.225,-96.593 51.225,16.425C51.225,24.614 51.706,32.691 52.643,40.63C53.643,50.202 55.244,56.136 54.379,59.479C53.061,64.569 36.926,91.568 36.01,92.387C33.11,94.977 30.284,93.011 29.881,92.73C28.628,91.858 23.189,76.88 19.051,52.102C18.803,49.875 18.253,46.471 17.787,42.096Z"
-            fill="white" fill-opacity="0" stroke="none"/>
-        </g>
-      </svg>
-    </div>
+function resolveSystemLocale () {
+  const preferred = typeof app.getPreferredSystemLanguages === 'function'
+    ? app.getPreferredSystemLanguages()[0]
+    : null
 
-    <div id="message"></div>
-    <div id="logs-saved"></div>
+  return preferred || app.getLocale()
+}
 
-    <div style="display: flex; flex-direction: row;">
-        <button class="action" id="logs">${t('common.saveLogs')}</button>
-        <button style="margin-left: 20px" id="close" class="action">${t('common.close')}</button>
-        <button style="margin-left: 20px" id="restart" class="action">${t('common.restart')}</button>
-    </div>
-  </div>
+function getSplashHTML() {
+  try {
+    const templatePath = path.join(__dirname, '..', 'splash.ejs');
 
-  <script>
-    const msg = document.getElementById('message');
-    const btn = document.getElementById('logs');
-    const btn2 = document.getElementById('close');
-    const btn3 = document.getElementById('restart');
+    const template = fs.readFileSync(templatePath, 'utf8');
 
-    function showMessage({ text, type = 'info', button = false }) {
-      msg.textContent = text;
-      msg.style.opacity = 1;
-      msg.style.transform = 'translateY(0)';
-      msg.style.background = type === 'error' ? 'rgba(255,0,30,0.35)' : 'rgba(255,255,255,0.08)';
-
-      btn.style.display = button ? 'block' : 'none';
-      btn2.style.display = button ? 'block' : 'none';
-      btn3.style.display = button ? 'block' : 'none';
-    }
-
-    const { ipcRenderer } = require('electron');
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const logoStroke = document.getElementById('logo-stroke');
-      const logoFill = document.getElementById('logo-fill');
-
-      logoStroke.addEventListener('animationend', function onAnimationEnd() {
-        logoFill.style.animation = 'fadeFill 1.5s ease-in-out forwards';
-
-        setTimeout(() => {
-          logoStroke.style.opacity = '0';
-        }, 1500);
-
-        logoStroke.removeEventListener('animationend', onAnimationEnd);
-      });
-
-      ipcRenderer.on('update', (event, data) => {
-        showMessage(data.payload);
-      });
-
-      btn2.onclick = async () => {
-        btn.disabled = true;
-        await ipcRenderer.invoke('exit');
-      };
-
-      btn3.onclick = async () => {
-        btn.disabled = true;
-        await ipcRenderer.invoke('restart');
-      };
-
-      btn.onclick = async () => {
-        btn.disabled = true;
-        btn.textContent = '${t('common.loading')}';
-
-        if (await ipcRenderer.invoke('save-logs') !== true) {
-          document.querySelector('#logs-saved').textContent = '';
-          btn.textContent = '${t('common.saveLogs')}';
-          btn.disabled = false;
-          return;
-        }
-
-        document.querySelector('#logs-saved').textContent = '${t('common.logsSaved')}';
-        btn.textContent = '${t('common.saveLogs')}';
-        btn.disabled = false;
-      };
-    });
-  </script>
-
-  <style>
-    body {
-      overflow: hidden;
-      user-select: none;
-      margin: 0;
-      font-family: sans-serif;
-      color: white;
-      text-align: center;
-    }
-
-    .action {
-      display: none;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background: rgba(255,0,30,0.35);
-      color: white;
-      font-size: 13px;
-    }
-
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      border-radius: 10%;
-      background: linear-gradient(135deg,#1e1e1e,#2c2c2c);
-    }
-
-    #message {
-      font-size: 1rem;
-      max-width: 320px;
-      line-height: 1.5;
-      background: rgba(255,0,30,0.42);
-      backdrop-filter: blur(8px);
-      padding: 14px 20px;
-      border-radius: 14px;
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
-      transition: opacity 1s ease, transform 1s ease;
-      font-weight: 500;
-    }
-
-    .animated-line {
-      stroke-dasharray: 3000;
-      stroke-dashoffset: 3000;
-      animation: draw 3s ease-in-out forwards;
-      transition: opacity 0.5s ease;
-    }
-
-    .fill-animation {
-      fill-opacity: 0;
-    }
-
-    @keyframes draw {
-      0% {
-        stroke-dashoffset: 3000;
+    return ejs.render(template, {
+      t: (key) => {
+        return t(key);
       }
-      100% {
-        stroke-dashoffset: 0;
-      }
-    }
+    })
+  } catch (error) {
+    console.error('Error rendering splash template:', error);
 
-    @keyframes fadeFill {
-      0% {
-        fill-opacity: 0.6;
-      }
-      100% {
-        fill-opacity: 1;
-      }
-    }
-
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.01); } }
-    @keyframes wobble { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(3deg) translateX(1px); } 50% { transform: rotate(-3deg) translateX(-1px); } 75% { transform: rotate(2deg) translateX(0); } }
-  </style>
-</body>`
+    return ''
+  }
 }
 
 export function createSplash () {
@@ -186,11 +44,7 @@ export function createSplash () {
     frame: false,
     resizable: false,
     width: 400,
-    height: 400,
-    maxHeight: 400,
-    maxWidth: 400,
-    minHeight: 400,
-    minWidth: 400,
+    height: 500,
     transparent: true,
     webPreferences: {
       nodeIntegration: true,
@@ -204,7 +58,24 @@ export function createSplash () {
     })
 
   splash.once('ready-to-show', () => {
-    const facts = getFacts()
+    const storedLocale = store.state.app.settings.system.language
+    let systemLocale = null
+
+    try {
+      systemLocale = resolveSystemLocale()
+    } catch (error) {
+      console.error('Failed to resolve system locale', error)
+    }
+
+    const locale = resolveAppLocale({
+      storedLocale,
+      systemLocale,
+      rendererLocale: systemLocale
+    })
+
+    console.log('Locale:', locale, storedLocale, systemLocale)
+
+    const facts = getFacts(locale)
     const randomFact = facts[Math.floor(Math.random() * facts.length)]
 
     splash.webContents.send('update', {

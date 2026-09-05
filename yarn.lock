@@ -2205,6 +2205,7 @@ __metadata:
     del: ^5.1.0
     dmg-license: ^1.0.11
     dotenv-webpack: ^1.7.0
+    ejs: ^6.0.1
     electron: ^15.1.0
     electron-builder: ^23.0.2
     electron-promise-ipc: ^2.0.1
@@ -6516,6 +6517,15 @@ __metadata:
   bin:
     ejs: bin/cli.js
   checksum: af6f10eb815885ff8a8cfacc42c6b6cf87daf97a4884f87a30e0c3271fedd85d76a3a297d9c33a70e735b97ee632887f85e32854b9cdd3a2d97edf931519a35f
+  languageName: node
+  linkType: hard
+
+"ejs@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "ejs@npm:6.0.1"
+  bin:
+    ejs: bin/cli.js
+  checksum: 0401103242ca6a5c345de2f6d52f67740e3894ff82309e7a12548252511c07cc1007ef373bfcc07311bfe1fb7beece9c980cecfa8279f1d7d2c803a6617816ce
   languageName: node
   linkType: hard
 

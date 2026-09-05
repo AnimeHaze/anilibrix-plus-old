@@ -258,10 +258,6 @@ if (!gotTheLock) {
         menuController.init()
         trayController.refreshMenu().setTooltip(meta.name)
 
-        if (global.splash && typeof global.splash.reloadLocale === 'function') {
-          global.splash.reloadLocale()
-        }
-
         return normalized
       })
       broadcastTorrentEvents()
