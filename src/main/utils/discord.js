@@ -21,6 +21,7 @@ export function discordActivity() {
   const mutex = new Mutex()
 
   let stateVersion = 0
+  let activityCleared = false
 
   const ensureReadableStream = () => {
     if (!global.ReadableStream) {
@@ -56,25 +57,26 @@ export function discordActivity() {
   }
 
   const clearActivity = async currentClient => {
+    if (activityCleared) {
+      return true
+    }
+
+    const version = stateVersion
+
     for (let attempt = 1; attempt <= CLEAR_ATTEMPTS; attempt++) {
       if (
         destroyed ||
-        currentClient !== client
+        currentClient !== client ||
+        version !== stateVersion
       ) {
-        return
-      }
-
-      const version = stateVersion
-
-      if (version !== stateVersion) {
-        return
+        return false
       }
 
       try {
         await currentClient.user.clearActivity()
 
         logger(
-          `Discord clear activity (${attempt}/${CLEAR_ATTEMPTS})`,
+          `Discord clear activity (${attempt}/${CLEAR_ATTEMPTS})`
         )
       } catch (error) {
         logger(
@@ -88,13 +90,19 @@ export function discordActivity() {
         currentClient !== client ||
         version !== stateVersion
       ) {
-        return
+        return false
       }
 
       if (attempt < CLEAR_ATTEMPTS) {
         await sleep(CLEAR_RETRY_DELAY)
       }
     }
+
+    activityCleared = true
+
+    logger('Discord activity cleared')
+
+    return true
   }
 
   const syncActivity = () => {
@@ -109,7 +117,6 @@ export function discordActivity() {
 
       const currentClient = client
       const version = stateVersion
-
       const enabled = store.state.app.settings.system.drpc_enabled
 
       if (!enabled || !activity) {
@@ -117,15 +124,17 @@ export function discordActivity() {
         return
       }
 
-      try {
-        if (
-          version !== stateVersion ||
-          currentClient !== client ||
-          destroyed
-        ) {
-          return
-        }
+      activityCleared = false
 
+      if (
+        version !== stateVersion ||
+        currentClient !== client ||
+        destroyed
+      ) {
+        return
+      }
+
+      try {
         await currentClient.user.setActivity(activity)
 
         logger('Discord set activity', activity)
@@ -151,7 +160,7 @@ export function discordActivity() {
       const Client = getDRPCClient()
 
       client = new Client({
-        clientId: process.env.DISCORD_CLIENT_ID,
+        clientId: process.env.DISCORD_CLIENT_ID
       })
 
       client.on('disconnected', async () => {
@@ -161,6 +170,7 @@ export function discordActivity() {
 
         client = null
         stateVersion++
+        activityCleared = false
 
         try {
           await disconnectedClient.destroy()
@@ -177,6 +187,8 @@ export function discordActivity() {
         logger('Discord rich presence ready')
 
         stateVersion++
+        activityCleared = false
+
         syncActivity()
       })
 
@@ -200,6 +212,8 @@ export function discordActivity() {
     setActivity(discordPresence) {
       activity = discordPresence
       stateVersion++
+
+      activityCleared = false
 
       syncActivity()
     },
