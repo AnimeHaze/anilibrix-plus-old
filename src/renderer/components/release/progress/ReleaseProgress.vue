@@ -12,8 +12,8 @@
       <div class="release__progress__description caption white--text font-weight-bold px-4 ellipsis-container">
         <!-- Complete All Episodes -->
         <span v-if="isComplete" class="ellipsis-text">
-          <span v-if="!dense">{{ $t('release.progressAllWatched', { total }) }}</span>
-          <span v-else>{{ $t('release.progressAllWatchedDense', { total }) }}</span>
+          <span v-if="!dense">{{ $t('release.progressAllWatched', { episodes: episodes.length, total }) }}</span>
+          <span v-else>{{ $t('release.progressAllWatchedDense', { episodes: episodes.length, total }) }}</span>
         </span>
 
         <!-- Not seen episodes -->
