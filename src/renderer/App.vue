@@ -57,7 +57,8 @@ export default {
     ...mapState('app/settings/system', {
       _updates_enabled: s => s.updates.enabled,
       _updates_timeout: s => (s.updates.timeout > 0 ? s.updates.timeout : 1) * 60 * 1000,
-      _language: s => s.language
+      _language: s => s.language,
+      _always_on_top: s => s.always_on_top
     }),
 
     /**
@@ -120,6 +121,11 @@ export default {
       } catch (error) {
         console.error('Failed to sync app locale', error)
       }
+    },
+
+    syncAlwaysOnTop (state) {
+      const window = require('@electron/remote').getCurrentWindow()
+      window.setAlwaysOnTop(Boolean(state))
     }
 
   },
@@ -200,6 +206,13 @@ export default {
       immediate: true,
       handler (locale) {
         this.syncLocale(locale)
+      }
+    },
+
+    _always_on_top: {
+      immediate: true,
+      handler (state) {
+        this.syncAlwaysOnTop(state)
       }
     },
 

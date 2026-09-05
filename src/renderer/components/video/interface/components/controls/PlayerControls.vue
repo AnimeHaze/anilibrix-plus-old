@@ -16,6 +16,22 @@
         <v-icon size="22">mdi-picture-in-picture-bottom-right</v-icon>
       </v-btn>
 
+      <!-- Always On Top -->
+      <v-tooltip top>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            large
+            v-bind="attrs"
+            :color="isAlwaysOnTop ? 'primary' : undefined"
+            v-on="on"
+            @click="$emit('toggle:always-on-top')">
+            <v-icon size="22">{{ isAlwaysOnTop ? 'mdi-pin' : 'mdi-pin-outline' }}</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t('player.alwaysOnTop') }}</span>
+      </v-tooltip>
+
       <!-- Fullscreen -->
       <v-btn icon large @click="$emit('toggle:fullscreen')">
         <v-icon size="28">mdi-fullscreen</v-icon>
@@ -43,6 +59,10 @@ const props = {
   episode: {
     type: Object,
     default: null
+  },
+  isAlwaysOnTop: {
+    type: Boolean,
+    default: false
   }
 }
 

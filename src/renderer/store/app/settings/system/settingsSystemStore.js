@@ -14,6 +14,7 @@ const SET_IGNORE_CERTS = 'SET_IGNORE_CERTS'
 const SET_LANGUAGE = 'SET_LANGUAGE'
 const SET_SHIKIMORI = 'SET_SHIKIMORI'
 const SET_MYANIMELIST = 'SET_MYANIMELIST'
+const SET_ALWAYS_ON_TOP = 'SET_ALWAYS_ON_TOP'
 
 function normalizeEndpoint (endpoint) {
   if (endpoint.endsWith('/')) {
@@ -48,7 +49,8 @@ export default {
     shikimori_url: '',
     myanimelist_url: '',
     ignore_certs: false,
-    language: null
+    language: null,
+    always_on_top: false
   },
   getters: {
     apiEndpoint: state => {
@@ -68,6 +70,7 @@ export default {
     [SET_PROXY]: (s, state) => (s.proxy = state),
     [SET_SHIKIMORI]: (s, state) => (s.shikimori_url = state),
     [SET_MYANIMELIST]: (s, state) => (s.myanimelist_url = state),
+    [SET_ALWAYS_ON_TOP]: (s, state) => (s.always_on_top = state),
     /**
      * Set updates state
      *
@@ -153,6 +156,7 @@ export default {
     setProxy: ({ commit }, state) => commit(SET_PROXY, state),
     setShikimoriUrl: ({ commit }, state) => commit(SET_SHIKIMORI, state),
     setMyAnimeListUrl: ({ commit }, state) => commit(SET_MYANIMELIST, state),
+    setAlwaysOnTop: ({ commit }, state) => commit(SET_ALWAYS_ON_TOP, state),
     /**
      * Set updates timeout
      *
