@@ -48,6 +48,7 @@ export default {
     return {
       loading: false,
       update_handler: null,
+      always_on_top_handler: null,
       update_notes: ''
     }
   },
@@ -125,12 +126,61 @@ export default {
 
     syncAlwaysOnTop (state) {
       const window = require('@electron/remote').getCurrentWindow()
-      window.setAlwaysOnTop(Boolean(state))
-    }
+      const value = Boolean(state)
 
+      if (window.isAlwaysOnTop() !== value) {
+        window.setAlwaysOnTop(value)
+      }
+    },
+
+    /**
+     * Check actual BrowserWindow state and synchronize it with Vuex.
+     *
+     * This also catches changes made outside of Vue/Electron code.
+     *
+     * @return {void}
+     */
+    async checkAlwaysOnTop () {
+      const window = require('@electron/remote').getCurrentWindow()
+      const state = window.isAlwaysOnTop()
+
+      if (state !== Boolean(this._always_on_top)) {
+        await this.$store.dispatch(
+          'app/settings/system/setAlwaysOnTop',
+          state
+        )
+      }
+    },
+
+    /**
+     * Start always-on-top synchronization.
+     *
+     * @return {void}
+     */
+    startAlwaysOnTopSync () {
+      this.checkAlwaysOnTop()
+
+      this.always_on_top_handler = setInterval(() => {
+        this.checkAlwaysOnTop()
+      }, 100)
+    },
+
+    /**
+     * Stop always-on-top synchronization.
+     *
+     * @return {void}
+     */
+    stopAlwaysOnTopSync () {
+      if (this.always_on_top_handler) {
+        clearInterval(this.always_on_top_handler)
+        this.always_on_top_handler = null
+      }
+    }
   },
 
   async mounted () {
+    this.startAlwaysOnTopSync()
+
     try {
       const data = await Promise.any([
         fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json"),
@@ -185,6 +235,15 @@ export default {
       this.$router.push({name: this._welcome_view})
     }
 
+  },
+
+  beforeDestroy () {
+    this.stopAlwaysOnTopSync()
+
+    if (this.update_handler) {
+      clearInterval(this.update_handler)
+      this.update_handler = null
+    }
   },
 
   watch: {

@@ -28,7 +28,7 @@
           <v-col align-self="center">
             <player-controls
               v-bind="{episode, source, player}"
-              :is-always-on-top="is_always_on_top"
+              :is-always-on-top="_always_on_top"
               @set:speed="setSpeed"
               @set:source="setSource"
               @set:volume="setVolume"
@@ -131,9 +131,9 @@ export default {
       video: null,
       visible: true,
       visible_handler: null,
+      always_on_top_handler: null,
       keysDown: [],
-      skips: [],
-      is_always_on_top: false
+      skips: []
     }
   },
 
@@ -229,12 +229,48 @@ export default {
      * @return {void}
      */
     toggleAlwaysOnTop () {
-      const window = require('@electron/remote').getCurrentWindow()
-      const nextState = !window.isAlwaysOnTop()
+      this._setAlwaysOnTop(!this._always_on_top)
+    },
 
-      window.setAlwaysOnTop(nextState)
-      this.is_always_on_top = window.isAlwaysOnTop()
-      this._setAlwaysOnTop(this.is_always_on_top)
+    /**
+     * Synchronize Vuex state with actual BrowserWindow state.
+     *
+     * This catches changes made outside of Vuex/Electron.
+     *
+     * @return void
+     */
+    syncAlwaysOnTop () {
+      const window = require('@electron/remote').getCurrentWindow()
+      const state = window.isAlwaysOnTop()
+
+      if (state !== Boolean(this._always_on_top)) {
+        this._setAlwaysOnTop(state)
+      }
+    },
+
+    /**
+     * Start BrowserWindow state synchronization.
+     *
+     * @return void
+     */
+    startAlwaysOnTopSync () {
+      this.syncAlwaysOnTop()
+
+      this.always_on_top_handler = setInterval(() => {
+        this.syncAlwaysOnTop()
+      }, 100)
+    },
+
+    /**
+     * Stop BrowserWindow state synchronization.
+     *
+     * @return void
+     */
+    stopAlwaysOnTopSync () {
+      if (this.always_on_top_handler) {
+        clearInterval(this.always_on_top_handler)
+        this.always_on_top_handler = null
+      }
     },
 
     /**
@@ -343,9 +379,7 @@ export default {
     if (ending) this.skips.push({ start: ending[0], end: ending[1] })
     if (opening) this.skips.push({ start: opening[0], end: opening[1] })
 
-    const window = require('@electron/remote').getCurrentWindow()
-    window.setAlwaysOnTop(Boolean(this._always_on_top))
-    this.is_always_on_top = window.isAlwaysOnTop()
+    this.startAlwaysOnTopSync()
 
     // Hide / Show controls
     this.showInterface()
@@ -362,6 +396,7 @@ export default {
   },
 
   beforeDestroy () {
+    this.stopAlwaysOnTopSync()
     document.removeEventListener('keyup', this.handleKeyUp)
     document.removeEventListener('keydown', this.handleKeyDown)
     // Remove player listeners
