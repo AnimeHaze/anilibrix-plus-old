@@ -22,6 +22,16 @@ export default {
   props,
   mixins: [AppKeyboardHandlerMixin],
   render: () => null,
+
+  data () {
+    return {
+      spaceHoldTimer: null,
+      spaceHeld: false,
+      spaceLongPress: false,
+      spacePreviousSpeed: null
+    }
+  },
+
   computed: {
     /**
      * Get episodes
@@ -52,7 +62,82 @@ export default {
         .find(episode => episode.id === (this.$__get(this.episode, 'id') || -1) - 1) || null
     },
   },
+
+  mounted () {
+    window.addEventListener('keydown', this.handleSpaceKeyDown)
+    window.addEventListener('keyup', this.handleSpaceKeyUp)
+    window.addEventListener('blur', this.handleSpaceKeyUp)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('keydown', this.handleSpaceKeyDown)
+    window.removeEventListener('keyup', this.handleSpaceKeyUp)
+    window.removeEventListener('blur', this.handleSpaceKeyUp)
+
+    this.clearSpaceHold()
+  },
+
   methods: {
+
+    /**
+     * Handle Space keydown independently from AppKeyboardHandlerMixin.
+     *
+     * Short press  -> play/pause
+     * Long press   -> 2x speed
+     */
+    handleSpaceKeyDown (e) {
+      if (e.code !== 'Space') return
+      if (e.repeat || this.spaceHeld) return
+
+      e.preventDefault()
+
+      this.spaceHeld = true
+      this.spaceLongPress = false
+      this.spacePreviousSpeed = this.player.speed
+
+      this.spaceHoldTimer = setTimeout(() => {
+        if (!this.spaceHeld) return
+
+        this.spaceLongPress = true
+        this.$emit('set:speed', 2)
+      }, 300)
+    },
+
+    /**
+     * Handle Space keyup.
+     *
+     * Short press -> play/pause
+     * Long press  -> restore previous speed
+     */
+    handleSpaceKeyUp (e) {
+      if (e && e.code !== 'Space' && e.type !== 'blur') return
+      if (!this.spaceHeld) return
+
+      const wasLongPress = this.spaceLongPress
+      const previousSpeed = this.spacePreviousSpeed
+
+      this.clearSpaceHold()
+
+      if (wasLongPress) {
+        this.$emit('set:speed', previousSpeed)
+      } else {
+        this.$emit('toggle:play')
+      }
+    },
+
+    /**
+     * Clear Space state.
+     */
+    clearSpaceHold () {
+      if (this.spaceHoldTimer !== null) {
+        clearTimeout(this.spaceHoldTimer)
+        this.spaceHoldTimer = null
+      }
+
+      this.spaceHeld = false
+      this.spaceLongPress = false
+      this.spacePreviousSpeed = null
+    },
 
     /**
      * Handler keyboard events
