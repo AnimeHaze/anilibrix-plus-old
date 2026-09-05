@@ -1,3 +1,7 @@
+if [ "$IS_BETA" = "1" ]; then
+    mv build/icons/app/beta/512x512.png build/icons/app/512x512.png
+fi
+
 for size in 16 24 32 48 64 128 256; do
     convert build/icons/app/512x512.png -resize ${size}x${size} build/icons/app/${size}x${size}.png
     echo "build/icons/app/${size}x${size}.png"

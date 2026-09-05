@@ -2,6 +2,11 @@ name: Build Linux + Windows + macOS + Mac ARM
 
 on:
   workflow_dispatch:
+    inputs:
+      user_input:
+        description: 'Is it beta? 1 / 0'
+        required: true
+        default: '0'
 
 jobs:
   build-linux:
@@ -9,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      IS_BETA: ${{ github.event.inputs.user_input }}
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
       ADS_URLS: ${{ secrets.ADS_URLS }}
@@ -84,6 +90,12 @@ jobs:
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
 
+      - name: Create icons if beta is set
+        if: ${{ github.event.inputs.user_input == '1' }}
+        run: |
+          echo "Beta version detected, creating icons..."
+          npm run create-icons
+
       - name: Build Linux application
         run: |
           yarn run release:linux
@@ -135,6 +147,7 @@ jobs:
     needs: build-linux
 
     env:
+      IS_BETA: ${{ github.event.inputs.user_input }}
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
       ADS_URLS: ${{ secrets.ADS_URLS }}
@@ -188,6 +201,12 @@ jobs:
       - name: Install project dependencies
         run: yarn install --ignore-platform --ignore-engines
 
+      - name: Create icons if beta is set
+        if: ${{ github.event.inputs.user_input == '1' }}
+        run: |
+          echo "Beta version detected, creating icons..."
+          npm run create-icons
+
       - name: Build Windows application
         run: yarn run release:windows
 
@@ -214,6 +233,7 @@ jobs:
     runs-on: macos-14
     needs: []
     env:
+      IS_BETA: ${{ github.event.inputs.user_input }}
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
       ADS_URLS: ${{ secrets.ADS_URLS }}
@@ -288,6 +308,12 @@ jobs:
 
       - name: Download opera proxy
         run: yarn run proxies-download
+
+      - name: Create icons if beta is set
+        if: ${{ github.event.inputs.user_input == '1' }}
+        run: |
+          echo "Beta version detected, creating icons..."
+          npm run create-icons
 
       - name: Run build
         run: npm run release:mac
