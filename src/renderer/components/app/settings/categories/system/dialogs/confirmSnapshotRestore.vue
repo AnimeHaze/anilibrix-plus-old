@@ -56,7 +56,6 @@ export default {
       _setUpdates: 'setUpdates',
       _setAdsMaximum: 'setAdsMaximum',
       _setUpdatesTimeout: 'setUpdatesTimeout',
-      _setSystemNotifications: 'setSystemNotifications',
       _setAPIEndpoint: 'setAPIEndpoint',
       _setAPIStaticEndpoint: 'setAPIStaticEndpoint',
     }),
@@ -87,7 +86,6 @@ export default {
               enableOpeningSkipButton,
               openingSkipTime,
               autoPlayNext,
-              showSystemNotifications,
               staticEndpoint,
               apiEndpoint,
               autoUpdateReleases,
@@ -116,7 +114,6 @@ export default {
                 enableOpeningSkipButton,
                 openingSkipTime,
                 autoPlayNext,
-                showSystemNotifications,
                 staticEndpoint,
                 apiEndpoint,
                 autoUpdateReleases,
@@ -131,7 +128,6 @@ export default {
             if (openingSkipTime !== undefined) this._setOpeningSkipTime(openingSkipTime)
             if (enableOpeningSkipButton !== undefined) this._setOpeningSkipButton(enableOpeningSkipButton)
 
-            if (showSystemNotifications !== undefined) this._setSystemNotifications(showSystemNotifications)
             if (apiEndpoint !== undefined) this._setAPIEndpoint(apiEndpoint)
             if (staticEndpoint !== undefined) this._setAPIStaticEndpoint(staticEndpoint)
             if (autoUpdateReleases !== undefined) this._setUpdates(autoUpdateReleases)

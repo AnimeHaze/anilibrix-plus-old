@@ -18,7 +18,6 @@ import release from './release'
 import catalog from './catalog'
 import releases from './releases'
 import favorites from './favorites'
-import notifications from './notifications'
 
 Vue.use(Vuex)
 
@@ -27,8 +26,7 @@ const modules = {
   release,
   catalog,
   releases,
-  favorites,
-  notifications
+  favorites
 }
 
 function isRenderer () {
@@ -102,7 +100,6 @@ const store = new Vuex.Store({
       key: 'anilibrix',
       paths: [
         'app',
-        'notifications',
         'catalog.filters',
         'favorites.settings'
       ],

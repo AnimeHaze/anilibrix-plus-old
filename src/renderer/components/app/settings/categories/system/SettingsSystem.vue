@@ -29,28 +29,6 @@
       </v-card>
     </template>
 
-    <!-- Favorite Notifications -->
-    <v-card class="mt-2">
-      <v-list-item dense @click="_setFilterNotify(!_filter_notify)">
-        <v-list-item-icon class="mr-3 my-auto">
-          <v-icon>mdi-star</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>
-            {{ $t('settings.favoriteNotifications') }}
-          </v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-action class="mr-2 my-auto">
-          <v-switch :input-value="_filter_notify" @change="_setFilterNotify"/>
-        </v-list-item-action>
-      </v-list-item>
-      <v-card-text class="pt-2">
-        <div class="caption">
-          {{ $t('settings.favoriteNotificationsHint') }}
-        </div>
-      </v-card-text>
-    </v-card>
-
     <!-- Network -->
     <v-card class="mt-2">
       <v-list dense>
@@ -80,26 +58,6 @@
       </v-list-item>
       <v-card-text class="pt-2 caption">
         {{ $t('settings.richPresenceHint') }}
-      </v-card-text>
-    </v-card>
-
-    <!-- System Notifications -->
-    <v-card class="mt-2">
-      <v-list-item dense @click="_setSystemNotifications(!_notifications_system)">
-        <v-list-item-icon class="mr-3 my-auto">
-          <v-icon>mdi-bell</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ $t('settings.systemNotifications') }}</v-list-item-title>
-        </v-list-item-content>
-        <v-list-item-action class="mr-2 my-auto">
-          <v-switch :input-value="_notifications_system" @change="_setSystemNotifications"/>
-        </v-list-item-action>
-      </v-list-item>
-      <v-card-text class="pt-2">
-        <div class="caption">
-          {{ $t('settings.systemNotificationsHint') }}
-        </div>
       </v-card-text>
     </v-card>
 
@@ -210,9 +168,7 @@ export default {
     ...mapState('app/settings/system', {
       _updates_enabled: s => s.updates.enabled,
       _updates_timeout: s => s.updates.timeout,
-      _notifications_system: s => s.notifications.system,
       _appbar_right: s => s.appbar_right,
-      _filter_notify: s => s.filter_notify,
       _drpc_enabled: s => s.drpc_enabled
     }),
   },
@@ -233,9 +189,7 @@ export default {
       _setAds: 'setAds',
       _setUpdates: 'setUpdates',
       _setUpdatesTimeout: 'setUpdatesTimeout',
-      _setSystemNotifications: 'setSystemNotifications',
       _setAppbarRight: 'setAppbarRight',
-      _setFilterNotify: 'setFilterNotify',
       _setDRPC: 'setDRPC'
     })
   },

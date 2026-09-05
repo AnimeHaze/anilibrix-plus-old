@@ -28,7 +28,7 @@
 <script>
 
 // Utils
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 // Handlers
 import { sendAppDevtoolsMainEvent, sendAppDevtoolsTorrentEvent, } from '@main/handlers/app/app-handlers'
@@ -53,21 +53,11 @@ export default {
           action: sendAppDevtoolsTorrentEvent,
         },
         {
-          title: this.$t('settings.addNotification'),
-          action: () => this._setRelease(this._releases[0])
-        },
-        {
           title: this.$t('settings.logStore'),
           action: () => console.log(this.$store.state),
         }
       ]
     },
-  },
-
-  methods: {
-    ...mapActions('notifications', { _setRelease: 'setRelease' }),
-
   }
-
 }
 </script>
