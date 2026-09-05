@@ -30,6 +30,8 @@ jobs:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
       CACHE_URL: ${{ secrets.CACHE_URL }}
       DEFAULT_V1_TV: ${{ secrets.DEFAULT_V1_TV }}
+      SHIKIMORI_URL: ${{ secrets.SHIKIMORI_URL }}
+      MYANIMELIST_URL: ${{ secrets.MYANIMELIST_URL }}
 
     steps:
       - name: Checkout repository
@@ -163,6 +165,8 @@ jobs:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
       CACHE_URL: ${{ secrets.CACHE_URL }}
       DEFAULT_V1_TV: ${{ secrets.DEFAULT_V1_TV }}
+      SHIKIMORI_URL: ${{ secrets.SHIKIMORI_URL }}
+      MYANIMELIST_URL: ${{ secrets.MYANIMELIST_URL }}
 
     steps:
       - name: Checkout repository
@@ -249,6 +253,8 @@ jobs:
       PYTHON: python3.10
       NODE_GYP_FORCE_PYTHON: python3.10
       OPERA_PROXY_RELEASE_URL: https://github.com/AnimeHaze/opera-proxy/releases/download/v1.0.0
+      SHIKIMORI_URL: ${{ secrets.SHIKIMORI_URL }}
+      MYANIMELIST_URL: ${{ secrets.MYANIMELIST_URL }}
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
