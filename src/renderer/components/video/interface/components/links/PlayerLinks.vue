@@ -1,5 +1,5 @@
 <template>
-  <v-layout align-center justify-start ref="links">
+  <div ref="links">
     <template v-if="isMounted">
 
       <!-- Releases -->
@@ -79,7 +79,7 @@
 
 
     </template>
-  </v-layout>
+  </div>
 </template>
 
 <script>
