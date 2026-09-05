@@ -9,7 +9,6 @@
     </component>
 
     <app-errors/>
-    <app-notifications/>
 
     <AppUpdate :notes="update_notes" ref="appUpdate"/>
   </v-app>
@@ -22,7 +21,6 @@ import AppToolBar from '@components/app/toolbar'
 import AppSettings from '@components/app/settings'
 import AppSystemBar from '@components/app/systembar'
 import AppBaseLayout from '@layouts/base'
-import AppNotifications from '@components/app/notifications'
 import AppUpdate from '@components/app/AppUpdate.vue'
 import { version } from '@package'
 import { setLocale } from './i18n'
@@ -44,7 +42,6 @@ export default {
     AppSettings,
     AppSystemBar,
     AppBaseLayout,
-    AppNotifications,
     AppUpdate
   },
   data () {
@@ -135,7 +132,10 @@ export default {
 
   async mounted () {
     try {
-      const data = await fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json")
+      const data = await Promise.any([
+        fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json"),
+        fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/refs/heads/lord/latest.json")
+      ])
         .then(async x => {
           const text = await x.text()
           try {

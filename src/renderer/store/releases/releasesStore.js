@@ -11,7 +11,7 @@ import axios from 'axios'
 import { getLocale, translate } from '@/renderer/i18n'
 
 // Handlers
-import { sendReleaseNotification, showAppError } from '@main/handlers/notifications/notifications-handler'
+import { showAppError } from '@main/handlers/notifications/notifications-handler'
 
 // Mutations
 const SET_INDEX = 'SET_INDEX'
@@ -78,22 +78,6 @@ async function transformAndProcessReleases(items) {
     .filter(promise => promise.status === 'fulfilled')
     .map(promise => promise.value)
     .filter(release => release.episodes.length > 0);
-}
-
-async function handleNewReleaseNotifications(releases, state, dispatch) {
-  if (!state.data || state.data.length === 0) return;
-
-  const newReleases = releases.filter(release => {
-    const previousRelease = state.data.find(
-      item => item.id === release.id && item.episodes.length === release.episodes.length
-    );
-    return previousRelease === null;
-  });
-
-  for (const release of newReleases) {
-    sendReleaseNotification(release);
-    await dispatch('notifications/setRelease', release, { root: true });
-  }
 }
 
 export default {
@@ -187,8 +171,6 @@ export default {
         });
 
         const releases = await transformAndProcessReleases(items);
-
-        await handleNewReleaseNotifications(releases, state, dispatch);
 
         commit(SET_RELEASES_DATA, releases)
         commit(SET_RELEASES_DATETIME, new Date())

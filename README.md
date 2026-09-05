@@ -3,12 +3,12 @@
 [![🇷🇺 Русский](https://img.shields.io/badge/%F0%9F%87%B7%F0%9F%87%BA-Russian-blue?style=for-the-badge)](#russian)
 [![🇺🇸 English](https://img.shields.io/badge/%F0%9F%87%BA%F0%9F%87%B8-English-red?style=for-the-badge)](#english)
 
-[![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](https://github.com/anilibria/alice/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/AnimeHaze/anilibrix-plus.svg)](https://github.com/AnimeHaze/anilibrix-plus/issues)
+[![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)](https://github.com/AnimeHaze/anilibrix-plus-old/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/AnimeHaze/anilibrix-plus-old.svg)](https://github.com/AnimeHaze/anilibrix-plus-old/issues)
 
 <div>
     <a href="https://anilibria.tv/">
-        <img align="right" alt="" src="https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/lord/build/icons/app/512x512.png" width="200" height="200" />
+        <img align="right" alt="" src="https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/lord/build/icons/app/512x512.png" width="200" height="200" />
     </a>
 </div>
 
@@ -22,7 +22,7 @@
 
 [![Загрузите из Snap Store](https://snapcraft.io/static/images/badges/ru/snap-store-black.svg)](https://snapcraft.io/anilibrix-plus)
 
-![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/lord/.github/assets/anilibrix.png)
+![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/lord/.github/assets/anilibrix.png)
 
 ### Сравнение возможностей: Anilibria (официальный) vs Anilibrix Plus
 
@@ -121,7 +121,7 @@ AniLibria's desktop anime theater for any computer.
 
 [![Download on Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/anilibrix-plus)
 
-![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/lord/.github/assets/anilibrix.png)
+![Anilibrix](https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/lord/.github/assets/anilibrix.png)
 
 ### Feature Comparison: Anilibria (official) vs Anilibrix Plus
 

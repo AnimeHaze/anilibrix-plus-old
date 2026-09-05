@@ -26,8 +26,6 @@ export default function (apiController, cacheService) {
                 .map(x => {
                   return APIResponseTransformer.createPlaylistItem(v, x, null)
                 })
-
-              console.log(v.id, v.playlist.length)
             }
           })
         }

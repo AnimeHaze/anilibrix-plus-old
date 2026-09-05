@@ -184,32 +184,36 @@ export async function initGlobals() {
         }
       }
     }
-  };
+  }
+
+  const UPSTREAM_V1_DOMAIN_RECORD_NAME = 'anilibrix-plus-v1-tv.animehaze.me'
+  const CACHE_RECORD_NAME = 'anilibrix-plus-cache.animehaze.me'
+  const CACHE_HASHES_RECORD_NAME = 'anilibrix-plus-cache-hashes.animehaze.me'
 
   async function startResolve () {
     await Promise.all([
       Promise.all([
-        resolveTxtRecordGoogle('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordGoogle('anilibrix-plus-cache.animehaze.me'),
-        resolveTxtRecordGoogle('anilibrix-plus-cache-hashes.animehaze.me')
+        resolveTxtRecordGoogle(UPSTREAM_V1_DOMAIN_RECORD_NAME),
+        resolveTxtRecordGoogle(CACHE_RECORD_NAME),
+        resolveTxtRecordGoogle(CACHE_HASHES_RECORD_NAME)
       ]).then(processResult('google', true)).catch(processResult('google', false)),
       Promise.all([
-        resolveTxtRecordCloudflare('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordCloudflare('anilibrix-plus-cache.animehaze.me'),
-        resolveTxtRecordCloudflare('anilibrix-plus-cache-hashes.animehaze.me')
+        resolveTxtRecordCloudflare(UPSTREAM_V1_DOMAIN_RECORD_NAME),
+        resolveTxtRecordCloudflare(CACHE_RECORD_NAME),
+        resolveTxtRecordCloudflare(CACHE_HASHES_RECORD_NAME)
       ]).then(processResult('cloudflare', true)).catch(processResult('cloudflare', false)),
       Promise.all([
-        resolveTxtRecordAdGuardSecure('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordAdGuardSecure('anilibrix-plus-cache.animehaze.me'),
-        resolveTxtRecordAdGuardSecure('anilibrix-plus-cache-hashes.animehaze.me')
+        resolveTxtRecordAdGuardSecure(UPSTREAM_V1_DOMAIN_RECORD_NAME),
+        resolveTxtRecordAdGuardSecure(CACHE_RECORD_NAME),
+        resolveTxtRecordAdGuardSecure(CACHE_HASHES_RECORD_NAME)
       ]).then(processResult('adguard', true)).catch(processResult('adguard', false))
     ])
 
     if (!resolved) {
       Promise.all([
-        resolveTxtRecordDefaultDns('anilibrix-plus-v1-tv.animehaze.me'),
-        resolveTxtRecordDefaultDns('anilibrix-plus-cache.animehaze.me'),
-        resolveTxtRecordDefaultDns('anilibrix-plus-cache-hashes.animehaze.me')
+        resolveTxtRecordDefaultDns(UPSTREAM_V1_DOMAIN_RECORD_NAME),
+        resolveTxtRecordDefaultDns(CACHE_RECORD_NAME),
+        resolveTxtRecordDefaultDns(CACHE_HASHES_RECORD_NAME)
       ]).then(processResult('default-dns', true)).catch(processResult('default-dns', false))
     }
   }

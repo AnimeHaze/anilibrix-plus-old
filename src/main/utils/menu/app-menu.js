@@ -89,10 +89,6 @@ export default class AppMenu {
             type: 'separator'
           },
           {
-            label: t('main.addNotification'),
-            click: () => store.dispatch('notifications/setRelease', store.state.releases.data[0])
-          },
-          {
             label: t('main.logStore'),
             click: () => console.log(store.state)
           },

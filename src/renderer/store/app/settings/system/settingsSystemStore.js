@@ -3,7 +3,6 @@ const SET_UPDATES = 'SET_UPDATES'
 const TOGGLE_DEVTOOLS = 'TOGGLE_DEVTOOLS'
 const SET_ADS_MAXIMUM = 'SET_ADS_MAXIMUM'
 const SET_UPDATES_TIMEOUT = 'SET_UPDATES_TIMEOUT'
-const SET_SYSTEM_NOTIFICATIONS = 'SET_SYSTEM_NOTIFICATIONS'
 const SET_APPBAR_RIGHT = 'SET_APPBAR_RIGHT';
 const SET_FILTER_NOTIFY = 'SET_FILTER_NOTIFY';
 const SET_API_ENDPOINT = 'SET_API_ENDPOINT'
@@ -43,9 +42,6 @@ export default {
     api: {
       _endpoint: process.env.API_ENDPOINT_URL,
       _static_endpoint: process.env.STATIC_ENDPOINT_URL
-    },
-    notifications: {
-      system: true
     },
     torrentType: 'magnet',
     drpc_enabled: true,
@@ -91,15 +87,6 @@ export default {
      * @return {*}
      */
     [SET_UPDATES_TIMEOUT]: (s, timeout) => (s.updates.timeout = timeout),
-
-    /**
-     * Set system notifications
-     *
-     * @param s
-     * @param state
-     * @return {*}
-     */
-    [SET_SYSTEM_NOTIFICATIONS]: (s, state) => (s.notifications.system = state),
 
     /**
      * Toggle devtools
@@ -178,15 +165,6 @@ export default {
      * @return {*}
      */
     setUpdatesTimeout: ({ commit }, timeout) => commit(SET_UPDATES_TIMEOUT, timeout),
-
-    /**
-     * Set system notifications
-     *
-     * @param commit
-     * @param state
-     * @return {*}
-     */
-    setSystemNotifications: ({ commit }, state) => commit(SET_SYSTEM_NOTIFICATIONS, state),
 
     /**
      * Toggle devtools

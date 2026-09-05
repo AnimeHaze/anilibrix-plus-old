@@ -59,7 +59,6 @@ export default {
       _updates_timeout: s => s.updates.timeout,
       _api_endpoint: s => s.api._endpoint,
       _static_endpoint: s => s.api._static_endpoint,
-      _notifications_system: s => s.notifications.system,
     }),
     ...mapState('app/account', {
       _session: s => s.session
@@ -103,7 +102,6 @@ export default {
             enableOpeningSkipButton: this._opening_skip_button || false,
             openingSkipTime: this._opening_skip_time,
             autoPlayNext: this._autoplay_next  || false,
-            showSystemNotifications: this._notifications_system || false,
             staticEndpoint: this._static_endpoint,
             apiEndpoint: this._api_endpoint,
             autoUpdateReleases: this._updates_enabled || true,

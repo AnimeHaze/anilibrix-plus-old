@@ -42,7 +42,6 @@
       </div>
 
       <update/>
-      <notifications/>
       <settings/>
       <account/>
     </div>
@@ -55,7 +54,6 @@ import Update from './components/update'
 import Search from './components/search'
 import Account from './components/account'
 import Settings from './components/settings'
-import Notifications from './components/notifications'
 import { invokeRand } from '@main/handlers/app/app-handlers'
 import {showAppError} from "@main/handlers/notifications/notifications-handler";
 
@@ -65,7 +63,6 @@ export default {
     Search,
     Account,
     Settings,
-    Notifications
   },
   methods: {
     goback() {

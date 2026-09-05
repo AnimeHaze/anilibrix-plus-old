@@ -402,7 +402,7 @@ export class APICacheService {
   async searchByQuery (query) {
     return await this.mutex.runExclusive(async () => {
       const localResults = this.search?.search(query)
-        .filter(item => (item.score ?? 1) <= SEARCH_RESULT_SCORE_THRESHOLD)
+        .filter(item => (item.score ?? 1) >= SEARCH_RESULT_SCORE_THRESHOLD)
         .sort((a, b) => a.score - b.score)
         .map(item => item.item) || []
 
