@@ -988,36 +988,72 @@ export default {
     },
 
     loadEndpointsFromStore () {
-      if (this._shikimori_url) {
-        const urls = this._shikimori_url.split(';').filter(u => u.trim())
-        this.shikimoriUrls = urls.map(url => ({ url: url.trim() }))
+      const shikimoriUrl =
+        this._shikimori_url || process.env.SHIKIMORI_URL
+
+      if (shikimoriUrl) {
+        const urls = shikimoriUrl
+          .split(';')
+          .filter(u => u.trim())
+
+        this.shikimoriUrls = urls.map(url => ({
+          url: url.trim()
+        }))
       }
       if (!this.shikimoriUrls.length) {
-        this.shikimoriUrls = [{ url: '' }]
+        this.shikimoriUrls = [{
+          url: process.env.SHIKIMORI_URL || ''
+        }]
       }
 
-      if (this._myanimelist_url) {
-        const urls = this._myanimelist_url.split(';').filter(u => u.trim())
-        this.myAnimeListUrls = urls.map(url => ({ url: url.trim() }))
+      const myAnimeListUrl =
+        this._myanimelist_url || process.env.MYANIMELIST_URL
+
+      if (myAnimeListUrl) {
+        const urls = myAnimeListUrl
+          .split(';')
+          .filter(u => u.trim())
+
+        this.myAnimeListUrls = urls.map(url => ({
+          url: url.trim()
+        }))
       }
+
       if (!this.myAnimeListUrls.length) {
-        this.myAnimeListUrls = [{ url: '' }]
+        this.myAnimeListUrls = [{
+          url: process.env.MYANIMELIST_URL || ''
+        }]
       }
 
       if (this._api_endpoint) {
-        const urls = this._api_endpoint.split(';').filter(u => u.trim())
-        this.apiEndpoints = urls.map(url => ({ url: url.trim() }))
+        const urls = this._api_endpoint
+          .split(';')
+          .filter(u => u.trim())
+
+        this.apiEndpoints = urls.map(url => ({
+          url: url.trim()
+        }))
       }
+
       if (!this.apiEndpoints.length) {
-        this.apiEndpoints = [{ url: 'https://anilibria.tv/' }]
+        this.apiEndpoints = [{
+          url: process.env.API_ENDPOINT_URL || ''
+        }]
       }
 
       if (this._static_endpoint) {
-        const urls = this._static_endpoint.split(';').filter(u => u.trim())
-        this.staticEndpoints = urls.map(url => ({ url: url.trim() }))
+        const urls = this._static_endpoint
+          .split(';')
+          .filter(u => u.trim())
+
+        this.staticEndpoints = urls.map(url => ({
+          url: url.trim()
+        }))
       }
       if (!this.staticEndpoints.length) {
-        this.staticEndpoints = [{ url: 'https://static-libria.weekstorm.one/' }]
+        this.staticEndpoints = [{
+          url: process.env.STATIC_ENDPOINT_URL || ''
+        }]
       }
 
       if (this._cache_server) {
@@ -1051,7 +1087,10 @@ export default {
         .filter(item => item.url && item.url.trim())
         .map(item => item.url.trim())
       const urlStr = validUrls.join(';')
-      this._setShikimoriUrl(urlStr)
+
+      this._setShikimoriUrl(
+        urlStr || process.env.SHIKIMORI_URL
+      )
     },
     async checkShikimoriUrls () {
       const validUrls = this.shikimoriUrls.filter(item => item.url && item.url.trim())
@@ -1080,7 +1119,10 @@ export default {
         .filter(item => item.url && item.url.trim())
         .map(item => item.url.trim())
       const urlStr = validUrls.join(';')
-      this._setMyAnimeListUrl(urlStr)
+
+      this._setMyAnimeListUrl(
+        urlStr || process.env.MYANIMELIST_URL
+      )
     },
     async checkMyAnimeListUrls () {
       const validUrls = this.myAnimeListUrls.filter(item => item.url && item.url.trim())

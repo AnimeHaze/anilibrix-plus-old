@@ -17,6 +17,10 @@ const SET_MYANIMELIST = 'SET_MYANIMELIST'
 const SET_ALWAYS_ON_TOP = 'SET_ALWAYS_ON_TOP'
 
 function normalizeEndpoint (endpoint) {
+  if (!endpoint) {
+    return ''
+  }
+
   if (endpoint.endsWith('/')) {
     return endpoint.slice(0, -1).trim()
   }
@@ -46,8 +50,8 @@ export default {
     torrentType: 'magnet',
     drpc_enabled: true,
     proxy: '',
-    shikimori_url: '',
-    myanimelist_url: '',
+    shikimori_url: process.env.SHIKIMORI_URL,
+    myanimelist_url: process.env.MYANIMELIST_URL,
     ignore_certs: false,
     language: null,
     always_on_top: false
@@ -58,6 +62,18 @@ export default {
     },
     staticEndpoint: state => {
       return normalizeEndpoint(state.api?._static_endpoint || process.env.STATIC_ENDPOINT_URL);
+    },
+
+    shikimoriUrl: state => {
+      return normalizeEndpoint(
+        state.shikimori_url || process.env.SHIKIMORI_URL
+      )
+    },
+
+    myAnimeListUrl: state => {
+      return normalizeEndpoint(
+        state.myanimelist_url || process.env.MYANIMELIST_URL
+      )
     }
   },
   mutations: {
@@ -133,8 +149,8 @@ export default {
     [SET_ADS_MAXIMUM]: (s, state) => (s.ads.maximum = state)
 
   },
-  actions: {
 
+  actions: {
     /**
      * Set updates state
      *
