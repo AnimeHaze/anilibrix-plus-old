@@ -9,6 +9,9 @@
       <v-card-subtitle>{{ $t('favorites.subtitle') }}</v-card-subtitle>
     </v-card>
 
+    <v-alert v-if="_lastFailedFavorites" type="error" class="mb-2">
+      {{ $t('favorites.loadingError', { datetime: new Date(_lastFailedFavorites).toLocaleString() }) }}
+    </v-alert>
 
     <!-- Show user favorites -->
     <!-- Favorites Settings -->
@@ -76,6 +79,7 @@ export default {
     ...mapState('favorites', {
       _items: s => s.items,
       _loading: s => s.loading,
+      _lastFailedFavorites: s => s.lastFailedFavorites,
       _settings: s => s.settings,
     }),
 

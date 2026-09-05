@@ -139,6 +139,7 @@ export default {
     releaseDomain: 'Домен для ссылки'
   },
   favorites: {
+    loadingError: 'Ошибка загрузки избранного с сервера. Отображены последние полученные данные на {datetime}',
     pageTitle: 'Избранное',
     title: 'Избранные релизы',
     subtitle: 'Список ваших избранных релизов',

@@ -140,6 +140,7 @@ export default {
     releaseDomain: 'Link domain'
   },
   favorites: {
+    loadingError: 'Error loading from server. Displaying cached favorites from {datetime}',
     pageTitle: 'Favorites',
     title: 'Favorite releases',
     subtitle: 'List of your favorite releases',

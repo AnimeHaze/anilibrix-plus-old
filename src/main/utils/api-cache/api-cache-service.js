@@ -22,6 +22,9 @@ export class APICacheService {
     this.search = null
     this.mutex = new Mutex()
 
+    this.lastFailedFavorites = 0;
+    this.lastFailedTimeStamp = 0;
+    this.lastReleaseTimeStamp = 0;
     this.initializationPromise = null;
     this.initializationResolve = null;
     this.initializationReject = null;
@@ -168,6 +171,7 @@ export class APICacheService {
             );
 
             if (!hasNewFiles.length && !hasRemovedFiles.length && !hasUpdatedFiles.length) {
+              this.lastFailedTimestamp = 0
               console.log('No changes detected in cache, skipping download');
               return;
             }
@@ -226,9 +230,11 @@ export class APICacheService {
             .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
         )
       }
-
+      this.lastFailedTimestamp = 0
       console.log('Cache downloaded successfully and old cache deleted');
     } catch (e) {
+      this.lastFailedTimestamp = Date.now();
+
       console.error('Cache download failed', e)
       console.log('Fallback to last cache...')
     }
@@ -236,8 +242,9 @@ export class APICacheService {
 
   async processCache() {
     const activeCachePrefix = await fs.readFile(path.join(this.cachePath, 'active.cache'), 'utf8')
-    const { countEpisodes, countReleases } = await this.loadCacheMetadata();
+    const { countEpisodes, countReleases, lastReleaseTimeStamp } = await this.loadCacheMetadata();
     await this.localizationService.ensureLoaded()
+    this.lastReleaseTimeStamp = lastReleaseTimeStamp * 1000
 
     const [releasesData, episodesData, franchisesData, torrentsData] = await Promise.all([
       this.loadJsonFiles(activeCachePrefix + '_' + 'releases', countReleases),

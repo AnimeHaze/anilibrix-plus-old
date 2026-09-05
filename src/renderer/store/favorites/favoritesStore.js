@@ -22,6 +22,7 @@ const SET_SETTINGS_GROUP = 'SET_SETTINGS_GROUP'
 const SET_SETTINGS_SHOW_SEEN = 'SET_SETTINGS_SHOW_SEEN'
 const SET_SETTINGS_SHOW_COMPLETED = 'SET_SETTINGS_SHOW_COMPLETED'
 const SET_SETTINGS_YEARS_COLLAPSED = 'SET_SETTINGS_YEARS_COLLAPSED'
+const SET_LAST_FAILED_FAVORITES = 'SET_LAST_FAILED_FAVORITES'
 
 // Requests
 let REQUEST_FOR_FAVORITES = null
@@ -31,6 +32,7 @@ export default {
   namespaced: true,
   state: {
     items: [],
+    lastFailedFavorites: 0,
     loading: false,
     settings: {
       sort: 'original',
@@ -93,6 +95,8 @@ export default {
      * @return {*}
      */
     [SET_LOADING]: (s, loading) => (s.loading = loading),
+
+    [SET_LAST_FAILED_FAVORITES]: (s, lastFailedFavorites) => (s.lastFailedFavorites = lastFailedFavorites),
 
     /**
      * Remove release from items
@@ -202,6 +206,9 @@ export default {
                 ...release,
                 poster: new ReleaseProxy().getReleasePosterPath(release.poster)
               }))
+
+            // Set last failed favorites
+            commit(SET_LAST_FAILED_FAVORITES, global.apiCacheService.lastFailedFavorites)
 
             // Set releases
             commit(SET_ITEMS, processedReleases)
@@ -361,7 +368,6 @@ export default {
      * @param state
      * @return {*}
      */
-    setSettingsShowCompleted: ({ commit }, state) => commit(SET_SETTINGS_SHOW_COMPLETED, state)
-
+    setSettingsShowCompleted: ({ commit }, state) => commit(SET_SETTINGS_SHOW_COMPLETED, state),
   }
 }

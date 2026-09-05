@@ -62,12 +62,15 @@ export class APIController {
 
       if (response.ok) {
         const data = await response.json();
+        this.cacheService.lastFailedFavorites = 0
         await this.cacheService.setCacheKey(query, data);
         return data;
       }
 
+      this.cacheService.lastFailedFavorites = new Date().getTime()
       await this.handleErrorResponse(response);
     } catch (error) {
+      this.cacheService.lastFailedFavorites = new Date().getTime()
       console.error('Request', query, 'failed, fallback to cache', error)
       return this.handleFallbackToCache(query, error);
     }

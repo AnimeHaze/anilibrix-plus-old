@@ -19,6 +19,7 @@ const SET_RELEASES_DATA = 'SET_RELEASES_DATA'
 const SET_RELEASES_LOADING = 'SET_RELEASES_LOADING'
 const SET_RELEASES_DATETIME = 'SET_RELEASES_DATETIME'
 const SET_RELEASES_HAS_ERROR = 'SET_RELEASES_HAS_ERROR'
+const SET_RELEASES_LAST_FAILED_TIMESTAMP = 'SET_RELEASES_LAST_FAILED_TIMESTAMP'
 
 // Requests
 let REQUEST_FOR_SEARCH = null
@@ -87,7 +88,8 @@ export default {
     index: null,
     loading: false,
     datetime: null,
-    has_error: false
+    has_error: false,
+    last_failed_timestamp: 0
   },
 
   mutations: {
@@ -135,7 +137,18 @@ export default {
      * @param state
      * @return {*}
      */
-    [SET_RELEASES_HAS_ERROR]: (s, state) => (s.has_error = state)
+    [SET_RELEASES_HAS_ERROR]: (s, state) => (s.has_error = state),
+
+    /**
+     * Set last failed update timestamp
+     *
+     * @param s
+     * @param timestamp
+     * @return {*}
+     */
+    [SET_RELEASES_LAST_FAILED_TIMESTAMP]: (s, timestamp) => (
+      s.last_failed_timestamp = timestamp
+    )
 
   },
 
@@ -150,7 +163,7 @@ export default {
      */
     setIndex: ({ commit }, index) => commit(SET_INDEX, index),
 
-    getReleases: async ({ commit, dispatch, state }) => {
+    getReleases: async ({ commit }) => {
       try {
         commit(SET_RELEASES_LOADING, true)
         commit(SET_RELEASES_HAS_ERROR, false)
@@ -160,6 +173,13 @@ export default {
           await global.apiCacheService.processCache()
         }
 
+        commit(
+          SET_RELEASES_LAST_FAILED_TIMESTAMP,
+          global.apiCacheService.lastFailedTimestamp
+        )
+
+        console.log('Last failed timestamp:', global.apiCacheService.lastFailedTimestamp)
+
         if (REQUEST_FOR_RELEASES) {
           REQUEST_FOR_RELEASES.cancel();
         }
@@ -168,16 +188,25 @@ export default {
 
         const { items } = await new ReleaseProxy().getReleases({
           cancelToken: REQUEST_FOR_RELEASES.token
-        });
+        })
 
-        const releases = await transformAndProcessReleases(items);
+        const releases = await transformAndProcessReleases(items)
 
         commit(SET_RELEASES_DATA, releases)
-        commit(SET_RELEASES_DATETIME, new Date())
+        commit(
+          SET_RELEASES_DATETIME,
+          global.apiCacheService.lastReleaseTimeStamp
+        )
       } catch (error) {
         if (!axios.isCancel(error)) {
           // Set release has error
           commit(SET_RELEASES_HAS_ERROR, true)
+
+          commit(
+            SET_RELEASES_LAST_FAILED_TIMESTAMP,
+            global.apiCacheService.lastFailedTimestamp || Date.now()
+          )
+
           console.log(error)
           // Show error
           // Throw error
