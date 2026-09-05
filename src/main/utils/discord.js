@@ -19,7 +19,7 @@ export function discordActivity() {
       global.ReadableStream = ReadableStream
     }
   }
-  
+
   const getDRPCClient = () => {
     if (!RPCClient) {
       const RPC = require('@xhayper/discord-rpc')
@@ -107,7 +107,7 @@ export function discordActivity() {
       activity = discordPresence
     },
 
-    destroy() {
+    async destroy() {
       destroyed = true
       clearInterval(interval)
 
@@ -118,6 +118,7 @@ export function discordActivity() {
       logger('Discord rich presence destroyed')
 
       if (client) {
+        await client.user.setActivity(null)
         client.destroy().catch(logger)
       }
     }

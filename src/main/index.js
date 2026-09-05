@@ -65,7 +65,8 @@ app.on('before-quit', async (event) => {
     event.preventDefault()
     isQuitting = true
 
-    destroyRichPresence()
+    await destroyRichPresence()
+
     await stopForwardProxy()
       .catch(console.error)
 
