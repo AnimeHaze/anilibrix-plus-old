@@ -149,7 +149,7 @@ export default {
       clearInterval(this.activityInterval)
     }
     sendDisableSystemSleepBlockerEvent()
-    invokeRichPresense({})
+    invokeRichPresense(null)
   },
 
   created () {
