@@ -2223,7 +2223,7 @@ __metadata:
     file-loader: ^5.0.2
     flatted: ^3.0.2
     form-data: ^3.0.0
-    fuse.js: ^3.4.6
+    fuse.js: ^7.5.0
     get-port: ^5.0.0
     hls.js: 1.1.5
     html-webpack-plugin: ^3.2.0
@@ -8050,10 +8050,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fuse.js@npm:^3.4.6":
-  version: 3.6.1
-  resolution: "fuse.js@npm:3.6.1"
-  checksum: 958aa877ace65dc900df776becd39a03df68d7eebc7890b5fd2fc8c5d88e2fff238f60c37f80013ce70e9d9e7ac8efa9f503695fdd23d1eca3cc983797b50191
+"fuse.js@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "fuse.js@npm:7.5.0"
+  checksum: d7729183ea712ca811ccea44898b360e62f53da933ca18a5c01b351dbd8e26ea6d166790c9a705e9c402734c2a32fda4bc5a5972175b25de89a77a8155a8d2a9
   languageName: node
   linkType: hard
 

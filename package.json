@@ -228,7 +228,7 @@
     "express-http-proxy": "^2.1.2",
     "flatted": "^3.0.2",
     "form-data": "^3.0.0",
-    "fuse.js": "^3.4.6",
+    "fuse.js": "^7.5.0",
     "get-port": "^5.0.0",
     "hls.js": "1.1.5",
     "human-format": "^1.2.0",
