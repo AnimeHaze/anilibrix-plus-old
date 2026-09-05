@@ -1,3 +1,4 @@
+import { Mutex } from 'async-mutex'
 import store from '@store'
 
 const logs = !!process.env.DISCORD_RICH_PRESENCE_DEBUG
@@ -6,12 +7,20 @@ const logger = logs ? console.log : () => {}
 const RECONNECT_DELAY = 1000
 const UPDATE_INTERVAL = 1000
 
+const CLEAR_ATTEMPTS = 5
+const CLEAR_RETRY_DELAY = 200
+
 export function discordActivity() {
   let client = null
   let activity = null
   let destroyed = false
+  let connecting = false
   let reconnectTimeout = null
   let RPCClient = null
+
+  const mutex = new Mutex()
+
+  let stateVersion = 0
 
   const ensureReadableStream = () => {
     if (!global.ReadableStream) {
@@ -24,13 +33,21 @@ export function discordActivity() {
     if (!RPCClient) {
       const RPC = require('@xhayper/discord-rpc')
       RPCClient = RPC.Client
-    } else {
-      return RPCClient
     }
+
+    return RPCClient
+  }
+
+  const sleep = ms => {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms)
+    })
   }
 
   const scheduleReconnect = () => {
-    if (destroyed || reconnectTimeout) return
+    if (destroyed || reconnectTimeout) {
+      return
+    }
 
     reconnectTimeout = setTimeout(() => {
       reconnectTimeout = null
@@ -38,8 +55,95 @@ export function discordActivity() {
     }, RECONNECT_DELAY)
   }
 
+  const clearActivity = async currentClient => {
+    for (let attempt = 1; attempt <= CLEAR_ATTEMPTS; attempt++) {
+      if (
+        destroyed ||
+        currentClient !== client
+      ) {
+        return
+      }
+
+      const version = stateVersion
+
+      if (version !== stateVersion) {
+        return
+      }
+
+      try {
+        await currentClient.user.clearActivity()
+
+        logger(
+          `Discord clear activity (${attempt}/${CLEAR_ATTEMPTS})`,
+        )
+      } catch (error) {
+        logger(
+          `Discord clear activity error (${attempt}/${CLEAR_ATTEMPTS})`,
+          error
+        )
+      }
+
+      if (
+        destroyed ||
+        currentClient !== client ||
+        version !== stateVersion
+      ) {
+        return
+      }
+
+      if (attempt < CLEAR_ATTEMPTS) {
+        await sleep(CLEAR_RETRY_DELAY)
+      }
+    }
+  }
+
+  const syncActivity = () => {
+    return mutex.runExclusive(async () => {
+      if (
+        destroyed ||
+        !client ||
+        !client.isConnected
+      ) {
+        return
+      }
+
+      const currentClient = client
+      const version = stateVersion
+
+      const enabled = store.state.app.settings.system.drpc_enabled
+
+      if (!enabled || !activity) {
+        await clearActivity(currentClient)
+        return
+      }
+
+      try {
+        if (
+          version !== stateVersion ||
+          currentClient !== client ||
+          destroyed
+        ) {
+          return
+        }
+
+        await currentClient.user.setActivity(activity)
+
+        logger('Discord set activity', activity)
+        if (version !== stateVersion) {
+          syncActivity()
+        }
+      } catch (error) {
+        logger('Discord activity sync error', error)
+      }
+    })
+  }
+
   const connect = async () => {
-    if (destroyed) return
+    if (destroyed || connecting || client) {
+      return
+    }
+
+    connecting = true
 
     try {
       ensureReadableStream()
@@ -47,54 +151,44 @@ export function discordActivity() {
       const Client = getDRPCClient()
 
       client = new Client({
-        clientId: process.env.DISCORD_CLIENT_ID
+        clientId: process.env.DISCORD_CLIENT_ID,
       })
 
       client.on('disconnected', async () => {
         logger('Discord rich presence disconnected')
 
-        try {
-          await client.destroy()
-        } catch {}
+        const disconnectedClient = client
 
         client = null
+        stateVersion++
+
+        try {
+          await disconnectedClient.destroy()
+        } catch {}
+
         scheduleReconnect()
       })
 
-      client.on('error', logger)
+      client.on('error', error => {
+        logger('Discord rich presence error', error)
+      })
 
       client.on('ready', () => {
         logger('Discord rich presence ready')
+
+        stateVersion++
+        syncActivity()
       })
 
       await client.login()
     } catch (error) {
       logger('Discord login failed', error)
+
+      client = null
+
       scheduleReconnect()
-    }
-  }
-
-  const syncActivity = async () => {
-    if (
-      destroyed ||
-      !client ||
-      !client.isConnected
-    ) {
-      return
-    }
-
-    const enabled = store.state.app.settings.system.drpc_enabled
-
-    try {
-      if (!enabled || !activity) {
-        await client.user.clearActivity()
-        return
-      }
-
-      await client.user.setActivity(activity)
-      logger('Discord set activity', activity)
-    } catch (error) {
-      logger('Discord activity sync error', error)
+    } finally {
+      connecting = false
     }
   }
 
@@ -105,22 +199,51 @@ export function discordActivity() {
   return {
     setActivity(discordPresence) {
       activity = discordPresence
+      stateVersion++
+
+      syncActivity()
     },
 
     async destroy() {
+      if (destroyed) {
+        return
+      }
+
       destroyed = true
+      stateVersion++
+
       clearInterval(interval)
 
       if (reconnectTimeout) {
         clearTimeout(reconnectTimeout)
+        reconnectTimeout = null
       }
+
+      const currentClient = client
+      client = null
 
       logger('Discord rich presence destroyed')
 
-      if (client) {
-        await client.user.setActivity(null)
-        client.destroy().catch(logger)
+      if (!currentClient) {
+        return
       }
+
+      await mutex.runExclusive(async () => {
+        try {
+          await currentClient.user?.clearActivity()
+          await currentClient.user?.clearActivity()
+          await currentClient.user?.clearActivity()
+          logger('Discord clear activity')
+        } catch (error) {
+          logger('Discord clear activity error', error)
+        }
+
+        try {
+          await currentClient.destroy()
+        } catch (error) {
+          logger('Discord destroy error', error)
+        }
+      })
     }
   }
 }
