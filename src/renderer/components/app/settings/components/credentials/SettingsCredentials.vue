@@ -2,11 +2,23 @@
   <v-card flat color="transparent" class="mt-auto py-3 credentials__data">
 
     <v-card-text class="caption">
-      <v-layout class="with-divider">
-        <div>{{ $t('settings.credentialsBuild', { version: app.version }) }}</div>
-        <a href="#" @click.prevent="sendAppAboutEvent">{{ $t('settings.about') }}</a>
-      </v-layout>
-      <div>{{ $t('settings.credentialsDisclaimer') }}</div>
+      <div class="credentials__top">
+        <span>
+          {{ $t('settings.credentialsBuild', { version: app.version }) }}
+        </span>
+
+<!--        <a-->
+<!--          href="#"-->
+<!--          @click.prevent="sendAppAboutEvent"-->
+<!--        >-->
+<!--          {{ $t('settings.about') }}-->
+<!--        </a>-->
+      </div>
+
+      <div class="credentials__disclaimer">
+        {{ $t('settings.credentialsDisclaimer') }}
+      </div>
+
       <div>
         <a href="#" @click.prevent="toggleDevtools">{{ $t('settings.debugTools') }}</a>
       </div>
@@ -91,20 +103,38 @@ export default {
         text-decoration: underline;
       }
     }
+  }
 
-    .with-divider {
-      > * {
-        &::after {
-          content: "-";
-          display: inline-block;
-          padding: 0 3px;
-          text-decoration: none;
-        }
+  &__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 6px;
+    row-gap: 2px;
 
-        &:last-child {
-          &::after {
-            content: none;
-          }
+    > a {
+      &::before {
+        content: "-";
+        margin-right: 6px;
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__disclaimer {
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 420px) {
+  .credentials {
+    &__top {
+      flex-direction: column;
+      align-items: flex-start;
+
+      > a {
+        &::before {
+          content: none;
         }
       }
     }
@@ -112,4 +142,3 @@ export default {
 }
 
 </style>
-
