@@ -7,6 +7,7 @@ import { getFacts, t } from '@main/utils/i18n'
 import ejs from 'ejs'
 import store from '@store'
 import { resolveAppLocale } from '@shared/i18n/resolveLocale';
+import { splashHTML } from '@main/splash';
 
 function resolveSystemLocale () {
   const preferred = typeof app.getPreferredSystemLanguages === 'function'
@@ -18,11 +19,7 @@ function resolveSystemLocale () {
 
 function getSplashHTML() {
   try {
-    const templatePath = path.join(__dirname, '..', 'splash.ejs');
-
-    const template = fs.readFileSync(templatePath, 'utf8');
-
-    return ejs.render(template, {
+    return ejs.render(splashHTML, {
       t: (key) => {
         return t(key);
       }
