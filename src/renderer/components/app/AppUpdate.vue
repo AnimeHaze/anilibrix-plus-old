@@ -11,13 +11,20 @@
 
       <v-card-text>
         <pre style="white-space: pre-wrap; font-family: inherit;">{{ notes }}</pre>
+
+        <v-checkbox
+          v-model="dontShowForSevenDays"
+          :label="$t('update.dontShowForSevenDays')"
+          hide-details
+          class="mt-4"
+        ></v-checkbox>
       </v-card-text>
 
       <v-card-actions>
         <v-btn
           color="red darken-1"
           text
-          v-on:click="visible = false"
+          v-on:click="closeDialog"
         >
           {{ $t('common.close') }}
         </v-btn>
@@ -49,20 +56,48 @@ export default {
     return {
       repository,
       visible: false,
-      loading: false
+      loading: false,
+      dontShowForSevenDays: false
     }
   },
   methods: {
-    hideDialog () {
-      this.visible = false
+    closeDialog () {
+      if (this.dontShowForSevenDays) {
+        const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+        const expiryDate = Date.now() + sevenDaysInMs;
+        localStorage.setItem('updateDialogHiddenUntil', expiryDate.toString());
+      }
+
+      this.visible = false;
+      this.dontShowForSevenDays = false;
     },
+
     /**
      * Show dialog
      *
      * @return void
      */
     showDialog () {
-      this.visible = true
+      if (this.shouldHideDialog()) {
+        return;
+      }
+
+      this.visible = true;
+    },
+
+    /**
+     * Check if dialog should be hidden
+     *
+     * @return boolean
+     */
+    shouldHideDialog () {
+      const hiddenUntil = localStorage.getItem('updateDialogHiddenUntil');
+      if (!hiddenUntil) {
+        return false;
+      }
+
+      const expiryDate = parseInt(hiddenUntil, 10);
+      return Date.now() < expiryDate;
     },
 
     openLink (url) {
