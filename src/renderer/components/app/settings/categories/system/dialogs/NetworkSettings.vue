@@ -700,7 +700,7 @@
           </div>
 
           <!-- Cache Management -->
-          <v-card class="mt-2">
+          <v-card v-if="0" class="mt-2">
             <v-card-title class="subtitle-1 py-2">
               Управление кешем
             </v-card-title>
@@ -756,7 +756,7 @@
           </v-card>
 
           <!-- DNS Mapping -->
-          <v-card class="mt-2">
+          <v-card v-if="0" class="mt-2">
             <v-card-title class="subtitle-1 py-2">
               DNS Mapping
               <v-spacer></v-spacer>
