@@ -34,7 +34,7 @@ export class APIController {
         headers: {
           Cookie: this.buildCookieHeader(session)
         }
-      });
+      }, false);
 
       const data = await response.json();
 
@@ -89,7 +89,7 @@ export class APIController {
         headers: {
           Cookie: this.buildCookieHeader(session)
         }
-      });
+      }, false);
     } finally {
       clearTimeout(timeoutId);
     }

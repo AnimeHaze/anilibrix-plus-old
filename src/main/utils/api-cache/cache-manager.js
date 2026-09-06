@@ -51,7 +51,7 @@ export class CacheManager {
     } catch (cacheError) {
       console.warn(`Cache miss (${cacheName}):`, cacheError.message);
 
-      const result = await catGirlFetch(originalUrl);
+      const result = await catGirlFetch(originalUrl, {}, false);
 
       if (!result.ok && result.status !== 404) {
         throw new Error(`Failed to fetch: ${result.status}`);
