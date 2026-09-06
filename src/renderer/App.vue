@@ -181,10 +181,19 @@ export default {
   async mounted () {
     this.startAlwaysOnTopSync()
 
+    const fetchWithReject = async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response;
+    }
+
     try {
       const data = await Promise.any([
-        fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json"),
-        fetch("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/refs/heads/lord/latest.json")
+        fetchWithReject("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus/refs/heads/lord/latest.json"),
+        fetchWithReject("https://raw.githubusercontent.com/AnimeHaze/anilibrix-plus-old/refs/heads/lord/latest.json")
       ])
         .then(async x => {
           const text = await x.text()
