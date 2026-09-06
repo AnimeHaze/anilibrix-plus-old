@@ -49,7 +49,8 @@ export default {
   update: {
     title: 'Доступно обновление',
     github: 'Скачать Github',
-    telegram: 'Скачать Telegram'
+    telegram: 'Скачать Telegram',
+    dontShowForSevenDays: 'Не показывать 7 дней'
   },
   settings: {
     title: 'Настройки приложения',

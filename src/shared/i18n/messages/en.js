@@ -49,7 +49,8 @@ export default {
   update: {
     title: 'Update available',
     github: 'Download from GitHub',
-    telegram: 'Download from Telegram'
+    telegram: 'Download from Telegram',
+    dontShowForSevenDays: 'Do not show for 7 days'
   },
   settings: {
     title: 'App settings',
