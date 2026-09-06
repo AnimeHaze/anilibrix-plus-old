@@ -149,7 +149,7 @@ export default {
       if (e.code === 'VolumeMute') this.player.volume = 0
 
       // State
-      if (e.which === 32 || e.code === 'MediaPlayPause') this.$emit('toggle:play') // Space -> play
+      if (e.code === 'MediaPlayPause') this.$emit('toggle:play') // Space -> play
       if (e.code === 'KeyF') this.$emit('toggle:fullscreen') // F -> fullscreen
 
       // Seek
