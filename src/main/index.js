@@ -20,6 +20,7 @@ import { createSplash } from '@main/utils/splash-window';
 import { stopForwardProxy } from '@main/utils/forward-proxy';
 import { normalizeLocale } from '@shared/i18n/resolveLocale'
 import { setMainLocale } from '@main/utils/i18n'
+import {handleSetIgnoreCerts} from "./handlers/app/app-handlers";
 
 consoleLogToFile({
   logFilePath: path.join(app.getPath('userData') + '/anilibrix.log')
@@ -131,6 +132,7 @@ console.log('GotTheLock', gotTheLock)
 if (!gotTheLock) {
   app.quit()
 } else {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = store.state?.app?.settings?.system?.ignore_certs ? '0' : '1'
   if (process.env.NODE_ENV !== 'development') {
     app.on('second-instance', (event, commandLine, workingDirectory) => {
       const mainWindow = Main.getWindow()
@@ -248,6 +250,7 @@ if (!gotTheLock) {
       handlers.handleSafeStorageEncrypt()
       handlers.handleRichPresense(setActivity)
       handlers.handleRand()
+      handlers.handleSetIgnoreCerts()
       handlers.handleShowConfig()
       handlers.handleTorrentParse()
       handlers.handleUpdateProxy(debounce(setProxy, 2000))

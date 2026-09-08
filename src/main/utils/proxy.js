@@ -1,8 +1,13 @@
-import store from '@store';
-import { app } from 'electron';
-import { getActiveOperaProxyURL, startOperaProxy, stopOperaProxy } from '@main/utils/opera-proxy';
-import proxy from 'node-global-proxy';
-import { getActiveForwardProxyURL, startForwardProxy } from '@main/utils/forward-proxy';
+import store from '@store'
+import { app } from 'electron'
+import { getActiveOperaProxyURL, startOperaProxy, stopOperaProxy } from '@main/utils/opera-proxy'
+import proxy from 'node-global-proxy'
+import { getActiveForwardProxyURL, startForwardProxy } from '@main/utils/forward-proxy'
+
+import {
+  startSocksHttpProxy,
+  stopSocksHttpProxy
+} from '@main/utils/socks-http-proxy'
 
 const OPERA_PROXY = 'http://opera'
 const proxyServerSetting = store.state.app.settings.system.proxy
@@ -15,21 +20,32 @@ export function getProxy () {
 
 export async function setProxy (url) {
   let currentProxy = ''
+
+  await Promise.all([
+    stopOperaProxy().catch(console.error),
+    stopSocksHttpProxy().catch(console.error)
+  ])
+
+  try {
+    proxy.stop()
+  } catch (e) {}
+
   if (url) {
     try {
       new URL(url)
     } catch (e) {
       await startForwardProxy()
-      return
+      currentProxy = getActiveForwardProxyURL()
     }
+
+    console.log('Set proxy →', url)
 
     if (url === OPERA_PROXY) {
       await startOperaProxy()
       currentProxy = getActiveOperaProxyURL()
+    } else if (url.startsWith('socks5://') || url.startsWith('socks://')) {
+      currentProxy = await startSocksHttpProxy(url)
     } else {
-      await stopOperaProxy()
-        .catch(console.error)
-
       currentProxy = url
     }
   } else {
@@ -37,10 +53,17 @@ export async function setProxy (url) {
     currentProxy = getActiveForwardProxyURL()
   }
 
-  for (const w of _windows) {
-    console.log('Set renderer proxy', currentProxy)
-    w.webContents.session.setProxy({ proxyRules: currentProxy, proxyBypassRules: 'localhost,127.0.0.1,*.local' })
-  }
+  proxyServer = url || ''
+
+  await Promise.all(
+    _windows.map(async (w) => {
+      console.log('Set renderer proxy →', currentProxy)
+      await w.webContents.session.setProxy({
+        proxyRules: currentProxy || '',
+        proxyBypassRules: 'localhost,127.0.0.1,*.local'
+      })
+    })
+  )
 
   proxy.setConfig({
     http: currentProxy,

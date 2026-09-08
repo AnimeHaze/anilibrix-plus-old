@@ -8,6 +8,7 @@ import FormData from 'form-data'
 import { showAppError } from '@main/handlers/notifications/notifications-handler';
 import { debounce } from 'lodash';
 import { t } from '@main/utils/i18n'
+import store from "@store";
 
 const { shell } = require('electron')
 const path = require('path')
@@ -27,6 +28,7 @@ export const APP_TORRENT_PARSE = 'app:torrent_parse'
 export const APP_UPDATE_PROXY = 'app:update_proxy'
 export const APP_GET_SYSTEM_LOCALE = 'app:get_system_locale'
 export const APP_SET_LOCALE = 'app:set_locale'
+export const APP_SET_IGNORE_CERTS = 'app:set_ignore_certs'
 
 const trackers = [
   'aHR0cDovL3RyLmxpYnJpYS5mdW46MjcxMC9hbm5vdW5jZQ==',
@@ -199,6 +201,21 @@ export const invokeShowConfig = () => ipcRenderer.invoke(APP_SHOW_CONFIG)
 export const handleShowConfig = () => {
   ipcMain.handle(APP_SHOW_CONFIG, async (event, data) => {
     return shell.showItemInFolder(path.join(app.getPath('userData'), 'anilibrix.json'))
+  })
+}
+
+export const invokeSetIgnoreCerts = () => ipcRenderer.invoke(APP_SET_IGNORE_CERTS)
+
+/**
+ * Listens for activity for discord rich presence
+ *
+ * @return {void}
+ */
+export const handleSetIgnoreCerts = () => {
+  ipcMain.handle(APP_SET_IGNORE_CERTS, async (event, data) => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = !!data === true ? '0' : '1'
+    console.log('NODE_TLS_REJECT_UNAUTHORIZED', process.env.NODE_TLS_REJECT_UNAUTHORIZED)
+    return true
   })
 }
 

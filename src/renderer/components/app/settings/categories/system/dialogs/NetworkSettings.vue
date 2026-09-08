@@ -164,10 +164,13 @@
 
           <!-- Proxy Settings -->
           <v-card class="mt-2">
-            <v-list-item dense @click="toggleOperaProxy">
+            <v-list-item dense>
               <v-list-item-title>{{ $t('settings.operaProxy') }}</v-list-item-title>
               <v-list-item-action class="mr-2">
-                <v-switch :input-value="_proxy === 'http://opera'" @click="toggleOperaProxy"/>
+                <v-switch
+                  :input-value="_proxy === 'http://opera'"
+                  @change="toggleOperaProxy"
+                />
               </v-list-item-action>
             </v-list-item>
           </v-card>
@@ -176,12 +179,13 @@
             <v-card-text class="mt-2">
               <v-text-field
                 v-if="_proxy !== 'http://opera'"
+                v-model="localProxy"
                 outlined
                 class="mb-2"
-                :value="_proxy"
-                @input="setProxyServer($event)"
                 :label="$t('settings.proxyServer')"
                 persistent-hint
+                @blur="applyProxy"
+                @keyup.enter="applyProxy"
               />
 
               <div class="caption">
@@ -747,7 +751,7 @@
             <v-list-item dense @click="_setIgnoreCerts(!_ignore_certs)">
               <v-list-item-title>{{ $t('settings.ignoreCerts') }}</v-list-item-title>
               <v-list-item-action class="mr-2">
-                <v-switch :input-value="_ignore_certs" @change="_setIgnoreCerts"/>
+                <v-switch :input-value="_ignore_certs" @change="setIgnoreCertsHandler"/>
               </v-list-item-action>
             </v-list-item>
             <v-card-text class="pt-2 caption">
@@ -844,7 +848,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { invokeUpdateProxy } from "@main/handlers/app/app-handlers"
+import {invokeSetIgnoreCerts, invokeUpdateProxy} from "@main/handlers/app/app-handlers"
 
 export default {
   data () {
@@ -854,6 +858,9 @@ export default {
       dnsEntries: [],
       cacheSize: '0 B',
       clearingCache: false,
+
+      localProxy: '',
+      proxyApplyTimeout: null,
 
       urlsToCheck: [
         { url: 'https://github.com' },
@@ -960,9 +967,15 @@ export default {
       immediate: true,
       deep: true
     },
+    _proxy (newVal) {
+      if (document.activeElement?.tagName !== 'INPUT') {
+        this.localProxy = newVal || ''
+      }
+    },
     visible: {
       handler (newVal) {
         if (newVal) {
+          this.localProxy = this._proxy || ''
           this.getCacheSize()
           this.getCurrentIp()
           this.loadEndpointsFromStore()
@@ -976,6 +989,7 @@ export default {
     },
     showDialog () {
       this.visible = true
+      this.localProxy = this._proxy || ''
       if (this._dns_mapping && Array.isArray(this._dns_mapping)) {
         this.dnsEntries = this._dns_mapping
           .filter(entry => entry && typeof entry === 'object')
@@ -985,6 +999,40 @@ export default {
       this.getCurrentIp()
       this.loadEndpointsFromStore()
       this.connectionStatuses = []
+    },
+
+    toggleOperaProxy () {
+      if (this._proxy === 'http://opera') {
+        this.localProxy = ''
+        this.applyProxyNow('')
+      } else {
+        this.localProxy = 'http://opera'
+        this.applyProxyNow('http://opera')
+      }
+    },
+
+    applyProxy () {
+      clearTimeout(this.proxyApplyTimeout)
+      this.proxyApplyTimeout = setTimeout(() => {
+        this.applyProxyNow(this.localProxy)
+      }, 800)
+    },
+
+    async applyProxyNow (value) {
+      const proxyValue = (value || '').trim()
+
+      if (proxyValue === (this._proxy || '')) return
+
+      this._setProxy(proxyValue)
+
+      try {
+        await invokeUpdateProxy(proxyValue)
+        setTimeout(() => {
+          this.refreshCurrentIp()
+        }, 1500)
+      } catch (e) {
+        console.error('Failed to update proxy:', e)
+      }
     },
 
     loadEndpointsFromStore () {
@@ -1258,19 +1306,15 @@ export default {
         this.urlsToCheck.splice(index, 1)
       }
     },
-    toggleOperaProxy: function () {
-      if (this._proxy === 'http://opera') {
-        this.setProxyServer('')
-      } else {
-        this.setProxyServer('http://opera')
-      }
-    },
     setProxyServer: async function ($event) {
-      this._setProxy($event)
-      await invokeUpdateProxy($event)
-      setTimeout(() => {
-        this.refreshCurrentIp()
-      }, 2500)
+      this._setProxy($event);
+
+      (async () => {
+        await invokeUpdateProxy($event)
+        setTimeout(() => {
+          this.refreshCurrentIp()
+        }, 6000)
+      })();
     },
     addDnsEntry () {
       const newEntry = {
@@ -1501,6 +1545,9 @@ export default {
         case 'error': return 'error'
         default: return 'grey'
       }
+    },
+    setIgnoreCertsHandler ($event) {
+      invokeSetIgnoreCerts($event)
     },
     ...mapActions('app/settings/system', {
       _setAPIEndpoint: 'setAPIEndpoint',
