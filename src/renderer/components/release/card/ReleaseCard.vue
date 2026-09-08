@@ -193,7 +193,7 @@ import {
   resolveReleaseTitle,
   resolveReleaseType
 } from '@utils/release/display'
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 
 const props = {
   loading: {
@@ -223,10 +223,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('app/settings/system', {
-      _shikimori_url: state => state.shikimori_url,
-      _myanimelist_url: state => state.myanimelist_url
-    }),
+    ...mapGetters('app/settings/system', [
+      'shikimoriUrl',
+      'myAnimeListUrl'
+    ]),
     /**
      * Get watch data
      *
@@ -372,13 +372,13 @@ export default {
       let searchUrl = '';
 
       if (platform === 'shikimori') {
-        searchUrl = `${this.normalizeEndpoint(this._shikimori_url.split(';')[0])}/animes?search=${encodeURIComponent(text)}`;
+        searchUrl = `${this.normalizeEndpoint(this.shikimoriUrl.split(';')[0])}/animes?search=${encodeURIComponent(text)}`;
       } else if (platform === 'mal') {
-        searchUrl = `${this.normalizeEndpoint(this._myanimelist_url.split(';')[0])}/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
+        searchUrl = `${this.normalizeEndpoint(this.myAnimeListUrl.split(';')[0])}/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
       }
 
-      console.log('Shiki', this._shikimori_url)
-      console.log('MAL', this._myanimelist_url)
+      console.log('Shiki', this.shikimoriUrl)
+      console.log('MAL', this.myAnimeListUrl)
       console.log(searchUrl)
 
       window.open(searchUrl, '_blank');
