@@ -366,16 +366,20 @@ export default {
       return endpoint.replace(/([^:]\/)\/+/g, '$1').trim()
     },
     openLink(text, platform) {
+      console.log(text, platform)
       if (!text) return;
 
       let searchUrl = '';
 
       if (platform === 'shikimori') {
-
         searchUrl = `${this.normalizeEndpoint(this._shikimori_url.split(';')[0])}/animes?search=${encodeURIComponent(text)}`;
       } else if (platform === 'mal') {
         searchUrl = `${this.normalizeEndpoint(this._myanimelist_url.split(';')[0])}/anime.php?q=${encodeURIComponent(text)}&cat=anime`;
       }
+
+      console.log('Shiki', this._shikimori_url)
+      console.log('MAL', this._myanimelist_url)
+      console.log(searchUrl)
 
       window.open(searchUrl, '_blank');
     }
