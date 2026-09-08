@@ -43,7 +43,7 @@
 
 <script>
 import { repository } from '@package'
-import { shell } from "electron";
+import { openLink } from "@main/utils/open-link";
 
 export default {
   props: {
@@ -61,6 +61,7 @@ export default {
     }
   },
   methods: {
+    openLink,
     closeDialog () {
       if (this.dontShowForSevenDays) {
         const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
@@ -99,12 +100,6 @@ export default {
       const expiryDate = parseInt(hiddenUntil, 10);
       return Date.now() < expiryDate;
     },
-
-    openLink (url) {
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        shell.openExternal(url)
-      }
-    }
   }
 
 }

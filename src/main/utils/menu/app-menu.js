@@ -1,8 +1,9 @@
 import store from '@store'
 import { meta, repository } from '@package'
-import { Menu, shell } from 'electron'
+import { Menu } from 'electron'
 
 import { t } from '@main/utils/i18n'
+import { openLink } from '@main/utils/open-link';
 
 export const createAboutTemplate = () => [
   {
@@ -11,26 +12,26 @@ export const createAboutTemplate = () => [
   },
   {
     label: t('main.telegram'),
-    click: () => shell.openExternal(meta.links.telegram)
+    click: () => openLink(meta.links.telegram)
   },
   {
     label: t('main.sourceCode'),
-    click: () => shell.openExternal(repository.url)
+    click: () => openLink(repository.url)
   },
   {
     type: 'separator'
   },
   {
     label: t('main.anilibria'),
-    click: () => shell.openExternal(meta.links.anilibria)
+    click: () => openLink(meta.links.anilibria)
   },
   {
     label: t('main.unofficial'),
-    click: () => shell.openExternal(meta.links.unofficial)
+    click: () => openLink(meta.links.unofficial)
   },
   {
     label: t('main.donate'),
-    click: () => shell.openExternal(meta.links.donate)
+    click: () => openLink(meta.links.donate)
   },
   {
     type: 'separator'

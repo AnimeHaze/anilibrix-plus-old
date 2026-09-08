@@ -19,7 +19,6 @@
 <script>
 
 import { meta, repository } from '@package'
-import { shell } from 'electron'
 
 export default {
   computed: {
@@ -34,26 +33,26 @@ export default {
         {
           title: this.$t('main.anilibria'),
           value: meta.links.anilibria,
-          action: () => require('@electron/remote').shell.openExternal(meta.links.anilibria),
+          action: () => window.open(meta.links.anilibria, '_blank'),
         },
         {
           title: this.$t('main.donate'),
           value: 'YooMoney, QIWI, PayPal',
-          action: () => require('@electron/remote').shell.openExternal(meta.links.donate)
+          action: () => window.open(meta.links.donate, '_blank'),
         },
         {
           title: this.$t('main.unofficial'),
-          action: () => require('@electron/remote').shell.openExternal(meta.links.unofficial)
+          action: () => window.open(meta.links.donate, '_blank')
         },
         {
           title: this.$t('main.telegram'),
           value: '@anilibrix',
-          action: () => require('@electron/remote').shell.openExternal(meta.links.telegram)
+          action: () => window.open(meta.links.telegram, '_blank')
         },
         {
           title: this.$t('main.sourceCode'),
           value: '/anilibrix',
-          action: () => require('@electron/remote').shell.openExternal(repository.url)
+          action: () => window.open(repository.url, '_blank')
         },
       ]
     },
