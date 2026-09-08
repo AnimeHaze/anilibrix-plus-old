@@ -18,6 +18,7 @@ import release from './release'
 import catalog from './catalog'
 import releases from './releases'
 import favorites from './favorites'
+import { isRenderer } from '@main/utils/utils';
 
 Vue.use(Vuex)
 
@@ -27,19 +28,6 @@ const modules = {
   catalog,
   releases,
   favorites
-}
-
-function isRenderer () {
-  // running in a web browser
-  if (typeof process === 'undefined') return true
-
-  // node-integration is disabled
-  if (!process) return true
-
-  // We're in node.js somehow
-  if (!process.type) return false
-
-  return process.type === 'renderer'
 }
 
 if (!isRenderer()) {
