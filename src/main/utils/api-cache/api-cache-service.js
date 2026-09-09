@@ -12,6 +12,10 @@ import { getMainLocale } from '@main/utils/i18n';
 import { ReleaseLocalizationService } from './release-localization-service';
 
 const SEARCH_RESULT_SCORE_THRESHOLD = 0.42
+const NOTIFICATIONS_FILE = 'notifications.json'
+const NOTIFICATIONS_STATE_FILE = 'notifications_state.json'
+const NOTIFICATIONS_MAX_AGE_DAYS = 7
+const NOTIFICATIONS_MAX_COUNT = 50
 
 export class APICacheService {
   constructor(cachePath) {
@@ -226,7 +230,7 @@ export class APICacheService {
         const files = await fs.readdir(this.cachePath)
         await Promise.all(
           files
-            .filter(file => !file.startsWith(uuid) && !['active.cache', 'user.json', 'favorites.json'].includes(file))
+            .filter(file => !file.startsWith(uuid) && !['active.cache', 'user.json', 'favorites.json', 'notifications.json', 'notifications_state.json'].includes(file))
             .map(file => fs.unlink(path.join(this.cachePath, file)).catch(console.error))
         )
       }
@@ -302,6 +306,7 @@ export class APICacheService {
     this.buildSortedCache();
     this.buildFranchisesCache(franchisesData);
     this.buildSearchCache();
+    await this.diffAndUpdateNotifications()
   }
 
   async initialize() {
@@ -451,6 +456,123 @@ export class APICacheService {
     })
   }
 
+  async loadNotifications() {
+    try {
+      return await this.getCacheKey(NOTIFICATIONS_FILE.replace('.json', ''))
+    } catch (e) {
+      if (e.code === 'ENOENT') return []
+      console.error('Failed to load notifications', e)
+      return []
+    }
+  }
+
+  async saveNotifications(items) {
+    await this.setCacheKey(NOTIFICATIONS_FILE.replace('.json', ''), items)
+  }
+
+  async loadNotificationsState() {
+    try {
+      const state = await this.getCacheKey(NOTIFICATIONS_STATE_FILE.replace('.json', ''))
+      const map = new Map()
+      for (const [releaseId, ordinals] of Object.entries(state || {})) {
+        map.set(Number(releaseId), new Set(ordinals))
+      }
+      return map
+    } catch (e) {
+      if (e.code === 'ENOENT') return new Map()
+      console.error('Failed to load notifications state', e)
+      return new Map()
+    }
+  }
+
+  async saveNotificationsState(stateMap) {
+    const obj = {}
+    for (const [releaseId, ordinals] of stateMap.entries()) {
+      obj[releaseId] = [...ordinals]
+    }
+    await this.setCacheKey(NOTIFICATIONS_STATE_FILE.replace('.json', ''), obj)
+  }
+
+  getEpisodeOrdinal(episode) {
+    return episode.ordinal ?? episode.number ?? episode.episode ?? episode.name ?? null
+  }
+
+  /**
+   *
+   * @param {object} options
+   * @param {Set|Array|null} options.favoriteIds
+   * @param {boolean} options.onlyFavorites
+   * @returns {Promise<{ added: Array, all: Array }>}
+   */
+  async diffAndUpdateNotifications(options = {}) {
+    const { favoriteIds = null, onlyFavorites = false } = options
+
+    if (!this.episodesByReleaseId || !this.releases) {
+      console.warn('Cache not ready for notifications diff')
+      return { added: [], all: [] }
+    }
+
+    const previousState = await this.loadNotificationsState()
+    const currentNotifications = await this.loadNotifications()
+    const now = new Date().toISOString()
+    const added = []
+    const newState = new Map()
+
+    for (const [releaseId, items] of this.episodesByReleaseId.entries()) {
+      if (!items?.length) continue
+
+      if (onlyFavorites && favoriteIds && !favoriteIds.has(releaseId) && !favoriteIds.has(Number(releaseId))) {
+        const ordinals = new Set(items.map(ep => this.getEpisodeOrdinal(ep)).filter(x => x != null))
+        newState.set(releaseId, ordinals)
+        continue
+      }
+
+      const prevOrdinals = previousState.get(releaseId) || new Set()
+      const currentOrdinals = new Set()
+
+      for (const ep of items) {
+        const ordinal = this.getEpisodeOrdinal(ep)
+        if (ordinal == null) continue
+        currentOrdinals.add(ordinal)
+
+        if (!prevOrdinals.has(ordinal)) {
+          const exists = currentNotifications.some(
+            n => n.releaseId === releaseId && String(n.episodeOrdinal) === String(ordinal)
+          )
+          if (!exists) {
+            const notification = {
+              releaseId,
+              episodeOrdinal: ordinal,
+              is_seen: false,
+              datetime: now
+            }
+            added.push(notification)
+            currentNotifications.push(notification)
+          }
+        }
+      }
+
+      newState.set(releaseId, currentOrdinals)
+    }
+
+    const cutoff = Date.now() - NOTIFICATIONS_MAX_AGE_DAYS * 24 * 60 * 60 * 1000
+    let filtered = currentNotifications.filter(n => {
+      const t = new Date(n.datetime).getTime()
+      return !isNaN(t) && t >= cutoff
+    })
+
+    filtered.sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+
+    if (filtered.length > NOTIFICATIONS_MAX_COUNT) {
+      filtered = filtered.slice(0, NOTIFICATIONS_MAX_COUNT)
+    }
+
+    await this.saveNotifications(filtered)
+    await this.saveNotificationsState(newState)
+
+    return { added, all: filtered }
+  }
+
   async getUniqueSortedReleases() {
     return await this.mutex.runExclusive(async () => {
       const seenIds = new Set();
@@ -467,6 +589,46 @@ export class APICacheService {
 
       return result;
     })
+  }
+
+  async getNotifications({ includeMissing = true } = {}) {
+    const raw = await this.loadNotifications()
+
+    return raw
+      .map(n => {
+        const release = this.releases?.get(n.releaseId) || null
+        let episode = null
+
+        if (release && this.episodesByReleaseId) {
+          const items = this.episodesByReleaseId.get(n.releaseId) || []
+          episode = items.find(ep => String(this.getEpisodeOrdinal(ep)) === String(n.episodeOrdinal)) || null
+        }
+
+        if (!release && !includeMissing) return null
+
+        return {
+          ...n,
+          release,
+          episode,
+          title: release?.title || release?.localizedTitle || null,
+          poster: release?.poster || null,
+          isMissing: !release
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+  }
+
+  async markNotificationsSeen() {
+    const items = await this.loadNotifications()
+    const updated = items.map(n => ({ ...n, is_seen: true }))
+    await this.saveNotifications(updated)
+    return updated
+  }
+
+  async clearNotifications() {
+    await this.saveNotifications([])
+    return []
   }
 
   async ensureInitialized() {
