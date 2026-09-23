@@ -1,17 +1,67 @@
+import { app } from 'electron';
+import fs from 'fs/promises';
+import path from 'path';
+
 import { catGirlFetch } from '@utils/fetch';
 
-export default async (req, res) => {
-  try {
-    const url = req.params.url;
+const FORCED_DOMAIN_FILE = 'forced-video-domain.txt';
 
+async function getForcedDomain() {
+  try {
+    const filePath = path.join(
+      app.getPath('userData'),
+      FORCED_DOMAIN_FILE
+    );
+
+    const value = (await fs.readFile(filePath, 'utf8')).trim();
+
+    if (!value) {
+      return null;
+    }
+
+    const normalized = value.includes('://')
+      ? value
+      : `https://${value}`;
+
+    const url = new URL(normalized);
+
+    return url.host;
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      console.error('Failed to read forced video domain:', error);
+    }
+
+    return null;
+  }
+}
+
+export default async (req, res) => {
+  const url = req.params.url;
+
+  try {
     if (!url) {
       return res.status(400).send('URL parameter is required');
     }
 
-    const u = new URL(url);
-    u.host = 'cache.libria.fun'
+    const forcedDomain = await getForcedDomain();
 
-    const alternativeUrl = u.toString()
+    if (forcedDomain) {
+      const forcedUrl = new URL(url);
+      forcedUrl.host = forcedDomain;
+
+      console.log(
+        `[video] forced domain: ${forcedDomain} -> ${forcedUrl.toString()}`
+      );
+
+      const response = await catGirlFetch(forcedUrl.toString());
+
+      return res.send(await response.text());
+    }
+
+    const alternative = new URL(url);
+    alternative.host = 'cache.libria.fun';
+
+    const alternativeUrl = alternative.toString();
 
     const fetchPromises = [
       catGirlFetch(url).then(response => ({
@@ -33,6 +83,10 @@ export default async (req, res) => {
           throw error;
         })
       )
+    );
+
+    console.log(
+      `[video] selected ${result.source}: ${result.url}`
     );
 
     const data = await result.response.text();
