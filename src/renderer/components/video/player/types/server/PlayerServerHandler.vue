@@ -98,7 +98,20 @@ export default {
         // Create hls and attach media element
         this.hls = new Hls({
           startPosition: this.time || 0,
-          maxBufferLength: this._video_buffer
+          maxBufferLength: this._video_buffer,
+          debug: true,
+
+          manifestLoadingTimeOut: 20000,
+          levelLoadingTimeOut: 20000,
+          fragLoadingTimeOut: 20000,
+
+          manifestLoadingMaxRetry: 3,
+          levelLoadingMaxRetry: 3,
+          fragLoadingMaxRetry: 3,
+
+          manifestLoadingRetryDelay: 500,
+          levelLoadingRetryDelay: 500,
+          fragLoadingRetryDelay: 500,
         })
         this.hls.attachMedia(player.media)
 
