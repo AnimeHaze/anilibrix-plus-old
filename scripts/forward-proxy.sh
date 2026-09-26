@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FORWARD_PROXY_RELEASE_URL="https://github.com/AnimeHaze/forward-proxy/releases/download/v1.0.0"
+FORWARD_PROXY_RELEASE_URL="https://github.com/AnimeHaze/forward-proxy/releases/download/v2.0.0"
 
 mkdir -p ./build/mac/x64
 mkdir -p ./build/mac/arm64
