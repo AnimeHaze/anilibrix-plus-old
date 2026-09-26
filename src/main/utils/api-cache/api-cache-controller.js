@@ -70,6 +70,10 @@ export class APIController {
       this.cacheService.lastFailedFavorites = new Date().getTime()
       await this.handleErrorResponse(response);
     } catch (error) {
+      if (error.message === 'Unauthorized') {
+        throw error
+      }
+
       this.cacheService.lastFailedFavorites = new Date().getTime()
       console.error('Request', query, 'failed, fallback to cache', error)
       return this.handleFallbackToCache(query, error);
