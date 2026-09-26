@@ -139,7 +139,7 @@ export default {
 
       // Check search string
       // Apply search if search is provided
-      if (search) releases = this.releasesSearchable.search(search)
+      if (search) releases = this.releasesSearchable.search(search).map(item => item.item)
 
       // Check if should show seen release
       // Check progress and show seen state

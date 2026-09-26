@@ -105,7 +105,7 @@ export default {
      */
     playlistSearched () {
       return this.search
-        ? this.playlistSearchable.search(this.search)
+        ? this.playlistSearchable.search(this.search).map(item => item.item)
         : this.playlist
     },
 
